@@ -29,63 +29,92 @@ if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
     libmetawear = cdll.LoadLibrary(os.environ["METAWEAR_LIB_SO_NAME"])
 else:
     libmetawear = cdll.LoadLibrary(
-        os.pathjoin(os.path.abspath(os.path.basename(__file__)), 'libmetawear.so.0.3.0'))
+        os.pathjoin(os.path.abspath(os.path.basename(__file__)), 'libmetawear.so'))
 
 from pymetawear import models
 from pymetawear.mbientlab.metawear.core import BtleConnection, FnGattCharPtr, FnGattCharPtrByteArray, FnVoid
 
 
 class MetaWearClient(object):
-    def __init__(self, address=None, ):
+    def __init__(self, address):
 
-        if address is None:
-            ds = DiscoveryService()
-            out = ds.discover(2)
-            address = out.keys()[0]
+        self._address = address
+        self._requester = None
+        self.__initialized = False
+        self.requester.discover_primary()
 
-        self.requester = GATTRequester(address, False)
-        self.connect()
-        self.request_data()
+        self._btle_connection = BtleConnection(write_gatt_char=FnGattCharPtrByteArray(self.write_gatt_char),
+                                               read_gatt_char=FnGattCharPtr(self.read_gatt_char))
 
-        self.firmware_revision = create_string_buffer(b'1.1.0', 5)
-
-        self._send_command_fn = FnGattCharPtrByteArray(self.commandLogger)
-        self._read_gatt_char_fn = FnGattCharPtr(self.read_gatt_char)
-        self._btle_connection = BtleConnection(write_gatt_char=self._send_command_fn,
-                                               read_gatt_char=self._read_gatt_char_fn)
-
-        self._board_type = models.MetaWearBoard()
         self.board = libmetawear.mbl_mw_metawearboard_create(byref(self._btle_connection))
         libmetawear.mbl_mw_metawearboard_initialize(self.board, FnVoid(self._initialized))
 
+    def __str__(self):
+        return "MetaWearClient, {0}".format(self._address)
+
+    def __repr__(self):
+        return "<MetaWearClient, {0}>".format(self._address)
+
     def _initialized(self):
+        print("{0} initialized.".format(self))
         self.__initialized = True
 
-    def connect(self):
-        print("Connecting...", end=' ')
-        sys.stdout.flush()
+    @property
+    def requester(self):
+        if self._requester is None:
+            print("Creating new GATTRequester...")
+            self._requester = GATTRequester(self._address, False)
 
-        self.requester.connect(True)
-        print("OK!")
+        if not self._requester.is_connected():
+            print("Connecting GATTRequester...")
+            self._requester.connect(True, channel_type='random')
 
-    def request_data(self):
-        data = self.requester.read_by_uuid(
-            "00002a00-0000-1000-8000-00805f9b34fb")[0]
-        try:
-            print("Device name: " + data.decode("utf-8"))
-        except AttributeError:
-            print("Device name: " + data)
+        return self._requester
 
     def read_gatt_char(self, characteristic):
-        if (characteristic.contents.uuid_high == 0x00002a2400001000 and
-                    characteristic.contents.uuid_low == 0x800000805f9b34fb):
-            model_number = self._board_type.model_nbr
+        """Read the desired data from teh MetaWear board.
 
-            libmetawear.mbl_mw_connection_char_read(self.board, characteristic, model_number.raw, len(model_number.raw))
-        elif (
-                characteristic.contents.uuid_high == 0x00002a2600001000 and characteristic.contents.uuid_low == 0x800000805f9b34fb):
-            libmetawear.mbl_mw_connection_char_read(self.board, characteristic, self.firmware_revision.raw,
-                                                    len(self.firmware_revision.raw))
+        .. code-block: c
+
+            uint64_t service_uuid_high;         ///< High 64 bits of the parent service uuid
+            uint64_t service_uuid_low;          ///< Low 64 bits of the parent service uuid
+            uint64_t uuid_high;                 ///< High 64 bits of the characteristic uuid
+            uint64_t uuid_low;                  ///< Low 64 bits of the characteristic uuid
+
+        :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic:
+        :return:
+        :rtype:
+
+        """
+        service_uuid_high = characteristic.service_uuid_high
+        service_uuid_low = characteristic.service_uuid_low
+        uuid_high = characteristic.uuid_high
+        uuid_low = characteristic.uuid_low
+
+        return self.requester.read_by_uuid(uuid_low)
+
+    def write_gatt_char(self, characteristic, command, length):
+        """Write the desired data to the MetaWear board.
+
+        .. code-block: c
+
+            uint64_t service_uuid_high;         ///< High 64 bits of the parent service uuid
+            uint64_t service_uuid_low;          ///< Low 64 bits of the parent service uuid
+            uint64_t uuid_high;                 ///< High 64 bits of the characteristic uuid
+            uint64_t uuid_low;                  ///< Low 64 bits of the characteristic uuid
+
+        :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic:
+        :param str command: The command to send.
+        :param int length: Length of command in bytes.
+        :return:
+        :rtype:
+        """
+        service_uuid_high = characteristic.service_uuid_high
+        service_uuid_low = characteristic.service_uuid_low
+        uuid_high = characteristic.uuid_high
+        uuid_low = characteristic.uuid_low
+
+        return self.requester.write_by_handle(uuid_low)
 
 
 if __name__ == '__main__':

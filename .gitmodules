@@ -1,0 +1,4 @@
+[submodule "pymetawear/Metawear-CppAPI"]
+	path = pymetawear/Metawear-CppAPI
+	url = https://github.com/hbldh/Metawear-CppAPI
+	branch = feature/py2tests
