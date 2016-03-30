@@ -25,7 +25,7 @@ PyMetaWear can be installed from pip:
 
 .. code-block:: bash
 
-    $ pip install pip install git+git://github.com/hbldh/pymetawear.git
+    $ pip install git+git://github.com/hbldh/pymetawear.git
 
 Development
 ~~~~~~~~~~~
@@ -53,7 +53,8 @@ Currently, the `MetaWearClient` is a pretty thin object, only handling the Bluet
 actual communication and mostly being called indirectly from the ``libmetawear`` C++ library:
 
 .. code-block:: python
-
+    
+    from ctypes import byref
     from pymetawear.client import discover_devices, MetaWearClient, libmetawear
     from pymetawear.mbientlab.metawear.peripheral import Led
 
