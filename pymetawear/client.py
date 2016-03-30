@@ -36,6 +36,13 @@ else:
     libmetawear = cdll.LoadLibrary(
         os.path.join(os.path.abspath(os.path.dirname(__file__)), 'libmetawear.so'))
 
+try:
+    # Python 2
+    range_ = xrange
+except NameError:
+    # Python 3
+    range_ = range
+
 from pymetawear.exceptions import *
 from pymetawear.mbientlab.metawear.core import BtleConnection, FnGattCharPtr, FnGattCharPtrByteArray, \
     FnVoid, DataTypeId, CartesianFloat, BatteryState, Tcs34725ColorAdc, FnDataPtr
@@ -179,7 +186,7 @@ class MetaWearClient(object):
         return uuid.UUID(int=(characteristic.uuid_high << 64) + characteristic.uuid_low)
 
     def _command_to_str(self, command, length):
-        return str(bytearray([command[i] for i in xrange(length)]))
+        return bytes(bytearray([command[i] for i in range_(length)]))
 
     def _sensor_data_handler(self, data):
         if (data.contents.type_id == DataTypeId.UINT32):
