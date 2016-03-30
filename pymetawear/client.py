@@ -20,18 +20,15 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
-import sys
 
 import time
 import subprocess
 import signal
 import uuid
-
-from ctypes import cdll, create_string_buffer, byref
-from bluetooth.ble import GATTRequester
-
 import copy
-from ctypes import cast, POINTER, c_uint, c_float, c_ubyte
+
+from ctypes import cdll, byref, cast, POINTER, c_uint, c_float, c_ubyte
+from bluetooth.ble import GATTRequester
 
 if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
     libmetawear = cdll.LoadLibrary(os.environ["METAWEAR_LIB_SO_NAME"])
@@ -39,14 +36,16 @@ else:
     libmetawear = cdll.LoadLibrary(
         os.path.join(os.path.abspath(os.path.dirname(__file__)), 'libmetawear.so'))
 
-
 from pymetawear.exceptions import *
 from pymetawear.mbientlab.metawear.core import BtleConnection, FnGattCharPtr, FnGattCharPtrByteArray, \
     FnVoid, DataTypeId, CartesianFloat, BatteryState, Tcs34725ColorAdc, FnDataPtr
 
 
-def discover_ble_devices(timeout=5, interface="hci0", only_metawear=True):
-    """Using hcitool in subprocess, since DiscoveryService in pybluez/gattlib requires sudo...
+def discover_devices(timeout=5, interface="hci0", only_metawear=True):
+    """Discover Bluetooth Devices nearby.
+
+    Using hcitool in subprocess, since DiscoveryService in pybluez/gattlib requires sudo,
+    and hcitool can be allowed to do scan without elevated permission:
 
         $> sudo apt-get install libcap2-bin
 
@@ -63,9 +62,10 @@ def discover_ble_devices(timeout=5, interface="hci0", only_metawear=True):
     SE, hcitool lescan with timeout.
     https://stackoverflow.com/questions/26874829/hcitool-lescan-will-not-print-in-real-time-to-a-file
 
-    :param int timeout:
-    :param bool only_metawear:
-    :return: List of tuples.
+    :param int timeout: Duration of scanning.
+    :param str interface: Which interface to use for scanning.
+    :param bool only_metawear: If only addresses with the string 'metawear' in its name should be returned.
+    :return: List of tuples with `(address, name)`.
     :rtype: list
 
     """
@@ -81,6 +81,7 @@ def discover_ble_devices(timeout=5, interface="hci0", only_metawear=True):
 
 
 class MetaWearClient(object):
+    """MetaWear client bridging the gap between `libmetawear` and pybluez/gattlib."""
 
     def __init__(self, address, debug=False):
 
@@ -109,6 +110,12 @@ class MetaWearClient(object):
 
     @property
     def requester(self):
+        """Property handling `GattRequester` and its connection.
+
+        :return: The connected GattRequester instance.
+        :rtype: :class:`bluetooth.ble.GATTRequester`
+
+        """
         if self._requester is None:
             if self._debug:
                 print("Creating new GATTRequester...")
@@ -125,24 +132,17 @@ class MetaWearClient(object):
                 time.sleep(0.1)
 
             if not self._requester.is_connected():
-                raise PyMetawearConnectionTimeout("Could not establish a connection to {0}.".format(self._address))
+                raise PyMetaWearConnectionTimeout("Could not establish a connection to {0}.".format(self._address))
 
         return self._requester
 
     def read_gatt_char(self, characteristic):
         """Read the desired data from the MetaWear board.
 
-        .. code-block: c
-
-            uint64_t service_uuid_high;         ///< High 64 bits of the parent service uuid
-            uint64_t service_uuid_low;          ///< Low 64 bits of the parent service uuid
-            uint64_t uuid_high;                 ///< High 64 bits of the characteristic uuid
-            uint64_t uuid_low;                  ///< Low 64 bits of the characteristic uuid
-
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic: :class:`ctypes.POINTER`
             to a GattCharacteristic.
-        :return:
-        :rtype:
+        :return: The read data.
+        :rtype: str
 
         """
         uuid = self._characteristic_2_uuid(characteristic.contents)
@@ -157,26 +157,21 @@ class MetaWearClient(object):
     def write_gatt_char(self, characteristic, command, length):
         """Write the desired data to the MetaWear board.
 
-        .. code-block: c
-
-            uint64_t service_uuid_high;         ///< High 64 bits of the parent service uuid
-            uint64_t service_uuid_low;          ///< Low 64 bits of the parent service uuid
-            uint64_t uuid_high;                 ///< High 64 bits of the characteristic uuid
-            uint64_t uuid_low;                  ///< Low 64 bits of the characteristic uuid
-
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic:
-        :param str command: The command to send.
-        :param int length: Length of command in bytes.
+        :param POINTER command: The command to send, as a byte array pointer.
+        :param int length: Length of the array that command points.
         :return:
         :rtype:
 
         """
         uuid = self._characteristic_2_uuid(characteristic.contents)
+        # TODO: Find handle better. Is this even correct?
         q = self.requester.discover_characteristics(1, 65535, str(uuid))
         if len(q) > 1:
-            raise PyMetawearException("More than one characteristic matches.")
+            raise PyMetaWearException("More than one characteristic matches.")
         else:
             q = q[0]
+
         data_to_send = self._command_to_str(command, length)
         return self.requester.write_by_handle(q.get('value_handle'), data_to_send)
 
@@ -195,10 +190,10 @@ class MetaWearClient(object):
             return data_ptr.contents.value
         elif (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
             data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            return data_ptr.contents
+            return copy.deepcopy(data_ptr.contents)
         elif (data.contents.type_id == DataTypeId.BATTERY_STATE):
             data_ptr = cast(data.contents.value, POINTER(BatteryState))
-            return data_ptr.contents
+            return copy.deepcopy(data_ptr.contents)
         elif (data.contents.type_id == DataTypeId.BYTE_ARRAY):
             data_ptr = cast(data.contents.value, POINTER(c_ubyte * data.contents.length))
             data_byte_array = []
@@ -207,16 +202,18 @@ class MetaWearClient(object):
             return data_byte_array
         elif (data.contents.type_id == DataTypeId.TCS34725_ADC):
             data_ptr = cast(data.contents.value, POINTER(Tcs34725ColorAdc))
-            return data_ptr.contents
+            return copy.deepcopy(data_ptr.contents)
 
         else:
             raise RuntimeError('Unrecognized data type id: ' + str(data.contents.type_id))
 
+
 if __name__ == '__main__':
-    print("Discovering nearby Metawear boards...")
-    metawear_devices = discover_ble_devices(timeout=2)
-    if len(metawear_devices) < 0:
-        raise ValueError()
+    print("Discovering nearby MetaWear boards...")
+    metawear_devices = discover_devices(timeout=2)
+    if len(metawear_devices) < 1:
+        pass
+        raise ValueError("No MetaWear boards could be detected.")
     else:
         address = metawear_devices[0][0]
 

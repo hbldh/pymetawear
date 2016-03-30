@@ -98,8 +98,7 @@ setup(
         'pymetawear': ['libmetawear.so'],
     },
     install_requires=[
-        'pybluez[ble]>=0.22',
-        'gattlib>=0.20150805'
+        'pybluez[ble]>=0.22'
     ],
     dependency_links=[],
     ext_modules=[],

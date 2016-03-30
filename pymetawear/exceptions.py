@@ -15,11 +15,11 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 
-class PyMetawearException(Exception):
+class PyMetaWearException(Exception):
     """Main exception."""
     pass
 
 
-class PyMetawearConnectionTimeout(PyMetawearException):
+class PyMetaWearConnectionTimeout(PyMetaWearException):
     """Connection could not be established in time."""
     pass

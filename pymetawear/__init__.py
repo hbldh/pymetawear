@@ -11,7 +11,7 @@
 _version_major = 0
 _version_minor = 1
 _version_patch = 0
-_version_extra = 'dev2'
+_version_extra = 'dev3'
 #_version_extra = 'alpha'
 #_version_extra = ''
 
