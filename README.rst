@@ -15,7 +15,7 @@ Bluetooth Low Energy communication.
 Installation
 ------------
 
-First, make sure all dependecies are installed:
+First, make sure all dependencies are installed:
 
 .. code-block:: bash
 
