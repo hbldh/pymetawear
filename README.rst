@@ -8,13 +8,9 @@ which is included as a Git submodule. It uses the `pybluez <https://github.com/k
 which in its turn uses `pygattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ for
 Bluetooth Low Energy communication.
 
-.. note::
-
-    PyMetaWear is currently a Linux only package! Furthermore, it is only tested with Ubuntu as of yet.
-
-.. note::
-
-    PyMetaWear has only been tested with Python 2.7.10!
+    - PyMetaWear is currently a Linux only package! 
+    - PyMetaWear is only tested with Ubuntu 14.04 as of yet!
+    - PyMetaWear has only been tested with Python 2.7.10!
 
 Installation
 ------------
@@ -54,7 +50,7 @@ Usage
 -----
 
 Currently, the `MetaWearClient` is a pretty thin object, only handling the Bluetooth connection and
-actual communication and mostly being called indirectly from the `libmetawear` C++ library:
+actual communication and mostly being called indirectly from the ``libmetawear`` C++ library:
 
 .. code-block:: python
 
