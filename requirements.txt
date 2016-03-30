@@ -1,0 +1,1 @@
+pybluez[ble]>=0.22
