@@ -34,6 +34,9 @@ path_to_libmetawear_so = os.path.join(
     'x64' if os.uname()[-1] == 'x86_64' else 'x86', 'libmetawear.so')
 path_to_metawear_python_wrappers = os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI', 'wrapper', 'python')
 
+print('Running git submodule init...')
+p = subprocess.Popen(['git', 'submodule', 'init'], cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
+p.communicate()
 print('Running git submodule update...')
 p = subprocess.Popen(['git', 'submodule', 'update'], cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
 p.communicate()
@@ -60,10 +63,10 @@ try:
     os.makedirs(os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear'))
 except:
     pass
-shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', '__init__.py'),
-            os.path.join(basedir, 'pymetawear', 'mbientlab', '__init__.py'))
-shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', '__init__.py'),
-            os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', '__init__.py'))
+with open(os.path.join(basedir, 'pymetawear', 'mbientlab', '__init__.py'), 'w') as f:
+    f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
+with open(os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', '__init__.py'), 'w') as f:
+    f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
 shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'core.py'),
             os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'core.py'))
 shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'peripheral.py'),
