@@ -10,10 +10,10 @@
 # 'dev' as a _version_extra string means this is a development version.
 _version_major = 0
 _version_minor = 1
-_version_patch = 1
-#_version_extra = '.dev1'
+_version_patch = 2
+_version_extra = '.dev1'
 #_version_extra = 'alpha'
-_version_extra = ''
+#_version_extra = ''
 
 # Construct full version string from these.
 _ver = [_version_major, _version_minor, _version_patch]
