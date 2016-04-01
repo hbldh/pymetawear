@@ -2,6 +2,16 @@ import uuid
 
 
 def _high_low_2_uuid(uuid_high, uuid_low):
+    """Combine high and low bits of a split UUID.
+
+    :param uuid_high: The high 64 bits of the UUID.
+    :type uuid_high: int
+    :param uuid_low: The low 64 bits of the UUID.
+    :type uuid_low: int
+    :return: The UUID.
+    :rtype: :py:class:`uuid.UUID`
+
+    """
     return uuid.UUID(int=(uuid_high << 64) + uuid_low)
 
 
