@@ -1,3 +1,3 @@
 from .pygatt import *
-from .pygattlib import *
+from .gattlib import *
 
