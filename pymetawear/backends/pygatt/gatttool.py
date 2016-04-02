@@ -20,7 +20,11 @@ import pygatt
 
 
 class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
-    """Minor modification of the GATTToolBackend to handle multiple byte output from notifications."""
+    """Minor modification of the GATTToolBackend to handle multiple byte output from notifications.
+
+    Will be removed if pull request is accepted.
+
+    """
 
     def __init__(self, *args, **kwargs):
         self._notification_regex = re.compile("=\s(0x[0-9a-fA-F]{4})\svalue:\s(.*)$")
