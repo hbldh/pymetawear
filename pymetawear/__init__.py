@@ -11,8 +11,8 @@
 _version_major = 0
 _version_minor = 1
 _version_patch = 2
-_version_extra = '.dev1'
-#_version_extra = 'alpha'
+#_version_extra = '.dev2'
+_version_extra = 'a1'
 #_version_extra = ''
 
 # Construct full version string from these.

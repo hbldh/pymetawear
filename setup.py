@@ -17,6 +17,7 @@ import os
 import sys
 import subprocess
 import shutil
+import re
 from codecs import open
 
 from setuptools import setup, find_packages
@@ -76,9 +77,15 @@ shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawea
 shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'sensor.py'),
             os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'sensor.py'))
 
+
+with open('pymetawear/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
+
+
 setup(
     name='pymetawear',
-    version=pymetawear.__version__,
+    version=version,
     author='Henrik Blidh',
     author_email='henrik.blidh@nedobmkull.com',
     url='https://github.com/hbldh/pymetawear',
@@ -98,8 +105,11 @@ setup(
         'pymetawear': ['libmetawear.so'],
     },
     install_requires=[
-        'pybluez[ble]>=0.22'
+        'gattlib>=0.20150805'
     ],
+    extras_require={
+        'pygatt': ["pygatt>=2.0.1"],
+    },
     dependency_links=[],
     ext_modules=[],
     entry_points={

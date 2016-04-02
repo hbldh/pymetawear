@@ -1,3 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+:mod:`specs`
+==================
+
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+Created on 2016-04-01
+
+"""
+
+from __future__ import division
+from __future__ import print_function
+#from __future__ import unicode_literals
+from __future__ import absolute_import
+
 import uuid
 
 
@@ -15,7 +31,7 @@ def _high_low_2_uuid(uuid_high, uuid_low):
     return uuid.UUID(int=(uuid_high << 64) + uuid_low)
 
 
-# Service specs obtained from conection.h
+# Service specs obtained from connection.h
 METAWEAR_SERVICE_NOTIFY_CHAR = _high_low_2_uuid(0x326a900085cb9195, 0xd9dd464cfbbae75a), \
                                _high_low_2_uuid(0x326a900685cb9195, 0xd9dd464cfbbae75a)
 
