@@ -18,13 +18,16 @@ import time
 import uuid
 from ctypes import create_string_buffer
 
-from gattlib import GATTRequester
-
 from pymetawear.client import MetaWearClient, libmetawear
 from pymetawear.exceptions import PyMetaWearConnectionTimeout, PyMetaWearException
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
 
-__all__ = ["MetaWearClientPyGattLib"]
+try:
+    from gattlib import GATTRequester
+    __all__ = ["MetaWearClientPyGattLib"]
+except ImportError:
+    __all__ = []
+    gattlib = None
 
 
 class MetaWearClientPyGattLib(MetaWearClient):
@@ -34,6 +37,9 @@ class MetaWearClientPyGattLib(MetaWearClient):
     """
 
     def __init__(self, address, debug=False):
+
+        if gattlib is None:
+            raise PyMetaWearException('PyGattLib client not available. Install gattlib first.')
 
         self._address = address
         self._debug = debug
