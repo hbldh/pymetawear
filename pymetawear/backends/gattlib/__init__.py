@@ -18,7 +18,7 @@ import time
 import uuid
 from ctypes import create_string_buffer
 
-from pymetawear.client import MetaWearClient, libmetawear
+from pymetawear.client import MetaWearClient, libmetawear, range_
 from pymetawear.exceptions import PyMetaWearConnectionTimeout, PyMetaWearException
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
 
@@ -27,7 +27,7 @@ try:
     __all__ = ["MetaWearClientPyGattLib"]
 except ImportError:
     __all__ = []
-    gattlib = None
+    GATTRequester = None
 
 
 class MetaWearClientPyGattLib(MetaWearClient):
@@ -38,7 +38,7 @@ class MetaWearClientPyGattLib(MetaWearClient):
 
     def __init__(self, address, debug=False):
 
-        if gattlib is None:
+        if GATTRequester is None:
             raise PyMetaWearException('PyGattLib client not available. Install gattlib first.')
 
         self._address = address
@@ -84,19 +84,6 @@ class MetaWearClientPyGattLib(MetaWearClient):
 
     # Callback methods
 
-    def _handle_notification(self, handle, value):
-        #print(type(value))
-        #print(len(value))
-        #print("data received: {0}".format(value))
-        #print("bytes received: {0}".format(" ".join([hex(ord(b)) for b in value])))
-        if handle == self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1], notify_handle=False):
-            print("- notification on handle {0}: {1}\n".format(handle, value))
-            sb = create_string_buffer(bytes(value), len(bytes(value)))
-            print(sb.raw)
-            libmetawear.mbl_mw_connection_notify_char_changed(self.board, sb.raw, len(sb.raw))
-        else:
-            print("- notification on handle {0}: {1}\n".format(handle, value))
-
     def _read_gatt_char(self, characteristic):
         """Read the desired data from the MetaWear board.
 
@@ -110,11 +97,18 @@ class MetaWearClientPyGattLib(MetaWearClient):
         response = self.requester.read_by_uuid(str(characteristic_uuid))[0]
 
         if self._debug:
-            print("data received: {0}".format(response))
-            print("bytes received: {0}".format(" ".join([hex(ord(b)) for b in response])))
+            print("Read   0x{0:04x}: {1}".format(self.get_handle(characteristic_uuid),
+                                                 " ".join(["{:02x}".format(ord(b)) for b in response])))
 
         sb = self._read_response_to_buffer(response)
         libmetawear.mbl_mw_connection_char_read(self.board, characteristic, sb.raw, len(sb.raw))
+
+    def _handle_notification(self, handle, value):
+        value = value[3:] if len(value) > 4 else value
+        if self._debug:
+            print("Notify 0x{0:04x}: {1}".format(handle,
+                                                 " ".join(["{:02x}".format(ord(b)) for b in value])))
+        super(MetaWearClientPyGattLib, self)._handle_notification(handle, value)
 
     def _write_gatt_char(self, characteristic, command, length):
         """Write the desired data to the MetaWear board.
@@ -129,6 +123,9 @@ class MetaWearClientPyGattLib(MetaWearClient):
         service_uuid, characteristic_uuid = self._characteristic_2_uuids(characteristic.contents)
         handle = self.get_handle(characteristic_uuid)
         data_to_send = self._command_to_str(command, length)
+        if self._debug:
+            print("Write  0x{0:04x}: {1}".format(self.get_handle(characteristic_uuid),
+                                                " ".join(["{:02x}".format(ord(b)) for b in data_to_send])))
         self.requester.write_by_handle(handle, data_to_send)
 
     def _build_service_and_characterstics_cache(self):
@@ -138,12 +135,21 @@ class MetaWearClientPyGattLib(MetaWearClient):
                                        for x in self.requester.discover_characteristics()}
 
     def get_handle(self, uuid, notify_handle=False):
+        """Get handle for a characteristic.
+
+        :param uuid.UUID uuid: The UUID for the characteristic to look up.
+        :param bool notify_handle:
+        :return: The handle for this UUID.
+        :rtype: int
+
+        """
         if isinstance(uuid, basestring):
             uuid = uuid.UUID(uuid)
         handle = self._characteristics_cache.get(uuid, [None, None])[int(notify_handle)]
         if handle is None:
             raise PyMetaWearException("Incorrect characterstic.")
-        return handle
+        else:
+            return handle
 
     @staticmethod
     def _command_to_str(command, length):
@@ -155,7 +161,7 @@ class MetaWearClientPyGattLib(MetaWearClient):
 
     @staticmethod
     def _notify_response_to_buffer(response):
-        return create_string_buffer(response.encode('utf8'), len(response))
+        return create_string_buffer(bytes(response), len(bytes(response)))
 
 
 class Requester(GATTRequester):

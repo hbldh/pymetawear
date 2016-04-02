@@ -93,6 +93,7 @@ class MetaWearClient(object):
         self._address = address
         self._debug = debug
         self._initialized = False
+        self._callbacks = []
 
         self.initialized_fcn = FnVoid(self._initialized_fcn)
         self.sensor_data_handler = FnDataPtr(self._sensor_data_handler)
@@ -133,7 +134,12 @@ class MetaWearClient(object):
         self._initialized = True
 
     def _handle_notification(self, handle, value):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        if handle == self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1]):
+            sb = self._notify_response_to_buffer(value)
+            libmetawear.mbl_mw_connection_notify_char_changed(self.board, sb.raw, len(sb.raw))
+        else:
+            for callback in self._callbacks:
+                callback(handle, value)
 
     def _read_gatt_char(self, characteristic):
         """Read the desired data from the MetaWear board.
