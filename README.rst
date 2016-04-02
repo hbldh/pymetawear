@@ -4,13 +4,15 @@ PyMetawear
 Python package for connecting to and using `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
 PyMetawear is a slim wrapper around the `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
-which is included as a Git submodule. It uses the `pybluez <https://github.com/karulis/pybluez>`_ package,
-which in its turn uses `pygattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ for
+which is included as a Git submodule. It has support for using either
+`pygattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ or
+`pygatt <https://github.com/peplin/pygatt>`_ for
 Bluetooth Low Energy communication.
 
+    - **PyMetaWear currently only works with the `pygatt` backend!**
     - PyMetaWear is currently a Linux only package! 
-    - PyMetaWear is only tested with Ubuntu 14.04 as of yet!
-    - PyMetaWear has only been tested with Python 2.7.10!
+    - PyMetaWear is only tested with Ubuntu 15.10 as of yet!
+    - PyMetaWear is only tested with Python 2.7.10 as of yet!
 
 Installation
 ------------
@@ -55,7 +57,7 @@ actual communication and mostly being called indirectly from the ``libmetawear``
 .. code-block:: python
     
     from ctypes import byref
-    from pymetawear.client import discover_devices, MetaWearClient, libmetawear
+    from pymetawear.backends import *
     from pymetawear.mbientlab.metawear.peripheral import Led
 
     # Discovering nearby MetaWear boards.
@@ -66,7 +68,7 @@ actual communication and mostly being called indirectly from the ``libmetawear``
     else:
         address = metawear_devices[0][0]
 
-    c = MetaWearClient(address)
+    c = MetaWearClientPyGatt(address)
 
     # Blinking 10 times with green LED.
 
@@ -75,6 +77,5 @@ actual communication and mostly being called indirectly from the ``libmetawear``
     libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
     libmetawear.mbl_mw_led_play(c.board)
 
-    # Reading battery state.
-    battery_state = libmetawear.mbl_mw_settings_read_battery_state(c.board)
 
+**It does not have the ability to add custom notification handlers yet.**
