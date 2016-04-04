@@ -10,7 +10,7 @@
 # 'dev' as a _version_extra string means this is a development version.
 _version_major = 0
 _version_minor = 2
-_version_patch = 0
+_version_patch = 1
 #_version_extra = '.dev2'
 #_version_extra = 'rc1'
 _version_extra = ''

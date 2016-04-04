@@ -14,6 +14,8 @@ from __future__ import print_function
 #from __future__ import unicode_literals
 from __future__ import absolute_import
 
+import uuid
+
 from ctypes import create_string_buffer
 
 from pymetawear.client import MetaWearClient, libmetawear, range_
@@ -31,8 +33,7 @@ except ImportError:
 
 class MetaWearClientPyGatt(MetaWearClient):
     """
-    Client using `pygatt <https://bitbucket.org/OscarAcena/pygattlib>`_
-    for BLE communication.
+    Client using `pygatt <https://github.com/peplin/pygatt>`_ for BLE communication.
     """
 
     def __init__(self, address, debug=False):
@@ -45,7 +46,7 @@ class MetaWearClientPyGatt(MetaWearClient):
         self._backend = None
         self._requester = None
 
-        self.requester.subscribe(str(METAWEAR_SERVICE_NOTIFY_CHAR[1]), self._handle_notification)
+        self.requester.subscribe(str(METAWEAR_SERVICE_NOTIFY_CHAR[1]), self._handle_notify_char_output)
 
         super(MetaWearClientPyGatt, self).__init__(address, debug)
 
@@ -71,15 +72,17 @@ class MetaWearClientPyGatt(MetaWearClient):
 
         return self._requester
 
-    def _handle_notification(self, handle, value):
-        if handle == self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1]):
-            sb = self._notify_response_to_buffer(value)
-            libmetawear.mbl_mw_connection_notify_char_changed(self.board, sb.raw, len(sb.raw))
-        else:
-            print("- notification on handle {0:04x}: {1}\n".format(handle, value))
+    def _backend_disconnect(self):
+        """Disconnect via the GATTTool process and terminate the interactive prompt.
 
-    def _read_gatt_char(self, characteristic):
-        """Read the desired data from the MetaWear board.
+        We can use the `stop` method since only one client can be connected to one GATTTool backend.
+
+        """
+        if self._backend is not None and self._backend:
+            self._backend.stop()
+
+    def _backend_read_gatt_char(self, characteristic_uuid):
+        """Read the desired data from the MetaWear board using pygatt backend.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic: :class:`ctypes.POINTER`
             to a GattCharacteristic.
@@ -87,44 +90,35 @@ class MetaWearClientPyGatt(MetaWearClient):
         :rtype: str
 
         """
-        service_uuid, characteristic_uuid = self._characteristic_2_uuids(characteristic.contents)
-        response = self.requester.char_read(str(characteristic_uuid))
+        return self.requester.char_read(str(characteristic_uuid))
 
-        if self._debug:
-            print("Read  0x{0:02x}: {1}".format(self.get_handle(characteristic_uuid),
-                                                " ".join([hex(b) for b in response])))
+    def _backend_write_gatt_char(self, characteristic_uuid, data_to_send):
+        """Write the desired data to the MetaWear board using pygatt backend.
 
-        sb = self._read_response_to_buffer(response)
-        libmetawear.mbl_mw_connection_char_read(self.board, characteristic, sb.raw, len(sb.raw))
-
-    def _write_gatt_char(self, characteristic, command, length):
-        """Write the desired data to the MetaWear board.
-
-        :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic:
-        :param POINTER command: The command to send, as a byte array pointer.
-        :param int length: Length of the array that command points.
-        :return:
-        :rtype:
+        :param uuid.UUID characteristic_uuid: The UUID to the characteristic to write to.
+        :param str data_to_send: Data to send.
 
         """
-        service_uuid, characteristic_uuid = self._characteristic_2_uuids(characteristic.contents)
-        data_to_send = self._command_to_str(command, length)
-        if self._debug:
-            print("Write 0x{0:02x}: {1}".format(self.get_handle(characteristic_uuid),
-                                                " ".join([hex(b) for b in data_to_send])))
         self.requester.char_write(str(characteristic_uuid), data_to_send)
 
-    def get_handle(self, uuid):
-        return self.requester.get_handle(uuid)
+    def get_handle(self, characteristic_uuid):
+        """Get handle from characteristic UUID.
+
+        :param uuid.UUID uuid: The UUID to find handle to.
+        :return: Integer handle.
+        :rtype: int
+
+        """
+        return self.requester.get_handle(characteristic_uuid)
 
     @staticmethod
-    def _read_response_to_buffer(response):
+    def _backend_read_response_to_str(response):
         return create_string_buffer(str(response), len(response))
 
     @staticmethod
-    def _command_to_str(command, length):
+    def _mbl_mw_command_to_backend_input(command, length):
         return bytearray([command[i] for i in range_(length)])
 
     @staticmethod
-    def _notify_response_to_buffer(response):
+    def _backend_notify_response_to_str(response):
         return create_string_buffer(str(response), len(response))

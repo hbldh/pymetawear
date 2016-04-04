@@ -9,7 +9,7 @@ which is included as a Git submodule. It has support for using either
 `pygatt <https://github.com/peplin/pygatt>`_ for
 Bluetooth Low Energy communication.
 
-    - **PyMetaWear currently only works with the `pygatt` backend!**
+    - **PyMetaWear currently only works with the** ``pygatt`` **backend!**
     - PyMetaWear is currently a Linux only package! 
     - PyMetaWear is only tested with Ubuntu 15.10 as of yet!
     - PyMetaWear is only tested with Python 2.7.10 as of yet!
@@ -51,7 +51,7 @@ in the cloned repository's root folder.
 Usage
 -----
 
-Currently, the `MetaWearClient` is a pretty thin object, only handling the Bluetooth connection and
+Currently, this MetaWear client is a pretty thin object, only handling the Bluetooth connection and
 actual communication and mostly being called indirectly from the ``libmetawear`` C++ library:
 
 .. code-block:: python
@@ -77,5 +77,4 @@ actual communication and mostly being called indirectly from the ``libmetawear``
     libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
     libmetawear.mbl_mw_led_play(c.board)
 
-
-**It does not have the ability to add custom notification handlers yet.**
+See the examples folder for more examples of how to use it.

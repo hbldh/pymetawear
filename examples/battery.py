@@ -35,5 +35,4 @@ print("New client created: {0}".format(c))
 print("Reading battery state...")
 libmetawear.mbl_mw_settings_read_battery_state(c.board)
 
-import time
-time.sleep(2.0)
+c.disconnect()

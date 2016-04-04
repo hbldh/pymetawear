@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`pygattlib`
+:mod:`gattlib`
 ==================
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
@@ -18,22 +18,27 @@ import time
 import uuid
 from ctypes import create_string_buffer
 
-from gattlib import GATTRequester
-
-from pymetawear.client import MetaWearClient, libmetawear
+from pymetawear.client import MetaWearClient, libmetawear, range_
 from pymetawear.exceptions import PyMetaWearConnectionTimeout, PyMetaWearException
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
 
-__all__ = ["MetaWearClientPyGattLib"]
+try:
+    from gattlib import GATTRequester
+    __all__ = ["MetaWearClientGattLib"]
+except ImportError:
+    __all__ = []
+    GATTRequester = None
 
 
-class MetaWearClientPyGattLib(MetaWearClient):
+class MetaWearClientGattLib(MetaWearClient):
     """
-    Client using `gattlib <https://github.com/peplin/pygatt>`_
-    for BLE communication.
+    Client using `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ for BLE communication.
     """
 
     def __init__(self, address, debug=False):
+
+        if GATTRequester is None:
+            raise PyMetaWearException('GattLib client not available. Install gattlib first.')
 
         self._address = address
         self._debug = debug
@@ -46,7 +51,7 @@ class MetaWearClientPyGattLib(MetaWearClient):
             self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1], notify_handle=True),
             bytes(bytearray([0x01, 0x00])))
 
-        super(MetaWearClientPyGattLib, self).__init__(address, debug)
+        super(MetaWearClientGattLib, self).__init__(address, debug)
 
     @property
     def requester(self):
@@ -59,7 +64,7 @@ class MetaWearClientPyGattLib(MetaWearClient):
         if self._requester is None:
             if self._debug:
                 print("Creating new GATTRequester...")
-            self._requester = Requester(self._handle_notification, self._address, False)
+            self._requester = Requester(self._handle_notify_char_output, self._address, False)
 
         if not self._requester.is_connected():
             if self._debug:
@@ -76,23 +81,19 @@ class MetaWearClientPyGattLib(MetaWearClient):
 
         return self._requester
 
+    def _backend_disconnect(self):
+        if self._requester is not None and self._requester.is_connected():
+            self._requester.disconnect()
+            self._requester = None
+
     # Callback methods
 
-    def _handle_notification(self, handle, value):
-        #print(type(value))
-        #print(len(value))
-        #print("data received: {0}".format(value))
-        #print("bytes received: {0}".format(" ".join([hex(ord(b)) for b in value])))
-        if handle == self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1], notify_handle=False):
-            print("- notification on handle {0}: {1}\n".format(handle, value))
-            sb = create_string_buffer(bytes(value), len(bytes(value)))
-            print(sb.raw)
-            libmetawear.mbl_mw_connection_notify_char_changed(self.board, sb.raw, len(sb.raw))
-        else:
-            print("- notification on handle {0}: {1}\n".format(handle, value))
+    def _handle_notify_char_output(self, handle, value):
+        value = value[3:] if len(value) > 4 else value
+        super(MetaWearClientGattLib, self)._handle_notify_char_output(handle, value)
 
-    def _read_gatt_char(self, characteristic):
-        """Read the desired data from the MetaWear board.
+    def _backend_read_gatt_char(self, characteristic_uuid):
+        """Read the desired data from the MetaWear board using pygatt backend.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic: :class:`ctypes.POINTER`
             to a GattCharacteristic.
@@ -100,29 +101,16 @@ class MetaWearClientPyGattLib(MetaWearClient):
         :rtype: str
 
         """
-        service_uuid, characteristic_uuid = self._characteristic_2_uuids(characteristic.contents)
-        response = self.requester.read_by_uuid(str(characteristic_uuid))[0]
+        return self.requester.read_by_uuid(str(characteristic_uuid))[0]
 
-        if self._debug:
-            print("data received: {0}".format(response))
-            print("bytes received: {0}".format(" ".join([hex(ord(b)) for b in response])))
+    def _backend_write_gatt_char(self, characteristic_uuid, data_to_send):
+        """Write the desired data to the MetaWear board using pygatt backend.
 
-        sb = self._read_response_to_buffer(response)
-        libmetawear.mbl_mw_connection_char_read(self.board, characteristic, sb.raw, len(sb.raw))
-
-    def _write_gatt_char(self, characteristic, command, length):
-        """Write the desired data to the MetaWear board.
-
-        :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic:
-        :param POINTER command: The command to send, as a byte array pointer.
-        :param int length: Length of the array that command points.
-        :return:
-        :rtype:
+        :param uuid.UUID characteristic_uuid: The UUID to the characteristic to write to.
+        :param str data_to_send: Data to send.
 
         """
-        service_uuid, characteristic_uuid = self._characteristic_2_uuids(characteristic.contents)
         handle = self.get_handle(characteristic_uuid)
-        data_to_send = self._command_to_str(command, length)
         self.requester.write_by_handle(handle, data_to_send)
 
     def _build_service_and_characterstics_cache(self):
@@ -132,24 +120,33 @@ class MetaWearClientPyGattLib(MetaWearClient):
                                        for x in self.requester.discover_characteristics()}
 
     def get_handle(self, uuid, notify_handle=False):
+        """Get handle for a characteristic.
+
+        :param uuid.UUID uuid: The UUID for the characteristic to look up.
+        :param bool notify_handle:
+        :return: The handle for this UUID.
+        :rtype: int
+
+        """
         if isinstance(uuid, basestring):
             uuid = uuid.UUID(uuid)
         handle = self._characteristics_cache.get(uuid, [None, None])[int(notify_handle)]
         if handle is None:
             raise PyMetaWearException("Incorrect characterstic.")
-        return handle
+        else:
+            return handle
 
     @staticmethod
-    def _command_to_str(command, length):
+    def _mbl_mw_command_to_backend_input(command, length):
         return bytes(bytearray([command[i] for i in range_(length)]))
 
     @staticmethod
-    def _read_response_to_buffer(response):
+    def _backend_read_response_to_str(response):
         return create_string_buffer(response.encode('utf8'), len(response))
 
     @staticmethod
-    def _notify_response_to_buffer(response):
-        return create_string_buffer(response.encode('utf8'), len(response))
+    def _backend_notify_response_to_str(response):
+        return create_string_buffer(bytes(response), len(bytes(response)))
 
 
 class Requester(GATTRequester):

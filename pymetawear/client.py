@@ -97,8 +97,8 @@ class MetaWearClient(object):
         self.initialized_fcn = FnVoid(self._initialized_fcn)
         self.sensor_data_handler = FnDataPtr(self._sensor_data_handler)
 
-        self._btle_connection = BtleConnection(write_gatt_char=FnGattCharPtrByteArray(self._write_gatt_char),
-                                               read_gatt_char=FnGattCharPtr(self._read_gatt_char))
+        self._btle_connection = BtleConnection(write_gatt_char=FnGattCharPtrByteArray(self.write_gatt_char),
+                                               read_gatt_char=FnGattCharPtr(self.read_gatt_char))
 
         self.board = libmetawear.mbl_mw_metawearboard_create(byref(self._btle_connection))
         libmetawear.mbl_mw_metawearboard_initialize(self.board, self.initialized_fcn)
@@ -123,7 +123,16 @@ class MetaWearClient(object):
         :rtype: :class:`bluetooth.ble.GATTRequester`
 
         """
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
+
+    def disconnect(self):
+        """Disconnects the MetaWear board."""
+        libmetawear.mbl_mw_metawearboard_tear_down(self.board)
+        libmetawear.mbl_mw_metawearboard_free(self.board)
+        self._backend_disconnect()
+
+    def _backend_disconnect(self):
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     # Callback methods
 
@@ -132,19 +141,35 @@ class MetaWearClient(object):
             print("{0} initialized.".format(self))
         self._initialized = True
 
-    def _handle_notification(self, handle, value):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+    def _handle_notify_char_output(self, handle, value):
+        if self._debug:
+            self._print_debug_output("Notify", handle, value)
+        
+        if handle == self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1]):
+            sb = self._backend_notify_response_to_str(value)
+            libmetawear.mbl_mw_connection_notify_char_changed(self.board, sb.raw, len(sb.raw))
+        else:
+            raise PyMetaWearException("Notification on unexpected handle: {0}".format(handle))
 
-    def _read_gatt_char(self, characteristic):
+    def read_gatt_char(self, characteristic):
         """Read the desired data from the MetaWear board.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic: :class:`ctypes.POINTER`
             to a GattCharacteristic.
 
         """
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        service_uuid, characteristic_uuid = self._mbl_mw_characteristic_2_uuids(characteristic.contents)
+        response = self._backend_read_gatt_char(characteristic_uuid)
+        sb = self._backend_read_response_to_str(response)
+        libmetawear.mbl_mw_connection_char_read(self.board, characteristic, sb.raw, len(sb.raw))
 
-    def _write_gatt_char(self, characteristic, command, length):
+        if self._debug:
+            self._print_debug_output("Read", characteristic_uuid, response)
+
+    def _backend_read_gatt_char(self, characteristic):
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
+
+    def write_gatt_char(self, characteristic, command, length):
         """Write the desired data to the MetaWear board.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic:
@@ -152,52 +177,85 @@ class MetaWearClient(object):
         :param int length: Length of the array that command points.
 
         """
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        service_uuid, characteristic_uuid = self._mbl_mw_characteristic_2_uuids(characteristic.contents)
+        data_to_send = self._mbl_mw_command_to_backend_input(command, length)
+        if self._debug:
+            self._print_debug_output("Write", characteristic_uuid, data_to_send)
+        self._backend_write_gatt_char(characteristic_uuid, data_to_send)
+
+    def _backend_write_gatt_char(self, characteristic_uuid, data_to_send):
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     def _sensor_data_handler(self, data):
         if (data.contents.type_id == DataTypeId.UINT32):
             data_ptr = cast(data.contents.value, POINTER(c_uint))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents.value))
             return data_ptr.contents.value
         elif (data.contents.type_id == DataTypeId.FLOAT):
             data_ptr = cast(data.contents.value, POINTER(c_float))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents.value))
             return data_ptr.contents.value
         elif (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
             data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents))
             return copy.deepcopy(data_ptr.contents)
         elif (data.contents.type_id == DataTypeId.BATTERY_STATE):
             data_ptr = cast(data.contents.value, POINTER(BatteryState))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents))
             return copy.deepcopy(data_ptr.contents)
         elif (data.contents.type_id == DataTypeId.BYTE_ARRAY):
             data_ptr = cast(data.contents.value, POINTER(c_ubyte * data.contents.length))
             data_byte_array = []
             for i in range(0, data.contents.length):
                 data_byte_array.append(data_ptr.contents[i])
+            if self._debug:
+                print("Sensor data received: {0}".format(data_byte_array))
             return data_byte_array
         elif (data.contents.type_id == DataTypeId.TCS34725_ADC):
             data_ptr = cast(data.contents.value, POINTER(Tcs34725ColorAdc))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents))
             return copy.deepcopy(data_ptr.contents)
-
         else:
             raise RuntimeError('Unrecognized data type id: ' + str(data.contents.type_id))
 
     # Helper methods
 
     def get_handle(self, uuid):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     @staticmethod
-    def _characteristic_2_uuids(characteristic):
+    def _mbl_mw_characteristic_2_uuids(characteristic):
         return (uuid.UUID(int=(characteristic.service_uuid_high << 64) + characteristic.service_uuid_low),
                 uuid.UUID(int=(characteristic.uuid_high << 64) + characteristic.uuid_low))
 
     @staticmethod
-    def _command_to_str(command, length):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+    def _mbl_mw_command_to_backend_input(command, length):
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     @staticmethod
-    def _read_response_to_buffer(response):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+    def _backend_read_response_to_str(response):
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     @staticmethod
-    def _notify_response_to_buffer(response):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+    def _backend_notify_response_to_str(response):
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
+
+    def _print_debug_output(self, action, handle_or_char, data):
+        if isinstance(data, bytearray):
+            data_as_hex = " ".join(["{:02x}".format(b) for b in data])
+        else:
+            data_as_hex = " ".join(["{:02x}".format(ord(b)) for b in data])
+
+        if isinstance(handle_or_char, (uuid.UUID, basestring)):
+            handle = self.get_handle(handle_or_char)
+        elif isinstance(handle_or_char, int):
+            handle = handle_or_char
+        else:
+            handle = -1
+
+        print("{0:<6s} 0x{1:04x}: {2}".format(action, handle, data_as_hex))

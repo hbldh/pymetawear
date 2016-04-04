@@ -37,3 +37,4 @@ libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), Led.PRESET_BLINK)
 libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
 libmetawear.mbl_mw_led_play(c.board)
 
+c.disconnect()
