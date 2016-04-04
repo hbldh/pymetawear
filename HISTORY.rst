@@ -1,3 +1,10 @@
+v0.2.1 (2016-04-04)
+===================
+- Refactoring in moving functionality back to client from backends.
+- Enable BlueZ 4.X use with ``pygatt``.
+- Disconnect methods added.
+- Example with switch button notification.
+
 v0.2.0 (2016-04-02)
 ===================
 - Two backends: ``pygatt`` and ``gattlib``
