@@ -93,7 +93,6 @@ class MetaWearClient(object):
         self._address = address
         self._debug = debug
         self._initialized = False
-        self._callbacks = []
 
         self.initialized_fcn = FnVoid(self._initialized_fcn)
         self.sensor_data_handler = FnDataPtr(self._sensor_data_handler)
@@ -126,6 +125,15 @@ class MetaWearClient(object):
         """
         raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
 
+    def disconnect(self):
+        """Disconnects the MetaWear board."""
+        libmetawear.mbl_mw_metawearboard_tear_down(self.board)
+        libmetawear.mbl_mw_metawearboard_free(self.board)
+        self._backend_disconnect()
+
+    def _backend_disconnect(self):
+        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+
     # Callback methods
 
     def _initialized_fcn(self):
@@ -136,12 +144,12 @@ class MetaWearClient(object):
     def _handle_notify_char_output(self, handle, value):
         if self._debug:
             self._print_debug_output("Notify", handle, value)
+
         if handle == self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1]):
             sb = self._backend_notify_response_to_str(value)
             libmetawear.mbl_mw_connection_notify_char_changed(self.board, sb.raw, len(sb.raw))
         else:
-            for callback in self._callbacks:
-                callback(handle, value)
+            raise PyMetaWearException("Notification on unexpected handle: {0}".format(handle))
 
     def read_gatt_char(self, characteristic):
         """Read the desired data from the MetaWear board.
@@ -181,26 +189,37 @@ class MetaWearClient(object):
     def _sensor_data_handler(self, data):
         if (data.contents.type_id == DataTypeId.UINT32):
             data_ptr = cast(data.contents.value, POINTER(c_uint))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents.value))
             return data_ptr.contents.value
         elif (data.contents.type_id == DataTypeId.FLOAT):
             data_ptr = cast(data.contents.value, POINTER(c_float))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents.value))
             return data_ptr.contents.value
         elif (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
             data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents))
             return copy.deepcopy(data_ptr.contents)
         elif (data.contents.type_id == DataTypeId.BATTERY_STATE):
             data_ptr = cast(data.contents.value, POINTER(BatteryState))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents))
             return copy.deepcopy(data_ptr.contents)
         elif (data.contents.type_id == DataTypeId.BYTE_ARRAY):
             data_ptr = cast(data.contents.value, POINTER(c_ubyte * data.contents.length))
             data_byte_array = []
             for i in range(0, data.contents.length):
                 data_byte_array.append(data_ptr.contents[i])
+            if self._debug:
+                print("Sensor data received: {0}".format(data_byte_array))
             return data_byte_array
         elif (data.contents.type_id == DataTypeId.TCS34725_ADC):
             data_ptr = cast(data.contents.value, POINTER(Tcs34725ColorAdc))
+            if self._debug:
+                print("Sensor data received: {0}".format(data_ptr.contents))
             return copy.deepcopy(data_ptr.contents)
-
         else:
             raise RuntimeError('Unrecognized data type id: ' + str(data.contents.type_id))
 

@@ -73,6 +73,15 @@ class MetaWearClientPyGatt(MetaWearClient):
 
         return self._requester
 
+    def _backend_disconnect(self):
+        """Disconnect via the GATTTool process and terminate the interactive prompt.
+
+        We can use the `stop` method since only one client can be connected to one GATTTool backend.
+
+        """
+        if self._backend is not None and self._backend:
+            self._backend.stop()
+
     def _backend_read_gatt_char(self, characteristic_uuid):
         """Read the desired data from the MetaWear board using pygatt backend.
 
@@ -93,8 +102,15 @@ class MetaWearClientPyGatt(MetaWearClient):
         """
         self.requester.char_write(str(characteristic_uuid), data_to_send)
 
-    def get_handle(self, uuid):
-        return self.requester.get_handle(uuid)
+    def get_handle(self, characteristic_uuid):
+        """Get handle from characteristic UUID.
+
+        :param uuid.UUID uuid: The UUID to find handle to.
+        :return: Integer handle.
+        :rtype: int
+
+        """
+        return self.requester.get_handle(characteristic_uuid)
 
     @staticmethod
     def _backend_read_response_to_str(response):

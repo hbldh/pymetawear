@@ -82,6 +82,11 @@ class MetaWearClientPyGattLib(MetaWearClient):
 
         return self._requester
 
+    def _backend_disconnect(self):
+        if self._requester is not None and self._requester.is_connected():
+            self._requester.disconnect()
+            self._requester = None
+
     # Callback methods
 
     def _handle_notify_char_output(self, handle, value):
