@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`pygattlib`
+:mod:`gattlib`
 ==================
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
@@ -24,22 +24,21 @@ from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
 
 try:
     from gattlib import GATTRequester
-    __all__ = ["MetaWearClientPyGattLib"]
+    __all__ = ["MetaWearClientGattLib"]
 except ImportError:
     __all__ = []
     GATTRequester = None
 
 
-class MetaWearClientPyGattLib(MetaWearClient):
+class MetaWearClientGattLib(MetaWearClient):
     """
-    Client using `gattlib <https://github.com/peplin/pygatt>`_
-    for BLE communication.
+    Client using `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ for BLE communication.
     """
 
     def __init__(self, address, debug=False):
 
         if GATTRequester is None:
-            raise PyMetaWearException('PyGattLib client not available. Install gattlib first.')
+            raise PyMetaWearException('GattLib client not available. Install gattlib first.')
 
         self._address = address
         self._debug = debug
@@ -52,7 +51,7 @@ class MetaWearClientPyGattLib(MetaWearClient):
             self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1], notify_handle=True),
             bytes(bytearray([0x01, 0x00])))
 
-        super(MetaWearClientPyGattLib, self).__init__(address, debug)
+        super(MetaWearClientGattLib, self).__init__(address, debug)
 
     @property
     def requester(self):
@@ -91,7 +90,7 @@ class MetaWearClientPyGattLib(MetaWearClient):
 
     def _handle_notify_char_output(self, handle, value):
         value = value[3:] if len(value) > 4 else value
-        super(MetaWearClientPyGattLib, self)._handle_notify_char_output(handle, value)
+        super(MetaWearClientGattLib, self)._handle_notify_char_output(handle, value)
 
     def _backend_read_gatt_char(self, characteristic_uuid):
         """Read the desired data from the MetaWear board using pygatt backend.

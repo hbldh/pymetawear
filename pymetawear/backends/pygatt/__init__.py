@@ -33,8 +33,7 @@ except ImportError:
 
 class MetaWearClientPyGatt(MetaWearClient):
     """
-    Client using `pygatt <https://bitbucket.org/OscarAcena/pygattlib>`_
-    for BLE communication.
+    Client using `pygatt <https://github.com/peplin/pygatt>`_ for BLE communication.
     """
 
     def __init__(self, address, debug=False):

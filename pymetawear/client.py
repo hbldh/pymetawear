@@ -123,7 +123,7 @@ class MetaWearClient(object):
         :rtype: :class:`bluetooth.ble.GATTRequester`
 
         """
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     def disconnect(self):
         """Disconnects the MetaWear board."""
@@ -132,7 +132,7 @@ class MetaWearClient(object):
         self._backend_disconnect()
 
     def _backend_disconnect(self):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     # Callback methods
 
@@ -144,7 +144,7 @@ class MetaWearClient(object):
     def _handle_notify_char_output(self, handle, value):
         if self._debug:
             self._print_debug_output("Notify", handle, value)
-
+        
         if handle == self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1]):
             sb = self._backend_notify_response_to_str(value)
             libmetawear.mbl_mw_connection_notify_char_changed(self.board, sb.raw, len(sb.raw))
@@ -167,7 +167,7 @@ class MetaWearClient(object):
             self._print_debug_output("Read", characteristic_uuid, response)
 
     def _backend_read_gatt_char(self, characteristic):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     def write_gatt_char(self, characteristic, command, length):
         """Write the desired data to the MetaWear board.
@@ -184,7 +184,7 @@ class MetaWearClient(object):
         self._backend_write_gatt_char(characteristic_uuid, data_to_send)
 
     def _backend_write_gatt_char(self, characteristic_uuid, data_to_send):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     def _sensor_data_handler(self, data):
         if (data.contents.type_id == DataTypeId.UINT32):
@@ -226,7 +226,7 @@ class MetaWearClient(object):
     # Helper methods
 
     def get_handle(self, uuid):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     @staticmethod
     def _mbl_mw_characteristic_2_uuids(characteristic):
@@ -235,15 +235,15 @@ class MetaWearClient(object):
 
     @staticmethod
     def _mbl_mw_command_to_backend_input(command, length):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     @staticmethod
     def _backend_read_response_to_str(response):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     @staticmethod
     def _backend_notify_response_to_str(response):
-        raise NotImplementedError("Use MetaWearClientPyGattLib or MetaWearClientPyGatt classes instead!")
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     def _print_debug_output(self, action, handle_or_char, data):
         if isinstance(data, bytearray):
