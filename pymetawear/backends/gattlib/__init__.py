@@ -65,7 +65,7 @@ class MetaWearClientPyGattLib(MetaWearClient):
         if self._requester is None:
             if self._debug:
                 print("Creating new GATTRequester...")
-            self._requester = Requester(self._handle_notification, self._address, False)
+            self._requester = Requester(self._handle_notify_char_output, self._address, False)
 
         if not self._requester.is_connected():
             if self._debug:
@@ -84,8 +84,12 @@ class MetaWearClientPyGattLib(MetaWearClient):
 
     # Callback methods
 
-    def _read_gatt_char(self, characteristic):
-        """Read the desired data from the MetaWear board.
+    def _handle_notify_char_output(self, handle, value):
+        value = value[3:] if len(value) > 4 else value
+        super(MetaWearClientPyGattLib, self)._handle_notify_char_output(handle, value)
+
+    def _backend_read_gatt_char(self, characteristic_uuid):
+        """Read the desired data from the MetaWear board using pygatt backend.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic: :class:`ctypes.POINTER`
             to a GattCharacteristic.
@@ -93,39 +97,16 @@ class MetaWearClientPyGattLib(MetaWearClient):
         :rtype: str
 
         """
-        service_uuid, characteristic_uuid = self._characteristic_2_uuids(characteristic.contents)
-        response = self.requester.read_by_uuid(str(characteristic_uuid))[0]
+        return self.requester.read_by_uuid(str(characteristic_uuid))[0]
 
-        if self._debug:
-            print("Read   0x{0:04x}: {1}".format(self.get_handle(characteristic_uuid),
-                                                 " ".join(["{:02x}".format(ord(b)) for b in response])))
+    def _backend_write_gatt_char(self, characteristic_uuid, data_to_send):
+        """Write the desired data to the MetaWear board using pygatt backend.
 
-        sb = self._read_response_to_buffer(response)
-        libmetawear.mbl_mw_connection_char_read(self.board, characteristic, sb.raw, len(sb.raw))
-
-    def _handle_notification(self, handle, value):
-        value = value[3:] if len(value) > 4 else value
-        if self._debug:
-            print("Notify 0x{0:04x}: {1}".format(handle,
-                                                 " ".join(["{:02x}".format(ord(b)) for b in value])))
-        super(MetaWearClientPyGattLib, self)._handle_notification(handle, value)
-
-    def _write_gatt_char(self, characteristic, command, length):
-        """Write the desired data to the MetaWear board.
-
-        :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic:
-        :param POINTER command: The command to send, as a byte array pointer.
-        :param int length: Length of the array that command points.
-        :return:
-        :rtype:
+        :param uuid.UUID characteristic_uuid: The UUID to the characteristic to write to.
+        :param str data_to_send: Data to send.
 
         """
-        service_uuid, characteristic_uuid = self._characteristic_2_uuids(characteristic.contents)
         handle = self.get_handle(characteristic_uuid)
-        data_to_send = self._command_to_str(command, length)
-        if self._debug:
-            print("Write  0x{0:04x}: {1}".format(self.get_handle(characteristic_uuid),
-                                                " ".join(["{:02x}".format(ord(b)) for b in data_to_send])))
         self.requester.write_by_handle(handle, data_to_send)
 
     def _build_service_and_characterstics_cache(self):
@@ -152,15 +133,15 @@ class MetaWearClientPyGattLib(MetaWearClient):
             return handle
 
     @staticmethod
-    def _command_to_str(command, length):
+    def _mbl_mw_command_to_backend_input(command, length):
         return bytes(bytearray([command[i] for i in range_(length)]))
 
     @staticmethod
-    def _read_response_to_buffer(response):
+    def _backend_read_response_to_str(response):
         return create_string_buffer(response.encode('utf8'), len(response))
 
     @staticmethod
-    def _notify_response_to_buffer(response):
+    def _backend_notify_response_to_str(response):
         return create_string_buffer(bytes(response), len(bytes(response)))
 
 
