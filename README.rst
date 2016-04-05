@@ -77,4 +77,4 @@ actual communication and mostly being called indirectly from the ``libmetawear``
     libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
     libmetawear.mbl_mw_led_play(c.board)
 
-See the examples folder for more examples of how to use it.
+See the examples folder for more examples on how to use the ``libmetawear`` library with this client.
