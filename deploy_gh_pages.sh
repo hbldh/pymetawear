@@ -7,6 +7,7 @@ mkdir out;
 
 # Build Sphinx documentation and copy the
 # artifacts to /out.
+make -C docs html
 cp -r ./docs/build/html/. ./out
 
 # go to the out directory and create a *new* Git repo
