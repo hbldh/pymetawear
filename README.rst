@@ -1,6 +1,10 @@
 PyMetawear
 ==========
 
+.. image:: https://readthedocs.org/projects/pymetawear/badge/?version=latest
+    :target: http://pymetawear.readthedocs.org/en/latest/?badge=latest
+    :alt: Documentation Status
+
 Python package for connecting to and using `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
 PyMetawear is a slim wrapper around the `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
