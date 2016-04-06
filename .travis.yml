@@ -21,7 +21,7 @@ branches:
     - develop
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y cmake build-essential python-dev bluetooth libbluetooth-dev libboost-python-dev libboost-thread-dev
+  - sudo apt-get install -y cmake build-essential python-dev bluez bluetooth libbluetooth-dev libboost-python-dev libboost-thread-dev
 install:
   - "pip install pytest"
   - "pip install pytest-cov"
@@ -29,8 +29,6 @@ install:
   - "pip install sphinx sphinx_rtd_theme"
   - "pip install -e ."
 script: py.test tests/ --cov pymetawear --cov-report term-missing
-after_success:
-  - "make -C docs html"
 env:
   global:
     - GH_REF: github.com/hbldh/pymetawear.git

@@ -25,7 +25,7 @@ First, make sure all dependencies are installed:
 
 .. code-block:: bash
 
-    $ sudo apt-get install python-dev bluetooth libbluetooth-dev
+    $ sudo apt-get install cmake build-essential python-dev bluetooth libbluetooth-dev libboost-python-dev libboost-thread-dev
 
 PyMetaWear can be installed from pip:
 
