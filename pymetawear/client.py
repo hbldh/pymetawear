@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`client`
-==================
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-03-30
@@ -122,21 +120,23 @@ class MetaWearClient(object):
 
     @property
     def requester(self):
-        """Property handling `GattRequester` and its connection.
+        """The requester object for the backend used.
 
         :return: The connected GattRequester instance.
-        :rtype: :class:`bluetooth.ble.GATTRequester`
+        :rtype: :class:`bluetooth.ble.GATTRequester` or :class:`pygatt.device.BLEDevice`
 
         """
         raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     def disconnect(self):
-        """Disconnects the MetaWear board."""
+        """Disconnects this client from the MetaWear board."""
         libmetawear.mbl_mw_metawearboard_tear_down(self.board)
         libmetawear.mbl_mw_metawearboard_free(self.board)
         self._backend_disconnect()
 
     def _backend_disconnect(self):
+        """Handle any required disconnecting in the backend, e.g. sever Bluetooth connection.
+        """
         raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     # Callback methods
@@ -198,6 +198,8 @@ class MetaWearClient(object):
     def switch_notifications(self, callback=None):
         """Subscribe or unsubscribe to switch notifications.
 
+        Convenience method for handling switch usage.
+
         Example:
 
         .. code-block:: python
@@ -224,6 +226,13 @@ class MetaWearClient(object):
             self._data_signal_subscription(None, 'switch', callback)
 
     def _data_signal_subscription(self, data_signal, signal_name, callback):
+        """Handle subscriptions to data signals on the MetaWear board.
+
+        :param int data_signal: The ``libmetawear`` ID of the data signal.
+        :param str signal_name: Key value to use for storing the callback.
+        :param callable callback: The function to call when data signal notification arrives.
+
+        """
         if callback is not None:
             if self._notification_callbacks.get(signal_name) is not None:
                 raise PyMetaWearException("Subscription to {0} signal already in place!")
@@ -243,6 +252,13 @@ class MetaWearClient(object):
     # Helper methods
 
     def get_handle(self, uuid):
+        """Get handle for a characteristic UUID.
+
+        :param uuid.UUID uuid: The UUID to get handle of.
+        :return: Integer handle corresponding to the input characteristic UUID.
+        :rtype: int
+
+        """
         raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     def _sensor_data_handler(self, data):

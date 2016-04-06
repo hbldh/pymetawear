@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`exceptions`
-=======================
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-03-30, 10:11

@@ -6,24 +6,9 @@
 # -----------------------------------------------------------------------------
 
 # Version information.
-# An empty _version_extra corresponds to a full release.
-# 'dev' as a _version_extra string means this is a development version.
-_version_major = 0
-_version_minor = 2
-_version_patch = 2
-_version_extra = '.dev2'
-#_version_extra = 'rc1'
-#_version_extra = ''
-
-# Construct full version string from these.
-_ver = [_version_major, _version_minor, _version_patch]
-
-__version__ = '.'.join(map(str, _ver))
-if _version_extra:
-    __version__ = __version__ + str(_version_extra)
-
+__version__ = '0.2.2dev2'
 version = __version__  # backwards compatibility name
-version_info = (_version_major, _version_minor, _version_patch, _version_extra)
+version_info = (0, 2, 2, 'dev2')
 
 
 
