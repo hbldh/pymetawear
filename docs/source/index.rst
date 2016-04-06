@@ -16,7 +16,7 @@ Bluetooth Low Energy communication.
 
     - **PyMetaWear currently only works with the** ``pygatt`` **backend!**
     - PyMetaWear is currently a Linux only package!
-    - PyMetaWear is only tested with Ubuntu 15.10 as of yet!
+    - PyMetaWear is only tested with Ubuntu 14.04+ as of yet!
     - PyMetaWear is only tested with Python 2.7.10 as of yet!
 
 Contents
