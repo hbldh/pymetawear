@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`client`
-==================
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-03-30
@@ -94,14 +92,17 @@ class MetaWearClient(object):
         self._debug = debug
         self._initialized = False
 
-        self.initialized_fcn = FnVoid(self._initialized_fcn)
+        self._notification_callbacks = {
+            'initialization': (self._initialized_fcn, FnVoid(self._initialized_fcn)),
+        }
+
         self.sensor_data_handler = FnDataPtr(self._sensor_data_handler)
 
         self._btle_connection = BtleConnection(write_gatt_char=FnGattCharPtrByteArray(self.write_gatt_char),
                                                read_gatt_char=FnGattCharPtr(self.read_gatt_char))
 
         self.board = libmetawear.mbl_mw_metawearboard_create(byref(self._btle_connection))
-        libmetawear.mbl_mw_metawearboard_initialize(self.board, self.initialized_fcn)
+        libmetawear.mbl_mw_metawearboard_initialize(self.board, self._notification_callbacks.get('initialization')[1])
 
         if self._debug:
             print("Waiting for MetaWear board to be fully initialized...")
@@ -115,23 +116,27 @@ class MetaWearClient(object):
     def __repr__(self):
         return "<MetaWearClient, {0}>".format(self._address)
 
+    # Connection methods
+
     @property
     def requester(self):
-        """Property handling `GattRequester` and its connection.
+        """The requester object for the backend used.
 
         :return: The connected GattRequester instance.
-        :rtype: :class:`bluetooth.ble.GATTRequester`
+        :rtype: :class:`bluetooth.ble.GATTRequester` or :class:`pygatt.device.BLEDevice`
 
         """
         raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     def disconnect(self):
-        """Disconnects the MetaWear board."""
+        """Disconnects this client from the MetaWear board."""
         libmetawear.mbl_mw_metawearboard_tear_down(self.board)
         libmetawear.mbl_mw_metawearboard_free(self.board)
         self._backend_disconnect()
 
     def _backend_disconnect(self):
+        """Handle any required disconnecting in the backend, e.g. sever Bluetooth connection.
+        """
         raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     # Callback methods
@@ -150,6 +155,8 @@ class MetaWearClient(object):
             libmetawear.mbl_mw_connection_notify_char_changed(self.board, sb.raw, len(sb.raw))
         else:
             raise PyMetaWearException("Notification on unexpected handle: {0}".format(handle))
+
+    # Read and Write methods
 
     def read_gatt_char(self, characteristic):
         """Read the desired data from the MetaWear board.
@@ -184,6 +191,74 @@ class MetaWearClient(object):
         self._backend_write_gatt_char(characteristic_uuid, data_to_send)
 
     def _backend_write_gatt_char(self, characteristic_uuid, data_to_send):
+        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
+
+    # MetaWear methods
+
+    def switch_notifications(self, callback=None):
+        """Subscribe or unsubscribe to switch notifications.
+
+        Convenience method for handling switch usage.
+
+        Example:
+
+        .. code-block:: python
+
+            from ctypes import POINTER, c_uint, cast
+
+            def switch_callback(data):
+                data_ptr = cast(data.contents.value, POINTER(c_uint))
+                if data_ptr.contents.value == 1:
+                    print("Switch pressed!")
+                elif data_ptr.contents.value == 0:
+                    print("Switch released!")
+
+            mwclient.switch_notifications(switch_callback)
+
+        :param callable callback: Switch notification callback function. If `None`,
+            unsubscription to switch notifications is registered.
+
+        """
+        if callback is not None:
+            data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(self.board)
+            self._data_signal_subscription(data_signal, 'switch', callback)
+        else:
+            self._data_signal_subscription(None, 'switch', callback)
+
+    def _data_signal_subscription(self, data_signal, signal_name, callback):
+        """Handle subscriptions to data signals on the MetaWear board.
+
+        :param int data_signal: The ``libmetawear`` ID of the data signal.
+        :param str signal_name: Key value to use for storing the callback.
+        :param callable callback: The function to call when data signal notification arrives.
+
+        """
+        if callback is not None:
+            if self._notification_callbacks.get(signal_name) is not None:
+                raise PyMetaWearException("Subscription to {0} signal already in place!")
+            self._notification_callbacks[signal_name] = (callback, FnDataPtr(callback))
+            libmetawear.mbl_mw_datasignal_subscribe(data_signal, self._notification_callbacks['switch'][1])
+            if self._debug:
+                print("Subscribing to {0} changes.".format(signal_name))
+        else:
+            if self._notification_callbacks.get(signal_name) is None:
+                return
+            data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(self.board)
+            libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
+            self._notification_callbacks.pop('switch')
+            if self._debug:
+                print("Unsubscribing to {0} changes.".format(signal_name))
+
+    # Helper methods
+
+    def get_handle(self, uuid):
+        """Get handle for a characteristic UUID.
+
+        :param uuid.UUID uuid: The UUID to get handle of.
+        :return: Integer handle corresponding to the input characteristic UUID.
+        :rtype: int
+
+        """
         raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     def _sensor_data_handler(self, data):
@@ -222,11 +297,6 @@ class MetaWearClient(object):
             return copy.deepcopy(data_ptr.contents)
         else:
             raise RuntimeError('Unrecognized data type id: ' + str(data.contents.type_id))
-
-    # Helper methods
-
-    def get_handle(self, uuid):
-        raise NotImplementedError("Use MetaWearClientGattLib or MetaWearClientPyGatt classes instead!")
 
     @staticmethod
     def _mbl_mw_characteristic_2_uuids(characteristic):

@@ -43,13 +43,26 @@ def switch_callback(data):
             raise ValueError("Incorrect data returned.")
     else:
         raise RuntimeError('Incorrect data type id: ' + str(data.contents.type_id))
-fcn_dptr = FnDataPtr(switch_callback)
 
-print("Subscribing to switch changes.")
-data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(c.board)
-libmetawear.mbl_mw_datasignal_subscribe(data_signal, fcn_dptr)
+# Create subscription
+c.switch_notifications(switch_callback)
+time.sleep(10.0)
+# Remove subscription
+c.switch_notifications(None)
+time.sleep(10.0)
+# Add it once again
+c.switch_notifications(switch_callback)
+time.sleep(10.0)
 
-time.sleep(60.0)
+# The code using libmetawear library directly instead of convenience methods in MetaWearClient:
+#
+# Subscribe:
+# data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(c.board)
+# fcn_dptr = FnDataPtr(switch_callback)
+# libmetawear.mbl_mw_datasignal_subscribe(data_signal, fcn_dptr)
+#
+# Unsubscribe:
+# libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
 
 c.disconnect()
 

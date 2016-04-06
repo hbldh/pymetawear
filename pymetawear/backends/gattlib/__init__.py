@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`gattlib`
-==================
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-04-02
