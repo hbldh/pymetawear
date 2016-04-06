@@ -1,3 +1,9 @@
+v0.2.2 (2016-04-06)
+===================
+- Convenience method for switch.
+- Sphinx documentation added.
+- Docstring updates.
+
 v0.2.1 (2016-04-04)
 ===================
 - Refactoring in moving functionality back to client from backends.

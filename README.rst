@@ -52,8 +52,13 @@ running
 
 in the cloned repository's root folder.
 
-Usage
------
+Documentation
+-------------
+
+Available on [Github pages](https://hbldh.github.io/pymetawear/) of this repository.
+
+Basic Usage
+-----------
 
 Currently, this MetaWear client is a pretty thin object, only handling the Bluetooth connection and
 actual communication and mostly being called indirectly from the ``libmetawear`` C++ library:
@@ -81,4 +86,4 @@ actual communication and mostly being called indirectly from the ``libmetawear``
     libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
     libmetawear.mbl_mw_led_play(c.board)
 
-See the examples folder for more examples of how to use it.
+See the examples folder for more examples on how to use the ``libmetawear`` library with this client.

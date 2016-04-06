@@ -6,9 +6,9 @@
 # -----------------------------------------------------------------------------
 
 # Version information.
-__version__ = '0.2.2dev3'
+__version__ = '0.2.3dev1'
 version = __version__  # backwards compatibility name
-version_info = (0, 2, 2, 'dev3')
+version_info = (0, 2, 2, 'dev1')
 
 
 
