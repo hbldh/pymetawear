@@ -48,8 +48,13 @@ running
 
 in the cloned repository's root folder.
 
-Usage
------
+Documentation
+-------------
+
+Available on [Github pages](https://hbldh.github.io/pymetawear/) of this repository.
+
+Basic Usage
+-----------
 
 Currently, this MetaWear client is a pretty thin object, only handling the Bluetooth connection and
 actual communication and mostly being called indirectly from the ``libmetawear`` C++ library:
