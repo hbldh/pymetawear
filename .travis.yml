@@ -1,5 +1,5 @@
 language: python
-sudo: false
+sudo: required
 dist: trusty
 python:
   - 2.6
@@ -21,15 +21,9 @@ branches:
   only:
     - master
     - develop
-addons:
-  apt:
-    packages:
-    - cmake
-    - build-essential
-    - python-dev
-    - bluetooth
-    - libbluetooth-dev
-    - libboost-python-dev
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y cmake build-essential python-dev bluetooth libbluetooth-dev libboost-python-dev
 install:
   - "pip install pytest"
   - "pip install pytest-cov"
