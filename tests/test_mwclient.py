@@ -14,6 +14,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
+import pytest
+
+from pymetawear.client import MetaWearClient
+from pymetawear.backends.gattlib import MetaWearClientGattLib
+from pymetawear.backends.pygatt import MetaWearClientPyGatt
+from pymetawear.backends.pygatt.gatttool import PyMetaWearGATTToolBackend
+
 
 def test_dummy():
     assert True
