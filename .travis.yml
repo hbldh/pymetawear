@@ -39,5 +39,6 @@ deploy:
   provider: script
   script: deploy_gh_pages.sh
   on:
-    branch: master
+    branch: develop
+    python: 2.7
 
