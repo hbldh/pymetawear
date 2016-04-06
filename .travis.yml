@@ -35,7 +35,7 @@ env:
 deploy:
   provider: script
   skip_cleanup: true
-  script: deploy_gh_pages.sh
+  script: bash ./deploy_gh_pages.sh
   on:
     branch: develop
     python: 2.7
