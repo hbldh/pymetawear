@@ -105,12 +105,9 @@ setup(
         'pymetawear': ['libmetawear.so'],
     },
     install_requires=[
-        'gattlib>=0.20150805',
-        'pygatt>=2.0.1'
+        'pybluez[ble]>=0.22',
+        'pygatt[GATTTOOL]>=2.0.1'
     ],
-    extras_require={
-        'pygatt': ['pygatt>=2.0.1'],
-    },
     dependency_links=[],
     ext_modules=[],
     entry_points={

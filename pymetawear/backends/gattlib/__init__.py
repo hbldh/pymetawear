@@ -21,11 +21,13 @@ from pymetawear.exceptions import PyMetaWearConnectionTimeout, PyMetaWearExcepti
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
 
 try:
-    from gattlib import GATTRequester
+    from bluetooth.ble import GATTRequester
     __all__ = ["MetaWearClientGattLib"]
+    _import_failure = False
 except ImportError:
     __all__ = []
-    GATTRequester = None
+    GATTRequester = object
+    _import_failure = True
 
 
 class MetaWearClientGattLib(MetaWearClient):
@@ -35,8 +37,9 @@ class MetaWearClientGattLib(MetaWearClient):
 
     def __init__(self, address, debug=False):
 
-        if GATTRequester is None:
-            raise PyMetaWearException('GattLib client not available. Install gattlib first.')
+        if _import_failure:
+            raise PyMetaWearException(
+                'GattLib client not available. Install gattlib first.')
 
         self._address = address
         self._debug = debug

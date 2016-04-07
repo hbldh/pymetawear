@@ -37,14 +37,16 @@ class MetaWearClientPyGatt(MetaWearClient):
     def __init__(self, address, debug=False):
 
         if pygatt is None:
-            raise PyMetaWearException('PyGATT client not available. Install pygatt first.')
+            raise PyMetaWearException(
+                'PyGATT client not available. Install pygatt first.')
 
         self._address = address
         self._debug = debug
         self._backend = None
         self._requester = None
 
-        self.requester.subscribe(str(METAWEAR_SERVICE_NOTIFY_CHAR[1]), self._handle_notify_char_output)
+        self.requester.subscribe(str(METAWEAR_SERVICE_NOTIFY_CHAR[1]),
+                                 self._handle_notify_char_output)
 
         super(MetaWearClientPyGatt, self).__init__(address, debug)
 
@@ -52,7 +54,7 @@ class MetaWearClientPyGatt(MetaWearClient):
     def requester(self):
         """Property handling `GattRequester` and its connection.
 
-        :return: The connected GattRequester instance.
+        :return: A connected ``pygatt`` BLE device instance.
         :rtype: :class:`pygatt.device.BLEDevice`
 
         """
@@ -63,27 +65,34 @@ class MetaWearClientPyGatt(MetaWearClient):
             self._backend.start(reset_on_start=False)
             if self._debug:
                 print("Connecting GATTTool...")
-            self._requester = self._backend.connect(self._address, timeout=10.0, address_type='random')
+            self._requester = self._backend.connect(
+                self._address, timeout=10.0, address_type='random')
 
             if not self.requester._connected:
-                raise PyMetaWearConnectionTimeout("Could not establish a connection to {0}.".format(self._address))
+                raise PyMetaWearConnectionTimeout(
+                    "Could not establish a connection to {0}.".format(
+                        self._address))
 
         return self._requester
 
     def _backend_disconnect(self):
-        """Disconnect via the GATTTool process and terminate the interactive prompt.
+        """Disconnect via the GATTTool process and terminate the
+        interactive prompt.
 
-        We can use the `stop` method since only one client can be connected to one GATTTool backend.
+        We can use the `stop` method since only one client can be
+        connected to one GATTTool backend.
 
         """
         if self._backend is not None and self._backend:
             self._backend.stop()
+        self._backend = None
+        self._requester = None
 
     def _backend_read_gatt_char(self, characteristic_uuid):
         """Read the desired data from the MetaWear board using pygatt backend.
 
-        :param pymetawear.mbientlab.metawear.core.GattCharacteristic characteristic: :class:`ctypes.POINTER`
-            to a GattCharacteristic.
+        :param pymetawear.mbientlab.metawear.core.GattCharacteristic
+            characteristic: :class:`ctypes.POINTER` to a GattCharacteristic.
         :return: The read data.
         :rtype: str
 
@@ -93,7 +102,8 @@ class MetaWearClientPyGatt(MetaWearClient):
     def _backend_write_gatt_char(self, characteristic_uuid, data_to_send):
         """Write the desired data to the MetaWear board using pygatt backend.
 
-        :param uuid.UUID characteristic_uuid: The UUID to the characteristic to write to.
+        :param uuid.UUID characteristic_uuid: The UUID to the characteristic
+            to write to.
         :param str data_to_send: Data to send.
 
         """
