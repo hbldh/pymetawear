@@ -124,6 +124,12 @@ class MetaWearClient(object):
                 self.board) and self._initialized):
             time.sleep(0.1)
 
+        self.firmware_version = tuple(
+            [int(x) for x in self._backend_read_gatt_char(
+             DEV_INFO_FIRMWARE_CHAR[1]).split('.')])
+        self.model_version = int(self._backend_read_gatt_char(
+            DEV_INFO_MODEL_CHAR[1]))
+
     def __str__(self):
         return "MetaWearClient, {0}".format(self._address)
 

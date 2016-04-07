@@ -29,6 +29,8 @@ install:
   - "pip install Sphinx sphinx_rtd_theme"
   - "pip install -e ."
 script: py.test tests/ --cov pymetawear --cov-report term-missing
+after_success:
+  - coveralls
 env:
   global:
     - GH_REF: github.com/hbldh/pymetawear.git
@@ -37,6 +39,5 @@ deploy:
   skip_cleanup: true
   script: bash ./deploy_gh_pages.sh
   on:
-    branch: develop
+    branch: master
     python: 2.7
-
