@@ -1,3 +1,11 @@
+v0.2.3 (2016-04-07)
+===================
+- Changed from using ``gattlib`` on its own to using
+  ``pybluez`` with ``gattlib``
+- Travis CI and Coveralls
+- Travis CI deploys documetnation to gh-pages.
+- Some documentation written.
+
 v0.2.2 (2016-04-06)
 ===================
 - Convenience method for switch.
