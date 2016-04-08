@@ -3,17 +3,13 @@ sudo: required
 dist: trusty
 python:
   - 2.7.11
-  - 3.3
   - 3.4
   - 3.5
-  - "3.5-dev"
   - "nightly"
 matrix:
   allow_failures:
-    - python: 3.3
     - python: 3.4
     - python: 3.5
-    - python: "3.5-dev"
     - python: "nightly"
 branches:
   only:
