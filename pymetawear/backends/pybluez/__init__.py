@@ -18,7 +18,6 @@ from ctypes import create_string_buffer
 
 from bluetooth.ble import GATTRequester, GATTResponse
 
-from pymetawear.client import libmetawear
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
 from pymetawear.utils import range_
 from pymetawear.backends import BLECommunicationBackend
