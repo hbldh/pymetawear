@@ -14,6 +14,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
+import time
+
 from ctypes import byref
 
 from pymetawear.client import discover_devices, MetaWearClient, libmetawear
@@ -35,5 +37,7 @@ pattern = Led.Pattern(repeat_count=10)
 libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), Led.PRESET_BLINK)
 libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
 libmetawear.mbl_mw_led_play(c.board)
+
+time.sleep(5.0)
 
 c.disconnect()

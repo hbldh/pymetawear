@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 '''
-The setup script for the Mt. Black library.
+The setup script for the PyMetaWear package.
 
-.. moduleauthor:: hbldh <henrik.blidh@swedwise.com>
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
 
-Created on 2014-02-14, 16:20
+Created on 2016-04-08
 
 '''
 
@@ -21,8 +21,6 @@ import re
 from codecs import open
 
 from setuptools import setup, find_packages
-
-import pymetawear
 
 
 def read(f):

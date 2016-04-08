@@ -21,11 +21,11 @@ import copy
 
 from ctypes import cast, POINTER, c_uint, c_float, c_ubyte
 
-from pymetawear import libmetawear
+from pymetawear import libmetawear, specs
 from pymetawear.exceptions import *
 from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
     BatteryState, Tcs34725ColorAdc, FnDataPtr
-from pymetawear.specs import *
+
 from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.backends.pybluez import PyBluezBackend
 
@@ -107,9 +107,9 @@ class MetaWearClient(object):
 
         self.firmware_version = tuple(
             [int(x) for x in self.backend._read_gatt_char(
-             DEV_INFO_FIRMWARE_CHAR[1]).split('.')])
+            specs.DEV_INFO_FIRMWARE_CHAR[1]).split('.')])
         self.model_version = int(self.backend._read_gatt_char(
-            DEV_INFO_MODEL_CHAR[1]))
+            specs.DEV_INFO_MODEL_CHAR[1]))
 
     def __str__(self):
         return "MetaWearClient, {0}".format(self._address)
