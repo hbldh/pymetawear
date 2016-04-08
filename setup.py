@@ -104,8 +104,7 @@ setup(
     },
     install_requires=[
         'pybluez[ble]>=0.22',
-        #'pygatt[GATTTOOL]>=2.0.1'
-        'gattlib'
+        'pygatt[GATTTOOL]>=2.0.1'
     ],
     dependency_links=[],
     ext_modules=[],
