@@ -16,7 +16,7 @@ import time
 import uuid
 from ctypes import create_string_buffer
 
-from bluetooth.ble import GATTRequester, GATTResponse
+from gattlib import GATTRequester, GATTResponse
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
 from pymetawear.utils import range_

@@ -27,6 +27,8 @@ addons:
     - libglib2.0-dev
     - bluez
     - bluetooth
+    - python-dev
+    - python3-dev
     - libbluetooth-dev
     - libboost-python-dev
     - libboost-thread-dev
