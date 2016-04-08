@@ -1,3 +1,18 @@
+v0.3.0 (2016-04-09)
+===================
+- Major refactoring: all BLE comm code practically moved to backends.
+- Backend ``pybluez`` with ``gattlib`` now works well.
+- Travis CI problems with Python 2.7 encoding led to
+  that we are now building on 2.7.11
+
+v0.2.3 (2016-04-07)
+===================
+- Changed from using ``gattlib`` on its own to using
+  ``pybluez`` with ``gattlib``
+- Travis CI and Coveralls
+- Travis CI deploys documentation to gh-pages.
+- Some documentation written.
+
 v0.2.2 (2016-04-06)
 ===================
 - Convenience method for switch.

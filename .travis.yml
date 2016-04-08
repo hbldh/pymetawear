@@ -2,26 +2,34 @@ language: python
 sudo: required
 dist: trusty
 python:
-  - 2.7
-  - 3.3
+  - 2.7.11
   - 3.4
   - 3.5
-  - "3.5-dev"
   - "nightly"
 matrix:
   allow_failures:
-    - python: 3.3
     - python: 3.4
     - python: 3.5
-    - python: "3.5-dev"
     - python: "nightly"
 branches:
   only:
     - master
     - develop
+addons:
+  apt:
+    packages:
+    - cmake
+    - build-essential
+    - libglib2.0-dev
+    - bluez
+    - bluetooth
+    - python-dev
+    - python3-dev
+    - libbluetooth-dev
+    - libboost-python-dev
+    - libboost-thread-dev
 before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y cmake build-essential libglib2.0-dev python-dev bluez bluetooth libbluetooth-dev libboost-python-dev libboost-thread-dev
+  - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
 install:
   - "pip install pytest"
   - "pip install pytest-cov"

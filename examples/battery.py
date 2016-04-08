@@ -14,13 +14,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
-from ctypes import byref
-
-from pymetawear.client import discover_devices, libmetawear
-from pymetawear.backends import *
+from pymetawear.client import discover_devices, MetaWearClient, libmetawear
 
 print("WARNING! Incomplete example!")
-
 
 print("Discovering nearby MetaWear boards...")
 metawear_devices = discover_devices(timeout=2)
@@ -29,7 +25,7 @@ if len(metawear_devices) < 1:
 else:
     address = metawear_devices[0][0]
 
-c = MetaWearClientPyGatt(str(address), debug=True)
+c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
 print("Reading battery state...")

@@ -16,39 +16,19 @@ import uuid
 
 from ctypes import create_string_buffer
 
-from pymetawear.client import MetaWearClient, libmetawear, range_
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
+from pymetawear.utils import range_
+from pymetawear.backends import BLECommunicationBackend
+from pymetawear.backends.pygatt.gatttool import PyMetaWearGATTToolBackend
 
-try:
-    import pygatt
-    from pymetawear.backends.pygatt.gatttool import PyMetaWearGATTToolBackend
-    __all__ = ["MetaWearClientPyGatt"]
-except ImportError:
-    __all__ = []
-    pygatt = None
+__all__ = ["PyGattBackend"]
 
 
-class MetaWearClientPyGatt(MetaWearClient):
-    """
-    Client using `pygatt <https://github.com/peplin/pygatt>`_ for BLE communication.
-    """
+class PyGattBackend(BLECommunicationBackend):
 
-    def __init__(self, address, debug=False):
-
-        if pygatt is None:
-            raise PyMetaWearException(
-                'PyGATT client not available. Install pygatt first.')
-
-        self._address = address
-        self._debug = debug
+    def __init__(self, address, async=True, debug=False):
+        super(PyGattBackend, self).__init__(address, async, debug)
         self._backend = None
-        self._requester = None
-
-        self.requester.subscribe(str(METAWEAR_SERVICE_NOTIFY_CHAR[1]),
-                                 self._handle_notify_char_output)
-
-        super(MetaWearClientPyGatt, self).__init__(address, debug)
 
     @property
     def requester(self):
@@ -75,7 +55,7 @@ class MetaWearClientPyGatt(MetaWearClient):
 
         return self._requester
 
-    def _backend_disconnect(self):
+    def disconnect(self):
         """Disconnect via the GATTTool process and terminate the
         interactive prompt.
 
@@ -88,7 +68,10 @@ class MetaWearClientPyGatt(MetaWearClient):
         self._backend = None
         self._requester = None
 
-    def _backend_read_gatt_char(self, characteristic_uuid):
+    def _subscribe(self, characteristic_uuid, callback):
+        return self.requester.subscribe(str(characteristic_uuid), callback)
+
+    def _read_gatt_char(self, characteristic_uuid):
         """Read the desired data from the MetaWear board using pygatt backend.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic
@@ -99,7 +82,7 @@ class MetaWearClientPyGatt(MetaWearClient):
         """
         return self.requester.char_read(str(characteristic_uuid))
 
-    def _backend_write_gatt_char(self, characteristic_uuid, data_to_send):
+    def _write_gatt_char(self, characteristic_uuid, data_to_send):
         """Write the desired data to the MetaWear board using pygatt backend.
 
         :param uuid.UUID characteristic_uuid: The UUID to the characteristic
@@ -109,24 +92,27 @@ class MetaWearClientPyGatt(MetaWearClient):
         """
         self.requester.char_write(str(characteristic_uuid), data_to_send)
 
-    def get_handle(self, characteristic_uuid):
+    def get_handle(self, uuid, notify_handle=False):
         """Get handle from characteristic UUID.
 
         :param uuid.UUID uuid: The UUID to find handle to.
+        :param bool notify_handle:
         :return: Integer handle.
         :rtype: int
 
         """
-        return self.requester.get_handle(characteristic_uuid)
+        return self.requester.get_handle(uuid) + int(notify_handle)
 
     @staticmethod
-    def _backend_read_response_to_str(response):
-        return create_string_buffer(str(response), len(response))
-
-    @staticmethod
-    def _mbl_mw_command_to_backend_input(command, length):
+    def mbl_mw_command_to_input(command, length):
         return bytearray([command[i] for i in range_(length)])
 
     @staticmethod
-    def _backend_notify_response_to_str(response):
+    def read_response_to_str(response):
         return create_string_buffer(str(response), len(response))
+
+    @staticmethod
+    def notify_response_to_str(response):
+        return create_string_buffer(str(response), len(response))
+
+

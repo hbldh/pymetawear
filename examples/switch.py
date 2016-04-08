@@ -17,8 +17,7 @@ from __future__ import absolute_import
 from ctypes import byref, POINTER, c_uint, cast
 import time
 
-from pymetawear.client import discover_devices, libmetawear
-from pymetawear.backends import *
+from pymetawear.client import discover_devices, MetaWearClient
 from pymetawear.mbientlab.metawear.core import DataTypeId, FnDataPtr
 
 
@@ -29,7 +28,7 @@ if len(metawear_devices) < 1:
 else:
     address = metawear_devices[0][0]
 
-c = MetaWearClientPyGatt(str(address), debug=True)
+c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
 def switch_callback(data):
