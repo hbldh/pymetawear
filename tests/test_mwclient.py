@@ -17,9 +17,10 @@ from __future__ import absolute_import
 import pytest
 
 from pymetawear.client import MetaWearClient
-from pymetawear.backends.pygatt import MetaWearClientPyGatt
-from pymetawear.backends.pygatt.gatttool import PyMetaWearGATTToolBackend
-from pymetawear.backends.pybluez import MetaWearClientGattLib
+from pymetawear.backends import BLECommunicationBackend
+from pymetawear.backends.pygatt import PyGattBackend
+from pymetawear.backends.pybluez import PyBluezBackend
+
 
 def test_dummy():
     assert True
