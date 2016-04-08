@@ -5,11 +5,20 @@
 #  Copyright (c) 2016, Nedomkull Mathematical Modeling AB.
 # -----------------------------------------------------------------------------
 
-# Version information.
-__version__ = '0.2.4dev1'
-version = __version__  # backwards compatibility name
-version_info = (0, 2, 4)
+import os
+from ctypes import cdll
 
+# Version information.
+__version__ = '0.3.0dev1'
+version = __version__  # backwards compatibility name
+version_info = (0, 3, 0, 'dev1')
+
+if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
+    libmetawear = cdll.LoadLibrary(os.environ["METAWEAR_LIB_SO_NAME"])
+else:
+    libmetawear = cdll.LoadLibrary(
+        os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                     'libmetawear.so'))
 
 
 

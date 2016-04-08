@@ -19,7 +19,7 @@ import pytest
 from pymetawear.client import MetaWearClient
 from pymetawear.backends.pygatt import MetaWearClientPyGatt
 from pymetawear.backends.pygatt.gatttool import PyMetaWearGATTToolBackend
-from pymetawear.backends.gattlib import MetaWearClientGattLib
+from pymetawear.backends.pybluez import MetaWearClientGattLib
 
 def test_dummy():
     assert True

@@ -19,27 +19,15 @@ import subprocess
 import signal
 import copy
 
-from ctypes import cdll, byref, cast, POINTER, c_uint, c_float, c_ubyte
+from ctypes import cast, POINTER, c_uint, c_float, c_ubyte
 
+from pymetawear import libmetawear
 from pymetawear.exceptions import *
-from pymetawear.mbientlab.metawear.core import BtleConnection, FnGattCharPtr, \
-    FnGattCharPtrByteArray, FnVoid, DataTypeId, CartesianFloat, \
+from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
     BatteryState, Tcs34725ColorAdc, FnDataPtr
 from pymetawear.specs import *
-
-if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
-    libmetawear = cdll.LoadLibrary(os.environ["METAWEAR_LIB_SO_NAME"])
-else:
-    libmetawear = cdll.LoadLibrary(
-        os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                     'libmetawear.so'))
-
-try:
-    # Python 2
-    range_ = xrange
-except NameError:
-    # Python 3
-    range_ = range
+from pymetawear.backends.pygatt import PyGattBackend
+from pymetawear.backends.pybluez import PyBluezBackend
 
 
 def discover_devices(timeout=5, only_metawear=True):
@@ -91,43 +79,36 @@ def discover_devices(timeout=5, only_metawear=True):
 
 class MetaWearClient(object):
     """
-    MetaWear client bridging the gap between 
+    MetaWear client bridging the gap between
     `libmetawear` and a GATT communication client.
     """
 
-    def __init__(self, address, debug=False):
+    def __init__(self, address, backend='pygatt', debug=False):
 
         self._address = address
         self._debug = debug
         self._initialized = False
 
-        self._notification_callbacks = {
-            'initialization': (self._initialized_fcn,
-                               FnVoid(self._initialized_fcn)),
-        }
+        self._backend = None
 
-        self.sensor_data_handler = FnDataPtr(self._sensor_data_handler)
-
-        self._btle_connection = BtleConnection(
-            write_gatt_char=FnGattCharPtrByteArray(self.write_gatt_char),
-            read_gatt_char=FnGattCharPtr(self.read_gatt_char))
-
-        self.board = libmetawear.mbl_mw_metawearboard_create(
-            byref(self._btle_connection))
-        libmetawear.mbl_mw_metawearboard_initialize(
-            self.board, self._notification_callbacks.get('initialization')[1])
+        if backend == 'pygatt':
+            self._backend = PyGattBackend(
+                self._address, debug=debug)
+        elif backend == 'pybluez':
+            self._backend = PyBluezBackend(
+                self._address, debug=debug)
 
         if self._debug:
             print("Waiting for MetaWear board to be fully initialized...")
 
         while not (libmetawear.mbl_mw_metawearboard_is_initialized(
-                self.board) and self._initialized):
+                self.board) and self.backend.initialized):
             time.sleep(0.1)
 
         self.firmware_version = tuple(
-            [int(x) for x in self._backend_read_gatt_char(
+            [int(x) for x in self.backend._read_gatt_char(
              DEV_INFO_FIRMWARE_CHAR[1]).split('.')])
-        self.model_version = int(self._backend_read_gatt_char(
+        self.model_version = int(self.backend._read_gatt_char(
             DEV_INFO_MODEL_CHAR[1]))
 
     def __str__(self):
@@ -139,87 +120,24 @@ class MetaWearClient(object):
     # Connection methods
 
     @property
-    def requester(self):
+    def backend(self):
         """The requester object for the backend used.
 
-        :return: The connected GattRequester instance.
-        :rtype: :class:`bluetooth.ble.GATTRequester` or 
-            :class:`pygatt.device.BLEDevice`
+        :return: The connected BLE backend.
+        :rtype: :class:`pymetawear.backend.BLECommunicationBackend`
 
         """
-        raise NotImplementedError("Use backend-specific classes instead!")
+        return self._backend
+
+    @property
+    def board(self):
+        return self.backend.board
 
     def disconnect(self):
         """Disconnects this client from the MetaWear board."""
         libmetawear.mbl_mw_metawearboard_tear_down(self.board)
         libmetawear.mbl_mw_metawearboard_free(self.board)
-        self._backend_disconnect()
-
-    def _backend_disconnect(self):
-        """Handle any required disconnecting in the backend, 
-        e.g. sever Bluetooth connection.
-        """
-        raise NotImplementedError("Use backend-specific classes instead!")
-
-    # Callback methods
-
-    def _initialized_fcn(self):
-        if self._debug:
-            print("{0} initialized.".format(self))
-        self._initialized = True
-
-    def _handle_notify_char_output(self, handle, value):
-        if self._debug:
-            self._print_debug_output("Notify", handle, value)
-
-        if handle == self.get_handle(METAWEAR_SERVICE_NOTIFY_CHAR[1]):
-            sb = self._backend_notify_response_to_str(value)
-            libmetawear.mbl_mw_connection_notify_char_changed(
-                self.board, sb.raw, len(sb.raw))
-        else:
-            raise PyMetaWearException(
-                "Notification on unexpected handle: {0}".format(handle))
-
-    # Read and Write methods
-
-    def read_gatt_char(self, characteristic):
-        """Read the desired data from the MetaWear board.
-
-        :param pymetawear.mbientlab.metawear.core.GattCharacteristic 
-            characteristic: :class:`ctypes.POINTER` to a GattCharacteristic.
-
-        """
-        service_uuid, characteristic_uuid = self._mbl_mw_characteristic_2_uuids(
-            characteristic.contents)
-        response = self._backend_read_gatt_char(characteristic_uuid)
-        sb = self._backend_read_response_to_str(response)
-        libmetawear.mbl_mw_connection_char_read(
-            self.board, characteristic, sb.raw, len(sb.raw))
-
-        if self._debug:
-            self._print_debug_output("Read", characteristic_uuid, response)
-
-    def _backend_read_gatt_char(self, characteristic):
-        raise NotImplementedError("Use backend-specific classes instead!")
-
-    def write_gatt_char(self, characteristic, command, length):
-        """Write the desired data to the MetaWear board.
-
-        :param pymetawear.mbientlab.metawear.core.GattCharacteristic 
-            characteristic: Characteristic to write to.
-        :param POINTER command: The command to send, as a byte array pointer.
-        :param int length: Length of the array that command points.
-
-        """
-        service_uuid, characteristic_uuid = self._mbl_mw_characteristic_2_uuids(
-            characteristic.contents)
-        data_to_send = self._mbl_mw_command_to_backend_input(command, length)
-        if self._debug:
-            self._print_debug_output("Write", characteristic_uuid, data_to_send)
-        self._backend_write_gatt_char(characteristic_uuid, data_to_send)
-
-    def _backend_write_gatt_char(self, characteristic_uuid, data_to_send):
-        raise NotImplementedError("Use backend-specific classes instead!")
+        self.backend.disconnect()
 
     # MetaWear methods
 
@@ -264,36 +182,37 @@ class MetaWearClient(object):
 
         """
         if callback is not None:
-            if self._notification_callbacks.get(signal_name) is not None:
+            if self.backend.notification_callbacks.get(signal_name) is not None:
                 raise PyMetaWearException(
                     "Subscription to {0} signal already in place!")
-            self._notification_callbacks[signal_name] = (callback,
+            self.backend.notification_callbacks[signal_name] = (callback,
                                                          FnDataPtr(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
-                data_signal, self._notification_callbacks['switch'][1])
+                data_signal, self.backend.notification_callbacks['switch'][1])
             if self._debug:
                 print("Subscribing to {0} changes.".format(signal_name))
         else:
-            if self._notification_callbacks.get(signal_name) is None:
+            if self.backend.notification_callbacks.get(signal_name) is None:
                 return
             data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(
                 self.board)
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
-            self._notification_callbacks.pop('switch')
+            self.backend.notification_callbacks.pop('switch')
             if self._debug:
                 print("Unsubscribing to {0} changes.".format(signal_name))
 
     # Helper methods
 
-    def get_handle(self, uuid):
+    def get_handle(self, uuid, notify_handle=False):
         """Get handle for a characteristic UUID.
 
         :param uuid.UUID uuid: The UUID to get handle of.
+        :param bool notify_handle:
         :return: Integer handle corresponding to the input characteristic UUID.
         :rtype: int
 
         """
-        raise NotImplementedError("Use backend-specific classes instead!")
+        return self.backend.get_handle(uuid, notify_handle=notify_handle)
 
     def _sensor_data_handler(self, data):
         if (data.contents.type_id == DataTypeId.UINT32):
@@ -335,37 +254,3 @@ class MetaWearClient(object):
         else:
             raise RuntimeError(
                 'Unrecognized data type id: ' + str(data.contents.type_id))
-
-    @staticmethod
-    def _mbl_mw_characteristic_2_uuids(characteristic):
-        return (uuid.UUID(int=(characteristic.service_uuid_high << 64) +
-                              characteristic.service_uuid_low),
-                uuid.UUID(int=(characteristic.uuid_high << 64) +
-                              characteristic.uuid_low))
-
-    @staticmethod
-    def _mbl_mw_command_to_backend_input(command, length):
-        raise NotImplementedError("Use backend-specific classes instead!")
-
-    @staticmethod
-    def _backend_read_response_to_str(response):
-        raise NotImplementedError("Use backend-specific classes instead!")
-
-    @staticmethod
-    def _backend_notify_response_to_str(response):
-        raise NotImplementedError("Use backend-specific classes instead!")
-
-    def _print_debug_output(self, action, handle_or_char, data):
-        if isinstance(data, bytearray):
-            data_as_hex = " ".join(["{:02x}".format(b) for b in data])
-        else:
-            data_as_hex = " ".join(["{:02x}".format(ord(b)) for b in data])
-
-        if isinstance(handle_or_char, (uuid.UUID, basestring)):
-            handle = self.get_handle(handle_or_char)
-        elif isinstance(handle_or_char, int):
-            handle = handle_or_char
-        else:
-            handle = -1
-
-        print("{0:<6s} 0x{1:04x}: {2}".format(action, handle, data_as_hex))
