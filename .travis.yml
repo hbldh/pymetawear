@@ -1,4 +1,4 @@
-language: python
+language: generic
 sudo: required
 dist: trusty
 python:
@@ -19,10 +19,18 @@ branches:
   only:
     - master
     - develop
-before_install:
-  - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
-  - sudo apt-get -qq update
-  - sudo apt-get install -y cmake build-essential libglib2.0-dev python-dev bluez bluetooth libbluetooth-dev libboost-python-dev libboost-thread-dev
+addons:
+  apt:
+    packages:
+    - cmake
+    - build-essential
+    - libglib2.0-dev
+    - python-dev
+    - bluez
+    - bluetooth
+    - libbluetooth-dev
+    - libboost-python-dev
+    - libboost-thread-dev
 install:
   - "pip install pytest"
   - "pip install pytest-cov"
