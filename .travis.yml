@@ -32,11 +32,11 @@ addons:
     - libboost-python-dev
     - libboost-thread-dev
 install:
-  - "pip install pytest"
-  - "pip install pytest-cov"
-  - "pip install python-coveralls"
-  - "pip install Sphinx sphinx_rtd_theme"
-  - "pip install -e ."
+  - "sudo pip install pytest"
+  - "sudo pip install pytest-cov"
+  - "sudo pip install python-coveralls"
+  - "sudo pip install Sphinx sphinx_rtd_theme"
+  - "sudo pip install -e ."
 script: py.test tests/ --cov pymetawear --cov-report term-missing
 after_success:
   - coveralls
