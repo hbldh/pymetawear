@@ -8,8 +8,9 @@ PyMetawear
 
 Python package for connecting to and using `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
-PyMetawear is a slim wrapper around the `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
-which is included as a Git submodule. It has support for using either
+PyMetawear is meant to be a thin wrapper around the
+`MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
+providing a more Pythonic interface. It has support for using either
 `pybluez <https://github.com/karulis/pybluez>`_ and
 `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ or
 `pygatt <https://github.com/peplin/pygatt>`_ for
@@ -62,32 +63,39 @@ of this repository.
 Basic Usage
 -----------
 
-Currently, this MetaWear client is a pretty thin object, only handling the Bluetooth connection and
-actual communication and mostly being called indirectly from the ``libmetawear`` C++ library:
+Currently, this MetaWear client is a pretty thin object, only
+handling the Bluetooth connection and
+actual communication and mostly being called indirectly
+from the ``libmetawear`` C++ library.
 
 .. code-block:: python
-    
+
+    from pymetawear.client import MetaWearClient
+    backend = 'pybluez'  # Or 'pygatt'
+    c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
+
+An example: blinking with the LED lights can be done like this:
+
+.. code-block:: python
+
     from ctypes import byref
     from pymetawear import libmetawear
-    from pymetawear.client import MetaWearClient
     from pymetawear.mbientlab.metawear.peripheral import Led
-
-    # Discovering nearby MetaWear boards.
-    # N.B. Might require sudo access! Check `discover_devices` docstring for solution.
-    metawear_devices = discover_devices(timeout=3)
-    if len(metawear_devices) < 1:
-        raise ValueError("No MetaWear devices could be detected.")
-    else:
-        address = metawear_devices[0][0]
-
-    backend = 'pygatt'  # Can also be set to 'pybluez'
-    c = MetaWearClientPyGatt(address, backend)
-
-    # Blinking 10 times with green LED.
 
     pattern = Led.Pattern(repeat_count=10)
     libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), Led.PRESET_BLINK)
     libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
     libmetawear.mbl_mw_led_play(c.board)
 
-See the examples folder for more examples on how to use the ``libmetawear`` library with this client.
+Actual addresses to your MetaWear board can be found by scanning, either
+directly with ``hcitool lescan`` or with the included ``discover_devices`` method:
+
+.. code-block:: python
+
+    from pymetawear.client import discover_devices
+    out = discover_devices()
+    print out
+    [(u'DD:3A:7D:4D:56:F0', u'MetaWear'), (u'FF:50:35:82:3B:5A', u'MetaWear')]
+
+See the examples folder for more examples on how to use the ``libmetawear``
+library with this client.

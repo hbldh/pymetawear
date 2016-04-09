@@ -21,7 +21,13 @@ import re
 from codecs import open
 
 from setuptools import setup, find_packages
-from setuptools.command import build_py
+from setuptools.command import build_py, develop
+
+
+class PyMetaWearDeveloper(develop.develop):
+    def run(self):
+        build_solution()
+        develop.develop.run(self)
 
 
 class PyMetaWearBuilder(build_py.build_py):
@@ -127,6 +133,7 @@ setup(
     ],
     cmdclass={
         'build_py': PyMetaWearBuilder,
+        'develop': PyMetaWearDeveloper
     },
     packages=find_packages(exclude=['tests', 'docs', 'examples']),
     # Adding MbientLab's Python code as package data since it is copied

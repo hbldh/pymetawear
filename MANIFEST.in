@@ -1,1 +1,7 @@
-include LICENSE README.rst HISTORY.rst requirements.txt docs/* examples/*
+include LICENSE README.rst HISTORY.rst requirements.txt
+
+recursive-include examples *
+recursive-include tests *
+
+recursive-include docs *
+prune docs/build
