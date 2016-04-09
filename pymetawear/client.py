@@ -189,9 +189,18 @@ class MetaWearClient(object):
             self._data_signal_subscription(None, 'switch', callback)
 
     def accelerometer_notifications(self, callback):
+        """Subscribe or unsubscribe to accelerometer notifications.
+
+        :param callable callback: Accelerometer data notification callback
+            function. If `None`, unsubscription to accelerometer notifications
+            is registered.
+
+        """
         if callback is not None:
-            data_signal = libmetawear.mbl_mw_acc_get_acceleration_data_signal(self.board)
-            self._data_signal_subscription(data_signal, 'accelerometer', callback)
+            data_signal = libmetawear.mbl_mw_acc_get_acceleration_data_signal(
+                self.board)
+            self._data_signal_subscription(
+                data_signal, 'accelerometer', callback)
         else:
             self._data_signal_subscription(None, 'accelerometer', callback)
 
