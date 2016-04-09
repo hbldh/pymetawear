@@ -3,7 +3,10 @@
 Backend: :mod:`pygatt`
 ======================
 
-PyMetaWear can use ``pygatt`` as BLE communication backend.
+PyMetaWear can use ``pygatt`` as BLE communication backend. This package
+uses `pexpect <https://pexpect.readthedocs.org/en/stable/>`_ to control
+the ``gatttool`` (part of BlueZ) command-line utility's interactive terminal to
+communicate with Bluetooth LE devices.
 
 Code can be found on `Github <https://github.com/peplin/pygatt>`_.
 
@@ -14,7 +17,8 @@ Code can be found on `Github <https://github.com/peplin/pygatt>`_.
 PyMetaWearGATTToolBackend
 -------------------------
 
-Some parts of the ``gatttool`` connection client did not work properly with the MetaWear boards.
+Some parts of the ``gatttool`` connection client did not work
+properly with the MetaWear boards.
 Right now, these bugs are circumvented by overriding the offending methods.
 
 .. automodule:: pymetawear.backends.pygatt.gatttool

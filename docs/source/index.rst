@@ -31,9 +31,9 @@ Contents
 .. toctree::
    :maxdepth: 1
 
+   discover
    client
-   backends/pygatt
-   backends/gattlib
+   backends/index
 
 Installation
 ------------

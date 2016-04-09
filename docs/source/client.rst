@@ -3,28 +3,19 @@
 MetaWearClient
 ==============
 
-The MetaWear client provided by this package.
+The MetaWear client provided by this package. It can be used as such:
 
 .. code-block:: python
 
-    from pymetawear import libmetawear
     from pymetawear.client import MetaWearClient
-    from pymetawear.mbientlab.metawear.peripheral import Led
+    backend = 'pybluez'  # Or 'pygatt'
+    c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
 
-    # Discovering nearby MetaWear boards.
-    # N.B. Might require sudo access! Check `discover_devices` docstring for solution.
-    metawear_devices = discover_devices(timeout=3)
-    if len(metawear_devices) < 1:
-        raise ValueError("No MetaWear devices could be detected.")
-    else:
-        address = metawear_devices[0][0]
-
-    backend = 'pygatt'  # Can also be set to 'pybluez'
-    c = MetaWearClientPyGatt(address, backend)
+The client can now be used for e.g. subscribing to data signals or logging data.
 
 API
 ---
 
 .. automodule:: pymetawear.client
-   :members:
-       MetaWearClient
+    :members:
+      MetaWearClient

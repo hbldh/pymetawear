@@ -3,6 +3,7 @@
 """
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+
 Created on 2016-03-30
 
 """
@@ -35,22 +36,24 @@ def discover_devices(timeout=5, only_metawear=True):
 
     Using hcitool in subprocess, since DiscoveryService in pybluez/gattlib
     requires sudo, and hcitool can be allowed to do scan without elevated
-    permission:
+    permission.
+
+    .. code-block:: bash
 
         $ sudo apt-get install libcap2-bin
 
     installs linux capabilities manipulation tools.
 
+    .. code-block:: bash
+
         $ sudo setcap 'cap_net_raw,cap_net_admin+eip' `which hcitool`
 
     sets the missing capabilities on the executable quite like the setuid bit.
 
-    References:
+    **References:**
 
-    SE, hcitool without sudo:
-    https://unix.stackexchange.com/questions/96106/bluetooth-le-scan-as-non-root
-    SE, hcitool lescan with timeout.
-    https://stackoverflow.com/questions/26874829/hcitool-lescan-will-not-print-in-real-time-to-a-file
+    * `StackExchange, hcitool without sudo <https://unix.stackexchange.com/questions/96106/bluetooth-le-scan-as-non-root>`_
+    * `StackOverflow, hcitool lescan with timeout <https://stackoverflow.com/questions/26874829/hcitool-lescan-will-not-print-in-real-time-to-a-file>`_
 
     :param int timeout: Duration of scanning.
     :param bool only_metawear: If only addresses with the string 'metawear'
@@ -78,18 +81,27 @@ def discover_devices(timeout=5, only_metawear=True):
 
 
 class MetaWearClient(object):
-    """
-    MetaWear client bridging the gap between
-    `libmetawear` and a GATT communication client.
+    """A MetaWear communication client.
+    
+    This client bridges the gap between the
+    `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_
+    and a GATT communication package in Python. It provides Pythonic
+    interface to using the MetaWear boards, allowing for rapid
+    development and testing.
+
+    :param str address: A Bluetooth MAC address to a MetaWear board.
+    :param str backend: Either ``pygatt`` or ``pybluez``, designating which
+        BLE communication backend that should be used.
+    :param bool debug: If printout of all sent and received
+        data should be done.
+
     """
 
     def __init__(self, address, backend='pygatt', debug=False):
-
+        """Constructor."""
         self._address = address
         self._debug = debug
         self._initialized = False
-
-        self._backend = None
 
         if backend == 'pygatt':
             self._backend = PyGattBackend(
@@ -97,6 +109,8 @@ class MetaWearClient(object):
         elif backend == 'pybluez':
             self._backend = PyBluezBackend(
                 self._address, debug=debug)
+        else:
+            raise PyMetaWearException("Unknown backend: {0}".format(backend))
 
         if self._debug:
             print("Waiting for MetaWear board to be fully initialized...")
@@ -106,9 +120,9 @@ class MetaWearClient(object):
             time.sleep(0.1)
 
         self.firmware_version = tuple(
-            [int(x) for x in self.backend._read_gatt_char(
+            [int(x) for x in self.backend.read_gatt_char_by_uuid(
             specs.DEV_INFO_FIRMWARE_CHAR[1]).split('.')])
-        self.model_version = int(self.backend._read_gatt_char(
+        self.model_version = int(self.backend.read_gatt_char_by_uuid(
             specs.DEV_INFO_MODEL_CHAR[1]))
 
     def __str__(self):
@@ -182,22 +196,22 @@ class MetaWearClient(object):
 
         """
         if callback is not None:
-            if self.backend.notification_callbacks.get(signal_name) is not None:
+            if self.backend.callbacks.get(signal_name) is not None:
                 raise PyMetaWearException(
                     "Subscription to {0} signal already in place!")
-            self.backend.notification_callbacks[signal_name] = (callback,
+            self.backend.callbacks[signal_name] = (callback,
                                                          FnDataPtr(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
-                data_signal, self.backend.notification_callbacks['switch'][1])
+                data_signal, self.backend.callbacks[signal_name][1])
             if self._debug:
                 print("Subscribing to {0} changes.".format(signal_name))
         else:
-            if self.backend.notification_callbacks.get(signal_name) is None:
+            if self.backend.callbacks.get(signal_name) is None:
                 return
             data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(
                 self.board)
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
-            self.backend.notification_callbacks.pop('switch')
+            self.backend.callbacks.pop(signal_name)
             if self._debug:
                 print("Unsubscribing to {0} changes.".format(signal_name))
 

@@ -33,23 +33,32 @@ class BLECommunicationBackend(object):
 
         self._build_handle_dict()
 
+        # Define read and write to characteristics methods to be used by
+        # libmetawear. These methods in their turn use the backend read/write
+        # methods implemented in the specific backends.
         self._btle_connection = BtleConnection(
-            write_gatt_char=FnGattCharPtrByteArray(self.write_gatt_char),
-            read_gatt_char=FnGattCharPtr(self.read_gatt_char))
+            write_gatt_char=FnGattCharPtrByteArray(self.mbl_mw_write_gatt_char),
+            read_gatt_char=FnGattCharPtr(self.mbl_mw_read_gatt_char))
 
-        # Subscribe to notification characteristic of MetaWear board.
-
-        self.notification_callbacks = {
+        # Dictionary of callbacks for subscriptions set up through the
+        # libmetawear library.
+        self.callbacks = {
             'initialization': (self._initialized_fcn,
                                FnVoid(self._initialized_fcn)),
         }
 
-        self.subscribe(METAWEAR_SERVICE_NOTIFY_CHAR[1], self.handle_notify_char_output)
+        # Setup the notification characteristic subscription
+        # required by MetaWear.
+        self._notify_char_handle = self.get_handle(
+            METAWEAR_SERVICE_NOTIFY_CHAR[1])
+        self.subscribe(METAWEAR_SERVICE_NOTIFY_CHAR[1],
+                       self.handle_notify_char_output)
 
+        # Now create a libmetawear board oject and initialize it.
         self.board = libmetawear.mbl_mw_metawearboard_create(
             byref(self._btle_connection))
         libmetawear.mbl_mw_metawearboard_initialize(
-            self.board, self.notification_callbacks.get('initialization')[1])
+            self.board, self.callbacks.get('initialization')[1])
 
     def __str__(self):
         return "{0}, {1}".format(self.__class__.__name__, self._address)
@@ -82,7 +91,7 @@ class BLECommunicationBackend(object):
         if self._debug:
             self._print_debug_output("Subscribe", characteristic_uuid, [])
 
-    def read_gatt_char(self, characteristic):
+    def mbl_mw_read_gatt_char(self, characteristic):
         """Read the desired data from the MetaWear board.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic
@@ -94,7 +103,7 @@ class BLECommunicationBackend(object):
         else:
             service_uuid, characteristic_uuid = self._mbl_mw_characteristic_2_uuids(
                 characteristic.contents)
-        response = self._read_gatt_char(characteristic_uuid)
+        response = self.read_gatt_char_by_uuid(characteristic_uuid)
         sb = self.read_response_to_str(response)
         libmetawear.mbl_mw_connection_char_read(
             self.board, characteristic, sb.raw, len(sb.raw))
@@ -102,7 +111,7 @@ class BLECommunicationBackend(object):
         if self._debug:
             self._print_debug_output("Read", characteristic_uuid, response)
 
-    def write_gatt_char(self, characteristic, command, length):
+    def mbl_mw_write_gatt_char(self, characteristic, command, length):
         """Write the desired data to the MetaWear board.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic
@@ -119,15 +128,15 @@ class BLECommunicationBackend(object):
         data_to_send = self.mbl_mw_command_to_input(command, length)
         if self._debug:
             self._print_debug_output("Write", characteristic_uuid, data_to_send)
-        self._write_gatt_char(characteristic_uuid, data_to_send)
+        self.write_gatt_char_by_uuid(characteristic_uuid, data_to_send)
 
     def _subscribe(self, characterisitic_uuid, callback):
         raise NotImplementedError("Use backend-specific classes instead!")
 
-    def _read_gatt_char(self, characteristic_uuid):
+    def read_gatt_char_by_uuid(self, characteristic_uuid):
         raise NotImplementedError("Use backend-specific classes instead!")
 
-    def _write_gatt_char(self, characteristic_uuid, data_to_send):
+    def write_gatt_char_by_uuid(self, characteristic_uuid, data_to_send):
         raise NotImplementedError("Use backend-specific classes instead!")
 
     # Callback methods
@@ -141,7 +150,7 @@ class BLECommunicationBackend(object):
         if self._debug:
             self._print_debug_output("Notify", handle, value)
 
-        if handle == 31:
+        if handle == self._notify_char_handle:
             sb = self.notify_response_to_str(value)
             libmetawear.mbl_mw_connection_notify_char_changed(
                 self.board, sb.raw, len(sb.raw))

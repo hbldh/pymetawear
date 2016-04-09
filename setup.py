@@ -27,53 +27,56 @@ def read(f):
     return open(f, encoding='utf-8').read()
 
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-path_to_libmetawear_so = os.path.join(
-    basedir, 'pymetawear', 'Metawear-CppAPI', 'dist', 'release', 'lib',
-    'x64' if os.uname()[-1] == 'x86_64' else 'x86', 'libmetawear.so')
-path_to_metawear_python_wrappers = os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI', 'wrapper', 'python')
+if sys.argv[-1] in ('build', 'develop', 'install'):
 
-print('Running git submodule init...')
-p = subprocess.Popen(['git', 'submodule', 'init'], cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
-p.communicate()
-print('Running git submodule update...')
-p = subprocess.Popen(['git', 'submodule', 'update'], cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
-p.communicate()
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    path_to_libmetawear_so = os.path.join(
+        basedir, 'pymetawear', 'Metawear-CppAPI', 'dist', 'release', 'lib',
+        'x64' if os.uname()[-1] == 'x86_64' else 'x86', 'libmetawear.so')
+    path_to_metawear_python_wrappers = os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI', 'wrapper', 'python')
 
-print('Make build...')
-p = subprocess.Popen(['make', 'clean'], cwd=os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI'),
-                     stdout=sys.stdout, stderr=sys.stderr)
-p.communicate()
-p = subprocess.Popen(['make', 'build'], cwd=os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI'),
-                     stdout=sys.stdout, stderr=sys.stderr)
-p.communicate()
+    print('Running git submodule init...')
+    p = subprocess.Popen(['git', 'submodule', 'init'], cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
+    p.communicate()
+    print('Running git submodule update...')
+    p = subprocess.Popen(['git', 'submodule', 'update'], cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
+    p.communicate()
 
-# Copy the built shared library to pymetawear folder.
-shutil.copy(os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI', 'dist', 'release', 'lib',
-            'x64' if os.uname()[-1] == 'x86_64' else 'x86', 'libmetawear.so'),
-            os.path.join(basedir, 'pymetawear', 'libmetawear.so'))
-# Copy the Mbientlab Python wrappers to pymetawear folder. First create folders if needed.
-try:
-    os.makedirs(os.path.join(basedir, 'pymetawear', 'mbientlab'))
-except:
-    pass
+    print('Make build...')
+    p = subprocess.Popen(['make', 'clean'], cwd=os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI'),
+                         stdout=sys.stdout, stderr=sys.stderr)
+    p.communicate()
+    p = subprocess.Popen(['make', 'build'], cwd=os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI'),
+                         stdout=sys.stdout, stderr=sys.stderr)
+    p.communicate()
 
-try:
-    os.makedirs(os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear'))
-except:
-    pass
-with open(os.path.join(basedir, 'pymetawear', 'mbientlab', '__init__.py'), 'w') as f:
-    f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
-with open(os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', '__init__.py'), 'w') as f:
-    f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
-shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'core.py'),
-            os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'core.py'))
-shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'peripheral.py'),
-            os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'peripheral.py'))
-shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'processor.py'),
-            os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'processor.py'))
-shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'sensor.py'),
-            os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'sensor.py'))
+    # Copy the built shared library to pymetawear folder.
+    shutil.copy(os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI', 'dist', 'release', 'lib',
+                'x64' if os.uname()[-1] == 'x86_64' else 'x86', 'libmetawear.so'),
+                os.path.join(basedir, 'pymetawear', 'libmetawear.so'))
+
+    # Copy the Mbientlab Python wrappers to pymetawear folder. First create folders if needed.
+    try:
+        os.makedirs(os.path.join(basedir, 'pymetawear', 'mbientlab'))
+    except:
+        pass
+
+    try:
+        os.makedirs(os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear'))
+    except:
+        pass
+    with open(os.path.join(basedir, 'pymetawear', 'mbientlab', '__init__.py'), 'w') as f:
+        f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
+    with open(os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', '__init__.py'), 'w') as f:
+        f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
+    shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'core.py'),
+                os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'core.py'))
+    shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'peripheral.py'),
+                os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'peripheral.py'))
+    shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'processor.py'),
+                os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'processor.py'))
+    shutil.copy(os.path.join(path_to_metawear_python_wrappers, 'mbientlab', 'metawear', 'sensor.py'),
+                os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear', 'sensor.py'))
 
 
 with open('pymetawear/__init__.py', 'r') as fd:
