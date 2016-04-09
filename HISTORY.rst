@@ -1,3 +1,8 @@
+v0.3.1 (2016-04-10)
+- Critical fix for data signal subscription method.
+- ``Setup.py`` handling of building made better,
+- Documentation improved.
+
 v0.3.0 (2016-04-09)
 ===================
 - Major refactoring: all BLE comm code practically moved to backends.

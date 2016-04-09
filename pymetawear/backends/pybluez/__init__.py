@@ -97,7 +97,7 @@ class PyBluezBackend(BLECommunicationBackend):
 
     # Read and Write methods
 
-    def _read_gatt_char(self, characteristic_uuid):
+    def read_gatt_char_by_uuid(self, characteristic_uuid):
         """Read the desired data from the MetaWear board
         using pybluez/gattlib backend.
 
@@ -108,7 +108,7 @@ class PyBluezBackend(BLECommunicationBackend):
         """
         return self.requester.read_by_uuid(str(characteristic_uuid))[0]
 
-    def _write_gatt_char(self, characteristic_uuid, data_to_send):
+    def write_gatt_char_by_uuid(self, characteristic_uuid, data_to_send):
         """Write the desired data to the MetaWear board
         using pybluez/gattlib backend.
 

@@ -13,9 +13,9 @@ PyMetaWear documentation
 
 Python package for connecting to and using `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
-PyMetawear is a slim wrapper around the
+PyMetawear is meant to be a thin wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
-which is included as a Git submodule. It has support for using either
+providing a more Pythonic interface. It has support for using either
 `pybluez <https://github.com/karulis/pybluez>`_ and
 `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ or
 `pygatt <https://github.com/peplin/pygatt>`_ for
@@ -31,9 +31,9 @@ Contents
 .. toctree::
    :maxdepth: 1
 
+   discover
    client
-   backends/pygatt
-   backends/gattlib
+   backends/index
 
 Installation
 ------------
