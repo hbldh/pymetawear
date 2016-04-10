@@ -15,7 +15,6 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import time
-
 from ctypes import byref
 
 from pymetawear.client import discover_devices, MetaWearClient, libmetawear
