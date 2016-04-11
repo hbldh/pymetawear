@@ -57,7 +57,7 @@ in the cloned repository's root folder.
 Documentation
 -------------
 
-Available in the [Github pages](https://hbldh.github.io/pymetawear/)
+Available in the `Github pages <https://hbldh.github.io/pymetawear/>`_
 of this repository.
 
 Basic Usage
