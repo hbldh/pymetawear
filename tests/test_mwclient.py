@@ -27,5 +27,7 @@ from pymetawear.backends.pybluez import PyBluezBackend
 #    import mock
 
 
+def test_dummy():
+    assert True
 
 
