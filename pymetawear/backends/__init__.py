@@ -19,6 +19,8 @@ from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import BtleConnection, FnGattCharPtr, \
     FnGattCharPtrByteArray, FnVoid
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
+from pymetawear.utils import string_types
+
 
 
 class BLECommunicationBackend(object):
@@ -191,12 +193,12 @@ class BLECommunicationBackend(object):
                                characteristic.uuid_low))
 
     def _print_debug_output(self, action, handle_or_char, data):
-        if isinstance(data, bytearray):
+        if data and isinstance(data[0], int):
             data_as_hex = " ".join(["{:02x}".format(b) for b in data])
         else:
             data_as_hex = " ".join(["{:02x}".format(ord(b)) for b in data])
 
-        if isinstance(handle_or_char, (uuid.UUID, basestring)):
+        if isinstance(handle_or_char, (uuid.UUID, string_types)):
             handle = self.get_handle(handle_or_char)
         elif isinstance(handle_or_char, int):
             handle = handle_or_char

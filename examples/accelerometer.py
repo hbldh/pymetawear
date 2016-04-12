@@ -43,6 +43,7 @@ _acc_callback = FnDataPtr(acc_callback)
 
 print("Getting accelerometer data signal...")
 acc_signal = libmetawear.mbl_mw_acc_get_acceleration_data_signal(c.board)
+print(acc_signal)
 
 print("Write accelerometer settings...")
 libmetawear.mbl_mw_acc_set_odr(c.board, c_float(200.0))

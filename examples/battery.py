@@ -28,9 +28,8 @@ if len(metawear_devices) < 1:
 else:
     address = metawear_devices[0][0]
 
-c = MetaWearClient(str(address), 'pybluez', debug=True)
+c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
-
 
 def battery_callback(data):
     if data.contents.type_id == DataTypeId.BATTERY_STATE:
@@ -43,6 +42,8 @@ _battery_callback = FnDataPtr(battery_callback)
 
 print("Getting battery state data signal...")
 battery_signal = libmetawear.mbl_mw_settings_get_battery_state_data_signal(c.board)
+print(type(battery_signal), battery_signal)
+
 print("Subscribing to battery state...")
 libmetawear.mbl_mw_datasignal_subscribe(battery_signal, _battery_callback)
 print("Waiting for update...")

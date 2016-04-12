@@ -38,7 +38,7 @@ class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
             p = subprocess.Popen(["dpkg", "--status", "bluez"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = subprocess.check_output(('grep', '^Version:'), stdin=p.stdout)
             p.wait()
-            major, minor_plus = output.split('Version:')[-1].strip().split('.', 1)
+            major, minor_plus = output.decode().split('Version:')[-1].strip().split('.', 1)
         except Exception as e:
             major = '5'
 
@@ -50,7 +50,8 @@ class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
                 cmd = 'connect %s %s' % (self._address, address_type)
                 self._con.sendline(cmd)
                 if int(major) < 5:
-                    self._con.expect(b'\[CON\]\[{0}\]\[LE\]>'.format(self._address), timeout)
+                    expect_str = self._address.encode().join([b'\[CON\]\[', b'\]\[LE\]'])
+                    self._con.expect(expect_str, timeout)
                 else:
                     self._con.expect(b'Connection successful.*\[LE\]>', timeout)
         except pexpect.TIMEOUT:
@@ -63,7 +64,7 @@ class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
         return self._connected_device
 
     def _handle_notification_string(self, msg):
-        hex_handle, hex_values = self._notification_regex.search(msg.strip()).groups()
+        hex_handle, hex_values = self._notification_regex.search(msg.decode().strip()).groups()
         handle = int(hex_handle, 16)
         value = bytearray([int(x, 16) for x in hex_values.strip().split(' ')])
         if self._connected_device is not None:

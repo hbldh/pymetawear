@@ -82,7 +82,7 @@ def discover_devices(timeout=5, only_metawear=True):
 
 class MetaWearClient(object):
     """A MetaWear communication client.
-    
+
     This client bridges the gap between the
     `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_
     and a GATT communication package in Python. It provides Pythonic
@@ -123,9 +123,9 @@ class MetaWearClient(object):
 
         self.firmware_version = tuple(
             [int(x) for x in self.backend.read_gatt_char_by_uuid(
-            specs.DEV_INFO_FIRMWARE_CHAR[1]).split('.')])
+            specs.DEV_INFO_FIRMWARE_CHAR[1]).decode().split('.')])
         self.model_version = int(self.backend.read_gatt_char_by_uuid(
-            specs.DEV_INFO_MODEL_CHAR[1]))
+            specs.DEV_INFO_MODEL_CHAR[1]).decode())
 
     def __str__(self):
         return "MetaWearClient, {0}".format(self._address)
@@ -181,12 +181,8 @@ class MetaWearClient(object):
             If `None`, unsubscription to switch notifications is registered.
 
         """
-        if callback is not None:
-            data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(
-                self.board)
-            self._data_signal_subscription(data_signal, 'switch', callback)
-        else:
-            self._data_signal_subscription(None, 'switch', callback)
+        data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(self.board)
+        self._data_signal_subscription(data_signal, 'switch', callback)
 
     def accelerometer_notifications(self, callback):
         """Subscribe or unsubscribe to accelerometer notifications.
@@ -196,13 +192,8 @@ class MetaWearClient(object):
             is registered.
 
         """
-        if callback is not None:
-            data_signal = libmetawear.mbl_mw_acc_get_acceleration_data_signal(
-                self.board)
-            self._data_signal_subscription(
-                data_signal, 'accelerometer', callback)
-        else:
-            self._data_signal_subscription(None, 'accelerometer', callback)
+        data_signal = libmetawear.mbl_mw_acc_get_acceleration_data_signal(self.board)
+        self._data_signal_subscription(data_signal, 'accelerometer', callback)
 
     def _data_signal_subscription(self, data_signal, signal_name, callback):
         """Handle subscriptions to data signals on the MetaWear board.
@@ -214,6 +205,9 @@ class MetaWearClient(object):
 
         """
         if callback is not None:
+            if self._debug:
+                print("Subscribing to {0} changes. (Sig#: {1})".format(
+                    signal_name, data_signal))
             if self.backend.callbacks.get(signal_name) is not None:
                 raise PyMetaWearException(
                     "Subscription to {0} signal already in place!")
@@ -221,15 +215,14 @@ class MetaWearClient(object):
                 (callback, FnDataPtr(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
                 data_signal, self.backend.callbacks[signal_name][1])
-            if self._debug:
-                print("Subscribing to {0} changes.".format(signal_name))
         else:
+            if self._debug:
+                print("Unsubscribing to {0} changes. (Sig#: {1})".format(
+                    signal_name, data_signal))
             if self.backend.callbacks.get(signal_name) is None:
                 return
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
             self.backend.callbacks.pop(signal_name)
-            if self._debug:
-                print("Unsubscribing to {0} changes.".format(signal_name))
 
     # Helper methods
 

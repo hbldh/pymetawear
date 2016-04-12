@@ -19,7 +19,7 @@ from ctypes import create_string_buffer
 from bluetooth.ble import GATTRequester, GATTResponse
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.utils import range_
+from pymetawear.utils import range_, string_types, bytearray_to_str
 from pymetawear.backends import BLECommunicationBackend
 
 __all__ = ["PyBluezBackend"]
@@ -93,7 +93,8 @@ class PyBluezBackend(BLECommunicationBackend):
     def _subscribe(self, characteristic_uuid, callback):
         # Subscribe to Notify Characteristic.
         handle = self.get_handle(characteristic_uuid, notify_handle=True)
-        return self.requester.write_by_handle_async(handle, bytes(bytearray([0x01, 0x00])), self._response)
+        bytes_to_send = bytearray([0x01, 0x00])
+        return self.requester.write_by_handle_async(handle, bytes(bytes_to_send), self._response)
 
     # Read and Write methods
 
@@ -117,6 +118,8 @@ class PyBluezBackend(BLECommunicationBackend):
 
         """
         handle = self.get_handle(characteristic_uuid)
+        if not isinstance(data_to_send, string_types):
+            data_to_send = data_to_send.decode('latin1')
         self.requester.write_by_handle_async(handle, data_to_send, self._response)
 
     def get_handle(self, characteristic_uuid, notify_handle=False):
@@ -128,7 +131,7 @@ class PyBluezBackend(BLECommunicationBackend):
         :rtype: int
 
         """
-        if isinstance(characteristic_uuid, basestring):
+        if isinstance(characteristic_uuid, string_types):
             characteristic_uuid = characteristic_uuid.UUID(
                 characteristic_uuid)
         handle = self._characteristics_cache.get(
@@ -144,8 +147,9 @@ class PyBluezBackend(BLECommunicationBackend):
 
     @staticmethod
     def read_response_to_str(response):
-        return create_string_buffer(response.encode('utf8'), len(response))
+        return create_string_buffer(bytearray_to_str(response), len(response))
 
     @staticmethod
     def notify_response_to_str(response):
-        return create_string_buffer(bytes(response), len(bytes(response)))
+        bs = bytearray_to_str(response)
+        return create_string_buffer(bs, len(bs))
