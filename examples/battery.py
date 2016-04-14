@@ -15,7 +15,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import time
-from ctypes import cast, POINTER, c_uint
+from ctypes import cast, POINTER, c_uint, c_long
 from pymetawear.client import discover_devices, MetaWearClient, libmetawear
 from pymetawear.mbientlab.metawear.core import DataTypeId, BatteryState, FnDataPtr
 
@@ -41,6 +41,8 @@ def battery_callback(data):
 _battery_callback = FnDataPtr(battery_callback)
 
 print("Getting battery state data signal...")
+# Use long to hold pointer address
+libmetawear.mbl_mw_settings_get_battery_state_data_signal.restype= c_long
 battery_signal = libmetawear.mbl_mw_settings_get_battery_state_data_signal(c.board)
 print(type(battery_signal), battery_signal)
 
@@ -48,6 +50,8 @@ print("Subscribing to battery state...")
 libmetawear.mbl_mw_datasignal_subscribe(battery_signal, _battery_callback)
 print("Waiting for update...")
 
+print("Reading battery state...")
+libmetawear.mbl_mw_settings_read_battery_state(c.board)
 
 time.sleep(5.0)
 
