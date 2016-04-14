@@ -20,12 +20,14 @@ import signal
 import copy
 import warnings
 
-from ctypes import cast, POINTER, c_uint, c_float, c_ubyte, c_long
+from ctypes import cast, POINTER, c_uint, c_float, c_ubyte, c_long, c_uint16
 
 from pymetawear import libmetawear, specs
 from pymetawear.exceptions import *
 from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
     BatteryState, Tcs34725ColorAdc, FnDataPtr
+import pymetawear.modules
+import pymetawear.modules.accelerometer
 from pymetawear.utils import is_64bit
 
 from pymetawear.backends.pygatt import PyGattBackend
@@ -129,6 +131,10 @@ class MetaWearClient(object):
         self.model_version = int(self.backend.read_gatt_char_by_uuid(
             specs.DEV_INFO_MODEL_CHAR[1]).decode())
 
+        self._accelerometer_specs = pymetawear.modules.accelerometer.PyMetaWearAccelerometer(
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                pymetawear.modules.Modules.MBL_MW_MODULE_ACCELEROMETER))
+
     def __str__(self):
         return "MetaWearClient, {0}".format(self._address)
 
@@ -159,6 +165,62 @@ class MetaWearClient(object):
 
     # MetaWear methods
 
+    # Sensor methods
+
+    def accelerometer_notifications(self, callback):
+        """Subscribe or unsubscribe to accelerometer notifications.
+
+        :param callable callback: Accelerometer data notification callback
+            function. If `None`, unsubscription to accelerometer notifications
+            is registered.
+
+        """
+        data_signal = self._data_signal_preprocess(
+            libmetawear.mbl_mw_acc_get_acceleration_data_signal)
+        self._data_signal_subscription(data_signal, 'accelerometer', callback)
+
+    def set_accelerometer_settings(self, data_rate=None, data_range=None):
+        """Set accelerometer settings.
+
+         Can be called with two or only one setting:
+
+         .. code-block:: python
+
+            mwclient.set_accelerometer_settings(data_rate=200.0, data_range=8.0)
+
+        will give the same result as
+
+        .. code-block:: python
+
+            mwclient.set_accelerometer_settings(data_rate=200.0)
+            mwclient.set_accelerometer_settings(data_range=8.0)
+
+        albeit that the latter example makes two writes to the board.
+
+        Call :meth:`~get_available_accelerometer_settings` to see which values
+        that can be set.
+
+        :param float data_rate: The frequency of accelerometer updates in Hz.
+        :param float data_range: The measurement range in the unit ``g``.
+
+        """
+        if data_rate is not None:
+            odr = self._accelerometer_specs.get_odr(data_rate)
+            if self._debug:
+                print("Setting Accelerometer ODR to {0}".format(odr))
+            libmetawear.mbl_mw_acc_set_odr(self.board, c_float(odr))
+        if data_range is not None:
+            fsr = self._accelerometer_specs.get_fsr(data_range)
+            if self._debug:
+                print("Setting Accelerometer FSR to {0}".format(fsr))
+            libmetawear.mbl_mw_acc_set_range(self.board, c_float(fsr))
+
+        if (data_rate is not None) or (data_range is not None):
+            libmetawear.mbl_mw_acc_write_acceleration_config(self.board)
+
+    def get_available_accelerometer_settings(self):
+        return self._accelerometer_specs
+
     def switch_notifications(self, callback=None):
         """Subscribe or unsubscribe to switch notifications.
 
@@ -183,21 +245,11 @@ class MetaWearClient(object):
             If `None`, unsubscription to switch notifications is registered.
 
         """
-        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_switch_get_state_data_signal)
+        data_signal = self._data_signal_preprocess(
+            libmetawear.mbl_mw_switch_get_state_data_signal)
         self._data_signal_subscription(data_signal, 'switch', callback)
 
-    def accelerometer_notifications(self, callback):
-        """Subscribe or unsubscribe to accelerometer notifications.
-
-        :param callable callback: Accelerometer data notification callback
-            function. If `None`, unsubscription to accelerometer notifications
-            is registered.
-
-        """
-        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_acc_get_acceleration_data_signal)
-        self._data_signal_subscription(data_signal, 'accelerometer', callback)
-
-    def battery_notifications(self, callback):
+    def battery_notifications(self, callback=None):
         """Subscribe or unsubscribe to battery notifications.
 
         :param callable callback: Battery data notification callback
@@ -205,7 +257,8 @@ class MetaWearClient(object):
             is registered.
 
         """
-        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_settings_get_battery_state_data_signal)
+        data_signal = self._data_signal_preprocess(
+            libmetawear.mbl_mw_settings_get_battery_state_data_signal)
         self._data_signal_subscription(data_signal, 'battery', callback)
 
     def read_battery_state(self):
@@ -218,6 +271,27 @@ class MetaWearClient(object):
         if self.backend.callbacks.get('battery') is None:
             warnings.warn("No battery callback is registered!", RuntimeWarning)
         libmetawear.mbl_mw_settings_read_battery_state(self.board)
+
+    def haptic_start_motor(self, duty_cycle_per, pulse_width_ms):
+        """Activate the haptic motor.
+
+        :param float duty_cycle_per: Strength of the motor,
+            between [0, 100] percent
+        :param int pulse_width_ms: How long to run the motor, in milliseconds
+
+        """
+        libmetawear.mbl_mw_haptic_start_motor(
+            c_float(float(duty_cycle_per)),
+            c_uint16(int(pulse_width_ms)))
+
+    def haptic_start_buzzer(self, pulse_width_ms):
+        """Activate the haptic buzzer.
+
+        :param int pulse_width_ms: How long to run the motor, in milliseconds
+
+        """
+        libmetawear.mbl_mw_haptic_start_buzzer(
+            c_uint16(int(pulse_width_ms)))
 
     def _data_signal_preprocess(self, data_signal_func):
         if self._64bit:
@@ -255,6 +329,15 @@ class MetaWearClient(object):
                 return
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
             self.backend.callbacks.pop(signal_name)
+
+    def set_logging_state(self, enabled=False):
+        if enabled:
+            libmetawear.mbl_mw_logging_start(self.board)
+        else:
+            libmetawear.mbl_mw_logging_stop(self.board)
+
+    def download_log(self, n_notifies):
+        libmetawear.mbl_mw_logging_download(self.board, n_notifies)
 
     # Helper methods
 
