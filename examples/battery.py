@@ -47,7 +47,7 @@ battery_signal = libmetawear.mbl_mw_settings_get_battery_state_data_signal(c.boa
 print(type(battery_signal), battery_signal)
 
 print("Subscribing to battery state...")
-libmetawear.mbl_mw_datasignal_subscribe(battery_signal, _battery_callback)
+libmetawear.mbl_mw_datasignal_subscribe(c_long(battery_signal), _battery_callback)
 print("Waiting for update...")
 
 print("Reading battery state...")
