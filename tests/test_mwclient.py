@@ -21,6 +21,13 @@ from pymetawear.backends import BLECommunicationBackend
 from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.backends.pybluez import PyBluezBackend
 
+#try:
+#    from unittest import mock
+#except:
+#    import mock
+
 
 def test_dummy():
     assert True
+
+

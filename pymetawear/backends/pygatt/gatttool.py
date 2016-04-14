@@ -14,16 +14,52 @@ from __future__ import absolute_import
 
 import re
 import subprocess
+from uuid import UUID
 
 import pygatt
+from pygatt import exceptions
 from pygatt.backends.gatttool.gatttool import DEFAULT_CONNECT_TIMEOUT_S, log, \
     NotConnectedError, NotificationTimeout, GATTToolBLEDevice, pexpect
 
+from pymetawear.utils import string_types
+
+
+class PyMetaWearGATTToolBLEDevice(GATTToolBLEDevice):
+    """PyMetaWear overriding ``get_handle`` method to make it Python 3 compliant."""
+
+    def get_handle(self, char_uuid):
+        """
+        Look up and return the handle for an attribute by its UUID.
+        :param char_uuid: The UUID of the characteristic.
+        :type uuid: str
+        :return: None if the UUID was not found.
+        """
+        if isinstance(char_uuid, string_types):
+            char_uuid = UUID(char_uuid)
+        log.debug("Looking up handle for characteristic %s", char_uuid)
+        if char_uuid not in self._characteristics:
+            # TODO need to expose discovering characterstics via BLEDevice
+            self._characteristics = self.discover_characteristics()
+
+        characteristic = self._characteristics.get(char_uuid)
+        if characteristic is None:
+            message = "No characteristic found matching %s" % char_uuid
+            log.warn(message)
+            raise exceptions.BLEError(message)
+
+        # TODO support filtering by descriptor UUID, or maybe return the whole
+        # Characteristic object
+        log.debug("Found %s" % characteristic)
+        return characteristic.handle
+
 
 class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
-    """Minor modification of the GATTToolBackend to handle multiple byte output from notifications.
+    """PyMetaWear overriding some method to handle some issues with pygatt.
 
-    Will be removed if pull request is accepted.
+    * Modification of the GATTToolBackend to handle multiple byte output from notifications.
+    * Added BlueZ 4.X handling in ``connect``.
+
+    Will be removed once pull request is drafted and accepted.
 
     """
 
@@ -38,7 +74,7 @@ class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
             p = subprocess.Popen(["dpkg", "--status", "bluez"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = subprocess.check_output(('grep', '^Version:'), stdin=p.stdout)
             p.wait()
-            major, minor_plus = output.split('Version:')[-1].strip().split('.', 1)
+            major, minor_plus = output.decode().split('Version:')[-1].strip().split('.', 1)
         except Exception as e:
             major = '5'
 
@@ -50,7 +86,8 @@ class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
                 cmd = 'connect %s %s' % (self._address, address_type)
                 self._con.sendline(cmd)
                 if int(major) < 5:
-                    self._con.expect(b'\[CON\]\[{0}\]\[LE\]>'.format(self._address), timeout)
+                    expect_str = self._address.encode().join([b'\[CON\]\[', b'\]\[LE\]'])
+                    self._con.expect(expect_str, timeout)
                 else:
                     self._con.expect(b'Connection successful.*\[LE\]>', timeout)
         except pexpect.TIMEOUT:
@@ -59,11 +96,11 @@ class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
             log.error(message)
             raise NotConnectedError(message)
 
-        self._connected_device = GATTToolBLEDevice(address, self)
+        self._connected_device = PyMetaWearGATTToolBLEDevice(address, self)
         return self._connected_device
 
     def _handle_notification_string(self, msg):
-        hex_handle, hex_values = self._notification_regex.search(msg.strip()).groups()
+        hex_handle, hex_values = self._notification_regex.search(msg.decode().strip()).groups()
         handle = int(hex_handle, 16)
         value = bytearray([int(x, 16) for x in hex_values.strip().split(' ')])
         if self._connected_device is not None:

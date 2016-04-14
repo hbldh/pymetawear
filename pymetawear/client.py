@@ -14,18 +14,19 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
-
 import time
 import subprocess
 import signal
 import copy
+import warnings
 
-from ctypes import cast, POINTER, c_uint, c_float, c_ubyte
+from ctypes import cast, POINTER, c_uint, c_float, c_ubyte, c_long
 
 from pymetawear import libmetawear, specs
 from pymetawear.exceptions import *
 from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
     BatteryState, Tcs34725ColorAdc, FnDataPtr
+from pymetawear.utils import is_64bit
 
 from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.backends.pybluez import PyBluezBackend
@@ -82,7 +83,7 @@ def discover_devices(timeout=5, only_metawear=True):
 
 class MetaWearClient(object):
     """A MetaWear communication client.
-    
+
     This client bridges the gap between the
     `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_
     and a GATT communication package in Python. It provides Pythonic
@@ -102,6 +103,7 @@ class MetaWearClient(object):
         self._address = address
         self._debug = debug
         self._initialized = False
+        self._64bit = is_64bit()
 
         self.sensor_data_handler = FnDataPtr(self._sensor_data_handler)
 
@@ -123,9 +125,9 @@ class MetaWearClient(object):
 
         self.firmware_version = tuple(
             [int(x) for x in self.backend.read_gatt_char_by_uuid(
-            specs.DEV_INFO_FIRMWARE_CHAR[1]).split('.')])
+            specs.DEV_INFO_FIRMWARE_CHAR[1]).decode().split('.')])
         self.model_version = int(self.backend.read_gatt_char_by_uuid(
-            specs.DEV_INFO_MODEL_CHAR[1]))
+            specs.DEV_INFO_MODEL_CHAR[1]).decode())
 
     def __str__(self):
         return "MetaWearClient, {0}".format(self._address)
@@ -181,12 +183,8 @@ class MetaWearClient(object):
             If `None`, unsubscription to switch notifications is registered.
 
         """
-        if callback is not None:
-            data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(
-                self.board)
-            self._data_signal_subscription(data_signal, 'switch', callback)
-        else:
-            self._data_signal_subscription(None, 'switch', callback)
+        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_switch_get_state_data_signal)
+        self._data_signal_subscription(data_signal, 'switch', callback)
 
     def accelerometer_notifications(self, callback):
         """Subscribe or unsubscribe to accelerometer notifications.
@@ -196,13 +194,38 @@ class MetaWearClient(object):
             is registered.
 
         """
-        if callback is not None:
-            data_signal = libmetawear.mbl_mw_acc_get_acceleration_data_signal(
-                self.board)
-            self._data_signal_subscription(
-                data_signal, 'accelerometer', callback)
+        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_acc_get_acceleration_data_signal)
+        self._data_signal_subscription(data_signal, 'accelerometer', callback)
+
+    def battery_notifications(self, callback):
+        """Subscribe or unsubscribe to battery notifications.
+
+        :param callable callback: Battery data notification callback
+            function. If `None`, unsubscription to battery notifications
+            is registered.
+
+        """
+        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_settings_get_battery_state_data_signal)
+        self._data_signal_subscription(data_signal, 'battery', callback)
+
+    def read_battery_state(self):
+        """Triggers a battery state notification.
+
+        N.B. that a :meth:`~battery_notifications` call that registers a callback for
+        battery state should have been done prior to calling this method.
+
+        """
+        if self.backend.callbacks.get('battery') is None:
+            warnings.warn("No battery callback is registered!", RuntimeWarning)
+        libmetawear.mbl_mw_settings_read_battery_state(self.board)
+
+    def _data_signal_preprocess(self, data_signal_func):
+        if self._64bit:
+            data_signal_func.restype = c_long
+            data_signal = c_long(data_signal_func(self.board))
         else:
-            self._data_signal_subscription(None, 'accelerometer', callback)
+            data_signal = data_signal_func(self.board)
+        return data_signal
 
     def _data_signal_subscription(self, data_signal, signal_name, callback):
         """Handle subscriptions to data signals on the MetaWear board.
@@ -214,6 +237,9 @@ class MetaWearClient(object):
 
         """
         if callback is not None:
+            if self._debug:
+                print("Subscribing to {0} changes. (Sig#: {1})".format(
+                    signal_name, data_signal))
             if self.backend.callbacks.get(signal_name) is not None:
                 raise PyMetaWearException(
                     "Subscription to {0} signal already in place!")
@@ -221,15 +247,14 @@ class MetaWearClient(object):
                 (callback, FnDataPtr(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
                 data_signal, self.backend.callbacks[signal_name][1])
-            if self._debug:
-                print("Subscribing to {0} changes.".format(signal_name))
         else:
+            if self._debug:
+                print("Unsubscribing to {0} changes. (Sig#: {1})".format(
+                    signal_name, data_signal))
             if self.backend.callbacks.get(signal_name) is None:
                 return
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
             self.backend.callbacks.pop(signal_name)
-            if self._debug:
-                print("Unsubscribing to {0} changes.".format(signal_name))
 
     # Helper methods
 

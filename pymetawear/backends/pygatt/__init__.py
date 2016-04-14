@@ -17,7 +17,7 @@ import uuid
 from ctypes import create_string_buffer
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.utils import range_
+from pymetawear.utils import range_, bytearray_to_str
 from pymetawear.backends import BLECommunicationBackend
 from pymetawear.backends.pygatt.gatttool import PyMetaWearGATTToolBackend
 
@@ -109,10 +109,8 @@ class PyGattBackend(BLECommunicationBackend):
 
     @staticmethod
     def read_response_to_str(response):
-        return create_string_buffer(str(response), len(response))
+        return create_string_buffer(bytearray_to_str(response), len(response))
 
     @staticmethod
     def notify_response_to_str(response):
-        return create_string_buffer(str(response), len(response))
-
-
+        return create_string_buffer(bytearray_to_str(response), len(response))

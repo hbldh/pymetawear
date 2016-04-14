@@ -52,6 +52,9 @@ time.sleep(10.0)
 # Add it once again
 c.switch_notifications(switch_callback)
 time.sleep(10.0)
+# Remove it once more.
+c.switch_notifications(None)
+time.sleep(1.0)
 
 # The code using libmetawear library directly instead of convenience methods in MetaWearClient:
 #

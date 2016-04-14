@@ -11,7 +11,7 @@ from __future__ import print_function
 # from __future__ import unicode_literals
 from __future__ import absolute_import
 
-from ctypes import byref, cast, POINTER, c_uint, c_float, c_ubyte
+from ctypes import byref, c_long
 import uuid
 
 from pymetawear import libmetawear
@@ -19,6 +19,7 @@ from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import BtleConnection, FnGattCharPtr, \
     FnGattCharPtrByteArray, FnVoid
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
+from pymetawear.utils import string_types, is_64bit
 
 
 class BLECommunicationBackend(object):
@@ -54,9 +55,14 @@ class BLECommunicationBackend(object):
         self.subscribe(METAWEAR_SERVICE_NOTIFY_CHAR[1],
                        self.handle_notify_char_output)
 
-        # Now create a libmetawear board oject and initialize it.
-        self.board = libmetawear.mbl_mw_metawearboard_create(
-            byref(self._btle_connection))
+        # Now create a libmetawear board object and initialize it.
+        if is_64bit():
+            libmetawear.mbl_mw_metawearboard_create.restype = c_long
+            self.board = c_long(libmetawear.mbl_mw_metawearboard_create(
+                byref(self._btle_connection)))
+        else:
+            self.board = libmetawear.mbl_mw_metawearboard_create(
+                byref(self._btle_connection))
         libmetawear.mbl_mw_metawearboard_initialize(
             self.board, self.callbacks.get('initialization')[1])
 
@@ -191,12 +197,12 @@ class BLECommunicationBackend(object):
                                characteristic.uuid_low))
 
     def _print_debug_output(self, action, handle_or_char, data):
-        if isinstance(data, bytearray):
+        if data and isinstance(data[0], int):
             data_as_hex = " ".join(["{:02x}".format(b) for b in data])
         else:
             data_as_hex = " ".join(["{:02x}".format(ord(b)) for b in data])
 
-        if isinstance(handle_or_char, (uuid.UUID, basestring)):
+        if isinstance(handle_or_char, (uuid.UUID, string_types)):
             handle = self.get_handle(handle_or_char)
         elif isinstance(handle_or_char, int):
             handle = handle_or_char

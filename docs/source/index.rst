@@ -21,9 +21,10 @@ providing a more Pythonic interface. It has support for using either
 `pygatt <https://github.com/peplin/pygatt>`_ for
 Bluetooth Low Energy communication.
 
+PyMetaWear can be run in Python 2.7 with both backends, but only with the `pygatt` backend in Python 3.
+
     - PyMetaWear is currently a Linux only package!
-    - PyMetaWear is only tested with Ubuntu 14.04+ as of yet!
-    - PyMetaWear is only tested with Python 2.7.10 as of yet!
+    - PyMetaWear is only tested with Ubuntu 14.04+ and Linux Mint 17 as of yet!
 
 Contents
 --------
