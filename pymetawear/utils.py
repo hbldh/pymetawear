@@ -13,6 +13,9 @@ from __future__ import print_function
 # from __future__ import unicode_literals
 from __future__ import absolute_import
 
+import platform
+
+
 try:
     # Python 2
     range_ = xrange
@@ -33,3 +36,7 @@ except NameError:
         else:
             # PyGatt
             return bytes([x for x in ba])
+
+
+def is_64bit():
+    return platform.architecture()[0] == '64bit'

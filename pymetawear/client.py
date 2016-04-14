@@ -14,18 +14,19 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
-
 import time
 import subprocess
 import signal
 import copy
+import warnings
 
-from ctypes import cast, POINTER, c_uint, c_float, c_ubyte
+from ctypes import cast, POINTER, c_uint, c_float, c_ubyte, c_long
 
 from pymetawear import libmetawear, specs
 from pymetawear.exceptions import *
 from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
     BatteryState, Tcs34725ColorAdc, FnDataPtr
+from pymetawear.utils import is_64bit
 
 from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.backends.pybluez import PyBluezBackend
@@ -102,6 +103,7 @@ class MetaWearClient(object):
         self._address = address
         self._debug = debug
         self._initialized = False
+        self._64bit = is_64bit()
 
         self.sensor_data_handler = FnDataPtr(self._sensor_data_handler)
 
@@ -181,7 +183,7 @@ class MetaWearClient(object):
             If `None`, unsubscription to switch notifications is registered.
 
         """
-        data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(self.board)
+        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_switch_get_state_data_signal)
         self._data_signal_subscription(data_signal, 'switch', callback)
 
     def accelerometer_notifications(self, callback):
@@ -192,8 +194,38 @@ class MetaWearClient(object):
             is registered.
 
         """
-        data_signal = libmetawear.mbl_mw_acc_get_acceleration_data_signal(self.board)
+        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_acc_get_acceleration_data_signal)
         self._data_signal_subscription(data_signal, 'accelerometer', callback)
+
+    def battery_notifications(self, callback):
+        """Subscribe or unsubscribe to battery notifications.
+
+        :param callable callback: Battery data notification callback
+            function. If `None`, unsubscription to battery notifications
+            is registered.
+
+        """
+        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_settings_get_battery_state_data_signal)
+        self._data_signal_subscription(data_signal, 'battery', callback)
+
+    def read_battery_state(self):
+        """Triggers a battery state notification.
+
+        N.B. that a :meth:`~battery_notifications` call that registers a callback for
+        battery state should have been done prior to calling this method.
+
+        """
+        if self.backend.callbacks.get('battery') is None:
+            warnings.warn("No battery callback is registered!", RuntimeWarning)
+        libmetawear.mbl_mw_settings_read_battery_state(self.board)
+
+    def _data_signal_preprocess(self, data_signal_func):
+        if self._64bit:
+            data_signal_func.restype = c_long
+            data_signal = c_long(data_signal_func(self.board))
+        else:
+            data_signal = data_signal_func(self.board)
+        return data_signal
 
     def _data_signal_subscription(self, data_signal, signal_name, callback):
         """Handle subscriptions to data signals on the MetaWear board.
