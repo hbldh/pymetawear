@@ -127,6 +127,7 @@ setup(
     keywords=['Bluetooth', 'IMU', 'MetaWear', 'MbientLab'],
     classifiers=[
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
         'Operating System :: POSIX :: Linux',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
