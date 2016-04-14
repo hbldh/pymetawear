@@ -64,10 +64,12 @@ of this repository.
 Basic Usage
 -----------
 
-Currently, this MetaWear client is a pretty thin object, only
-handling the Bluetooth connection and
-actual communication and mostly being called indirectly
-from the ``libmetawear`` C++ library.
+The MetaWear client can be used in two ways: either as Pythonic
+convenience class for handling a MetaWear board or as
+a simple communication client governed by the ``libmetawear`` C++ library.
+
+Creating a client, and thus also setting up a Bluetooth connection to the
+MetaWear board, is equal for both the two usage profiles:
 
 .. code-block:: python
 
@@ -75,7 +77,14 @@ from the ``libmetawear`` C++ library.
     backend = 'pybluez'  # Or 'pygatt'
     c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
 
-An example: blinking with the LED lights can be done like this:
+An example: blinking with the LED lights can be done like this with the
+convenience methods:
+
+.. code-block:: python
+
+    # Will be written soon.
+
+or like this using the raw ``libmetawear`` shared library:
 
 .. code-block:: python
 
@@ -87,6 +96,7 @@ An example: blinking with the LED lights can be done like this:
     libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), Led.PRESET_BLINK)
     libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
     libmetawear.mbl_mw_led_play(c.board)
+
 
 Actual addresses to your MetaWear board can be found by scanning, either
 directly with ``hcitool lescan`` or with the included ``discover_devices`` method:

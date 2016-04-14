@@ -44,16 +44,16 @@ def switch_callback(data):
         raise RuntimeError('Incorrect data type id: ' + str(data.contents.type_id))
 
 # Create subscription
-c.switch_notifications(switch_callback)
+c.switch.notifications(switch_callback)
 time.sleep(10.0)
 # Remove subscription
-c.switch_notifications(None)
+c.switch.notifications(None)
 time.sleep(10.0)
 # Add it once again
-c.switch_notifications(switch_callback)
+c.switch.notifications(switch_callback)
 time.sleep(10.0)
 # Remove it once more.
-c.switch_notifications(None)
+c.switch.notifications(None)
 time.sleep(1.0)
 
 # The code using libmetawear library directly instead of convenience methods in MetaWearClient:

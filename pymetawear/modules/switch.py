@@ -15,7 +15,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from pymetawear import libmetawear
-from pymetawear.modules import PyMetaWearModule
+from pymetawear.modules.base import PyMetaWearModule
 
 
 class PyMetaWearSwitch(PyMetaWearModule):

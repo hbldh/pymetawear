@@ -42,18 +42,6 @@ def acc_callback(data):
         raise RuntimeError('Incorrect data type id: ' +
                            str(data.contents.type_id))
 
-#  noble-device  +7s send LOGGING <Buffer 0b 0b 00>
-#  noble-device  +5ms send LOGGING <Buffer 0b 01 01>
-#  noble-device  +2ms send ACCELEROMETER <Buffer 03 03 27 03>
-#  noble-device  +1ms send ACCELEROMETER <Buffer 03 04 01>
-#  noble-device  +0ms send ACCELEROMETER <Buffer 03 02 01 00>
-#  noble-device  +1ms send ACCELEROMETER <Buffer 03 0d 04 0a>
-#  noble-device  +0ms send ACCELEROMETER <Buffer 03 0a 00 14 14 14>
-#  noble-device  +0ms send ACCELEROMETER <Buffer 03 03 27 03>
-#  noble-device  +1ms send ACCELEROMETER <Buffer 03 07 07 30 81 0b c0>
-#  noble-device  +0ms send ACCELEROMETER <Buffer 03 01 01>
-
-
 print("Write accelerometer settings...")
 libmetawear.mbl_mw_acc_set_odr(c.board, c_float(50.0))
 libmetawear.mbl_mw_acc_set_range(c.board, c_float(2.0))

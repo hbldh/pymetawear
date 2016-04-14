@@ -39,22 +39,22 @@ def battery_callback(data):
         raise RuntimeError('Incorrect data type id: ' + str(data.contents.type_id))
 
 print("Subscribe to battery notifications...")
-c.battery_notifications(battery_callback)
+c.battery.notifications(battery_callback)
 
 time.sleep(5.0)
 
 print("Trigger battery state notification...")
-c.read_battery_state()
+c.battery.read_battery_state()
 
 time.sleep(5.0)
 
 print("Unsubscribe to battery notifications...")
-c.battery_notifications(None)
+c.battery.notifications(None)
 
 time.sleep(5.0)
 
 print("Trigger battery state notification (should yield a RuntimeWarning)...")
-c.read_battery_state()
+c.battery.read_battery_state()
 
 time.sleep(5.0)
 

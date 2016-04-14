@@ -16,9 +16,11 @@ from __future__ import absolute_import
 
 import re
 
+from ctypes import c_float
+
 from pymetawear import libmetawear
 from pymetawear.mbientlab.metawear import sensor
-from pymetawear.modules import PyMetaWearModule
+from pymetawear.modules.base import PyMetaWearModule
 
 
 class PyMetaWearAccelerometer(PyMetaWearModule):
@@ -79,7 +81,7 @@ class PyMetaWearAccelerometer(PyMetaWearModule):
     def get_settings(self):
         pass
 
-    def get_odr(self, value):
+    def _get_odr(self, value):
         sorted_ord_keys = sorted(self.odr.keys(), key=lambda x:(float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
@@ -89,7 +91,7 @@ class PyMetaWearAccelerometer(PyMetaWearModule):
                 value, [float(x) for x in sorted_ord_keys]))
         return self.odr.get(sorted_ord_keys[diffs.index(min_diffs)])
 
-    def get_fsr(self, value):
+    def _get_fsr(self, value):
         fsr = self.fsr.get(value, None)
         if fsr is None:
             raise ValueError("Requested FSR ({0}) was not part of "
@@ -133,15 +135,15 @@ class PyMetaWearAccelerometer(PyMetaWearModule):
 
         """
         if data_rate is not None:
-            odr = self._accelerometer_specs.get_odr(data_rate)
+            odr = self._get_odr(data_rate)
             if self._debug:
                 print("Setting Accelerometer ODR to {0}".format(odr))
             libmetawear.mbl_mw_acc_set_odr(self.board, c_float(odr))
         if data_range is not None:
-            fsr = self._accelerometer_specs.get_fsr(data_range)
+            fsr = self._get_fsr(data_range)
             if self._debug:
                 print("Setting Accelerometer FSR to {0}".format(fsr))
-            libmetawear.mbl_mw_acc_set_range(c.board, c_float(fsr))
+            libmetawear.mbl_mw_acc_set_range(self.board, c_float(fsr))
 
         if (data_rate is not None) or (data_range is not None):
             libmetawear.mbl_mw_acc_write_acceleration_config(self.board)
