@@ -17,19 +17,10 @@ import os
 import time
 import subprocess
 import signal
-import copy
-import warnings
-
-from ctypes import cast, POINTER, c_uint, c_float, c_ubyte, c_long, c_uint16, c_uint8
 
 from pymetawear import libmetawear, specs
 from pymetawear.exceptions import *
-from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
-    BatteryState, Tcs34725ColorAdc, FnDataPtr
 from pymetawear import modules
-
-
-
 from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.backends.pybluez import PyBluezBackend
 
@@ -106,8 +97,6 @@ class MetaWearClient(object):
         self._debug = debug
         self._initialized = False
 
-        self.sensor_data_handler = FnDataPtr(self._sensor_data_handler)
-
         if backend == 'pygatt':
             self._backend = PyGattBackend(
                 self._address, debug=debug)
@@ -131,13 +120,14 @@ class MetaWearClient(object):
             specs.DEV_INFO_MODEL_CHAR[1]).decode())
 
         # Initialize module classes.
-        self.accelerometer = modules.PyMetaWearAccelerometer(
+        self.accelerometer = modules.AccelerometerModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
                 self.board, modules.Modules.MBL_MW_MODULE_ACCELEROMETER),
             debug=self._debug)
-        self.switch = modules.PyMetaWearSwitch(self.board, debug=self._debug)
-        self.battery = modules.PyMetaWearBattery(self.board, debug=self._debug)
+        self.switch = modules.SwitchModule(self.board, debug=self._debug)
+        self.battery = modules.BatteryModule(self.board, debug=self._debug)
+        self.haptic = modules.HapticModule(self.board, debug=self._debug)
 
     def __str__(self):
         return "MetaWearClient, {0}".format(self._address)
@@ -167,27 +157,6 @@ class MetaWearClient(object):
         libmetawear.mbl_mw_metawearboard_free(self.board)
         self.backend.disconnect()
 
-    def haptic_start_motor(self, duty_cycle_per, pulse_width_ms):
-        """Activate the haptic motor.
-
-        :param float duty_cycle_per: Strength of the motor,
-            between [0, 100] percent
-        :param int pulse_width_ms: How long to run the motor, in milliseconds
-
-        """
-        libmetawear.mbl_mw_haptic_start_motor(
-            c_float(float(duty_cycle_per)),
-            c_uint16(int(pulse_width_ms)))
-
-    def haptic_start_buzzer(self, pulse_width_ms):
-        """Activate the haptic buzzer.
-
-        :param int pulse_width_ms: How long to run the motor, in milliseconds
-
-        """
-        libmetawear.mbl_mw_haptic_start_buzzer(
-            c_uint16(int(pulse_width_ms)))
-
     def set_logging_state(self, enabled=False):
         if enabled:
             libmetawear.mbl_mw_logging_start(self.board)
@@ -209,44 +178,3 @@ class MetaWearClient(object):
 
         """
         return self.backend.get_handle(uuid, notify_handle=notify_handle)
-
-    def _sensor_data_handler(self, data):
-        if (data.contents.type_id == DataTypeId.UINT32):
-            data_ptr = cast(data.contents.value, POINTER(c_uint))
-            if self._debug:
-                print(
-                    "Sensor data received: {0}".format(data_ptr.contents.value))
-            return data_ptr.contents.value
-        elif (data.contents.type_id == DataTypeId.FLOAT):
-            data_ptr = cast(data.contents.value, POINTER(c_float))
-            if self._debug:
-                print(
-                    "Sensor data received: {0}".format(data_ptr.contents.value))
-            return data_ptr.contents.value
-        elif (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
-            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            if self._debug:
-                print("Sensor data received: {0}".format(data_ptr.contents))
-            return copy.deepcopy(data_ptr.contents)
-        elif (data.contents.type_id == DataTypeId.BATTERY_STATE):
-            data_ptr = cast(data.contents.value, POINTER(BatteryState))
-            if self._debug:
-                print("Sensor data received: {0}".format(data_ptr.contents))
-            return copy.deepcopy(data_ptr.contents)
-        elif (data.contents.type_id == DataTypeId.BYTE_ARRAY):
-            data_ptr = cast(data.contents.value,
-                            POINTER(c_ubyte * data.contents.length))
-            data_byte_array = []
-            for i in range(0, data.contents.length):
-                data_byte_array.append(data_ptr.contents[i])
-            if self._debug:
-                print("Sensor data received: {0}".format(data_byte_array))
-            return data_byte_array
-        elif (data.contents.type_id == DataTypeId.TCS34725_ADC):
-            data_ptr = cast(data.contents.value, POINTER(Tcs34725ColorAdc))
-            if self._debug:
-                print("Sensor data received: {0}".format(data_ptr.contents))
-            return copy.deepcopy(data_ptr.contents)
-        else:
-            raise RuntimeError(
-                'Unrecognized data type id: ' + str(data.contents.type_id))

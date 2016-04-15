@@ -23,10 +23,10 @@ from pymetawear.mbientlab.metawear import sensor
 from pymetawear.modules.base import PyMetaWearModule
 
 
-class PyMetaWearAccelerometer(PyMetaWearModule):
+class AccelerometerModule(PyMetaWearModule):
 
     def __init__(self, board, module_id, debug=False):
-        super(PyMetaWearAccelerometer, self).__init__(board, debug)
+        super(AccelerometerModule, self).__init__(board, debug)
         self.module_id = module_id
 
         acc_sensors = [

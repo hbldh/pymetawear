@@ -31,6 +31,7 @@ else:
 c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
+
 def switch_callback(data):
     if (data.contents.type_id == DataTypeId.UINT32):
         data_ptr = cast(data.contents.value, POINTER(c_uint))
@@ -43,16 +44,11 @@ def switch_callback(data):
     else:
         raise RuntimeError('Incorrect data type id: ' + str(data.contents.type_id))
 
+
 # Create subscription
 c.switch.notifications(switch_callback)
 time.sleep(10.0)
 # Remove subscription
-c.switch.notifications(None)
-time.sleep(10.0)
-# Add it once again
-c.switch.notifications(switch_callback)
-time.sleep(10.0)
-# Remove it once more.
 c.switch.notifications(None)
 time.sleep(1.0)
 

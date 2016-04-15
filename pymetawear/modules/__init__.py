@@ -15,7 +15,8 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from .base import PyMetaWearModule, Modules
-from .accelerometer import PyMetaWearAccelerometer
-from .switch import PyMetaWearSwitch
-from .battery import PyMetaWearBattery
+from .accelerometer import AccelerometerModule
+from .switch import SwitchModule
+from .battery import BatteryModule
+from .haptic import HapticModule
 

@@ -18,10 +18,10 @@ from pymetawear import libmetawear
 from pymetawear.modules.base import PyMetaWearModule
 
 
-class PyMetaWearSwitch(PyMetaWearModule):
+class SwitchModule(PyMetaWearModule):
 
     def __init__(self, board, debug=False):
-        super(PyMetaWearSwitch, self).__init__(board, debug)
+        super(SwitchModule, self).__init__(board, debug)
 
     def __str__(self):
         return "{0}".format(
@@ -36,7 +36,7 @@ class PyMetaWearSwitch(PyMetaWearModule):
 
     @property
     def sensor_name(self):
-        return ''
+        return 'Switch'
 
     @property
     def data_signal(self):
@@ -84,4 +84,4 @@ class PyMetaWearSwitch(PyMetaWearModule):
             If `None`, unsubscription to switch notifications is registered.
 
         """
-        super(PyMetaWearSwitch, self).notifications(callback)
+        super(SwitchModule, self).notifications(callback)

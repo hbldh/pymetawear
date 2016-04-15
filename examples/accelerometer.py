@@ -32,6 +32,7 @@ else:
 c = MetaWearClient(str(address), 'pybluez', debug=False)
 print("New client created: {0}".format(c))
 
+
 def acc_callback(data):
     if (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
         data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
@@ -42,15 +43,16 @@ def acc_callback(data):
         raise RuntimeError('Incorrect data type id: ' +
                            str(data.contents.type_id))
 
+
 print("Write accelerometer settings...")
 libmetawear.mbl_mw_acc_set_odr(c.board, c_float(50.0))
 libmetawear.mbl_mw_acc_set_range(c.board, c_float(2.0))
-print("Enable logging on board...")
+#print("Enable logging on board...")
 #libmetawear.mbl_mw_logging_start(c.board)
 print("Write accelerometer config....")
 libmetawear.mbl_mw_acc_write_acceleration_config(c.board)
 print("Subscribing to accelerometer signal...")
-c.accelerometer_notifications(acc_callback)
+c.accelerometer.notifications(acc_callback)
 print("Enable acc sampling on board...")
 libmetawear.mbl_mw_acc_enable_acceleration_sampling(c.board)
 print("Start acc on board...")
@@ -59,12 +61,12 @@ libmetawear.mbl_mw_acc_start(c.board)
 time.sleep(20.0)
 
 print("Unsubscribe to notification...")
-c.accelerometer_notifications(None)
+c.accelerometer.notifications(None)
 print("Stop accelerometer...")
 libmetawear.mbl_mw_acc_stop(c.board)
 print("Disable accelerometer sampling...")
 libmetawear.mbl_mw_acc_disable_acceleration_sampling(c.board)
-print("Stop logging...")
+#print("Stop logging...")
 #libmetawear.mbl_mw_logging_stop(c.board)
 
 time.sleep(5.0)

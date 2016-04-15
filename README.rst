@@ -110,3 +110,21 @@ directly with ``hcitool lescan`` or with the included ``discover_devices`` metho
 
 See the examples folder for more examples on how to use the ``libmetawear``
 library with this client.
+
+Modules
+~~~~~~~
+
+All functionality of the MetaWear C++ API is able to be used using the
+PyMetaWear client, and some of the modules have had convenience methods
+added to simplify the use of them. Below are two list, one of modules which
+have had their convenience methods written and one of modules that are
+awaiting such focus.
+
+================= =============== =====================
+Completed Modules Partial Modules Unimplemented Modules
+================= =============== =====================
+Accelerometer     Settings        All others
+Haptic
+Switch
+================= =============== =====================
+

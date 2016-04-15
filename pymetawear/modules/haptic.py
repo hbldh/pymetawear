@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`battery`
+:mod:`haptic`
 ==================
 
 Created by hbldh <henrik.blidh@nedomkull.com>
@@ -14,29 +14,29 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
-import warnings
+from ctypes import c_float, c_uint16
 
 from pymetawear import libmetawear
 from pymetawear.modules.base import PyMetaWearModule
 
 
-class BatteryModule(PyMetaWearModule):
+class HapticModule(PyMetaWearModule):
     def __init__(self, board, debug=False):
-        super(BatteryModule, self).__init__(board, debug)
+        super(HapticModule, self).__init__(board, debug)
 
     def __str__(self):
         return "{0}: {1}".format(self.module_name, self.sensor_name)
 
     def __repr__(self):
-        return super(BatteryModule, self).__repr__()
+        return super(HapticModule, self).__repr__()
 
     @property
     def module_name(self):
-        return 'Settings'
+        return 'Peripherals'
 
     @property
     def sensor_name(self):
-        return 'Battery'
+        return 'Haptic'
 
     @property
     def data_signal(self):
@@ -44,7 +44,7 @@ class BatteryModule(PyMetaWearModule):
             libmetawear.mbl_mw_settings_get_battery_state_data_signal)
 
     def set_settings(self, **kwargs):
-        """Set battery settings.
+        """Set haptic settings.
 
         No settings to be set exists here.
 
@@ -65,16 +65,25 @@ class BatteryModule(PyMetaWearModule):
             is registered.
 
         """
-        super(BatteryModule, self).notifications(callback)
+        raise NotImplementedError("Haptic module has no notifications.")
 
-    def read_battery_state(self):
-        """Triggers a battery state notification.
+    def start_motor(self, duty_cycle_per, pulse_width_ms):
+        """Activate the haptic motor.
 
-        N.B. that a :meth:`~notifications` call that registers a
-        callback for battery state should have been done prior to calling
-        this method.
+        :param float duty_cycle_per: Strength of the motor,
+            between [0, 100] percent
+        :param int pulse_width_ms: How long to run the motor, in milliseconds
 
         """
-        if self.callback is None:
-            warnings.warn("No battery callback is registered!", RuntimeWarning)
-        libmetawear.mbl_mw_settings_read_battery_state(self.board)
+        libmetawear.mbl_mw_haptic_start_motor(
+            c_float(float(duty_cycle_per)),
+            c_uint16(int(pulse_width_ms)))
+
+    def start_buzzer(self, pulse_width_ms):
+        """Activate the haptic buzzer.
+
+        :param int pulse_width_ms: How long to run the motor, in milliseconds
+
+        """
+        libmetawear.mbl_mw_haptic_start_buzzer(
+            c_uint16(int(pulse_width_ms)))
