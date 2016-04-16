@@ -75,16 +75,18 @@ class PyMetaWearModule(object):
 
     @property
     def data_signal(self):
-        raise NotImplementedError()
+        raise PyMetaWearException(
+            "No data signal exists for {0} module.".format(self))
 
     def set_settings(self, **kwargs):
-        raise NotImplementedError()
+        raise PyMetaWearException(
+            "No settings exists for {0} module.".format(self))
 
     def get_current_settings(self):
-        raise NotImplementedError()
+        return {}
 
     def get_possible_settings(self):
-        raise NotImplementedError()
+        return {}
 
     def notifications(self, callback=None):
         """Toggle notifications/subscriptions to data signals

@@ -43,20 +43,6 @@ class BatteryModule(PyMetaWearModule):
         return self._data_signal_preprocess(
             libmetawear.mbl_mw_settings_get_battery_state_data_signal)
 
-    def set_settings(self, **kwargs):
-        """Set battery settings.
-
-        No settings to be set exists here.
-
-        """
-        pass
-
-    def get_current_settings(self):
-        return {}
-
-    def get_possible_settings(self):
-        return {}
-
     def notifications(self, callback=None):
         """Subscribe or unsubscribe to battery notifications.
 

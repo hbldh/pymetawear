@@ -43,23 +43,6 @@ class SwitchModule(PyMetaWearModule):
         return self._data_signal_preprocess(
             libmetawear.mbl_mw_switch_get_state_data_signal)
 
-    def get_settings(self):
-        return {}
-
-    def get_current_settings(self):
-        return {}
-
-    def get_possible_settings(self):
-        return {}
-
-    def set_settings(self, **kwargs):
-        """Set switch settings.
-
-         No settings to be set exists here.
-
-        """
-        pass
-
     def notifications(self, callback=None):
         """Subscribe or unsubscribe to switch notifications.
 

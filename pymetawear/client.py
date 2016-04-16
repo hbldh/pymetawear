@@ -128,6 +128,7 @@ class MetaWearClient(object):
         self.switch = modules.SwitchModule(self.board, debug=self._debug)
         self.battery = modules.BatteryModule(self.board, debug=self._debug)
         self.haptic = modules.HapticModule(self.board, debug=self._debug)
+        self.led = modules.LEDModule(self.board, debug=self._debug)
 
     def __str__(self):
         return "MetaWearClient, {0}".format(self._address)

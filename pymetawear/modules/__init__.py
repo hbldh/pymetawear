@@ -19,4 +19,4 @@ from .accelerometer import AccelerometerModule
 from .switch import SwitchModule
 from .battery import BatteryModule
 from .haptic import HapticModule
-
+from .led import LEDModule

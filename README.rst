@@ -124,7 +124,7 @@ awaiting such focus.
 Completed Modules Partial Modules Unimplemented Modules
 ================= =============== =====================
 Accelerometer     Settings        All others
-Haptic
+Haptic            LED
 Switch
 ================= =============== =====================
 

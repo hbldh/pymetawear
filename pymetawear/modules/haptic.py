@@ -17,6 +17,7 @@ from __future__ import absolute_import
 from ctypes import c_float, c_uint16
 
 from pymetawear import libmetawear
+from pymetawear.exceptions import PyMetaWearException
 from pymetawear.modules.base import PyMetaWearModule
 
 
@@ -43,20 +44,6 @@ class HapticModule(PyMetaWearModule):
         return self._data_signal_preprocess(
             libmetawear.mbl_mw_settings_get_battery_state_data_signal)
 
-    def set_settings(self, **kwargs):
-        """Set haptic settings.
-
-        No settings to be set exists here.
-
-        """
-        pass
-
-    def get_current_settings(self):
-        return {}
-
-    def get_possible_settings(self):
-        return {}
-
     def notifications(self, callback=None):
         """Subscribe or unsubscribe to battery notifications.
 
@@ -65,7 +52,7 @@ class HapticModule(PyMetaWearModule):
             is registered.
 
         """
-        raise NotImplementedError("Haptic module has no notifications.")
+        raise PyMetaWearException("Haptic module has no notifications.")
 
     def start_motor(self, duty_cycle_per, pulse_width_ms):
         """Activate the haptic motor.

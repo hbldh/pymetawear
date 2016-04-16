@@ -78,9 +78,6 @@ class AccelerometerModule(PyMetaWearModule):
         return self._data_signal_preprocess(
             libmetawear.mbl_mw_acc_get_acceleration_data_signal)
 
-    def get_settings(self):
-        pass
-
     def _get_odr(self, value):
         sorted_ord_keys = sorted(self.odr.keys(), key=lambda x:(float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
