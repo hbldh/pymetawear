@@ -1,4 +1,11 @@
+v0.4.0 (2016-04-17)
+===================
+- Major refactorisation into new module layout.
+- New examples using the new module handling.
+- Accelerometer convenience methods shows strange lag still.
+
 v0.3.1 (2016-04-10)
+===================
 - Critical fix for data signal subscription method.
 - ``Setup.py`` handling of building made better,
 - Documentation improved.

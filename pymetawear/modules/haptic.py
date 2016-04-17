@@ -26,17 +26,13 @@ class HapticModule(PyMetaWearModule):
         super(HapticModule, self).__init__(board, debug)
 
     def __str__(self):
-        return "{0}: {1}".format(self.module_name, self.sensor_name)
+        return "{0}".format(self.module_name)
 
     def __repr__(self):
         return super(HapticModule, self).__repr__()
 
     @property
     def module_name(self):
-        return 'Peripherals'
-
-    @property
-    def sensor_name(self):
         return 'Haptic'
 
     @property
@@ -45,11 +41,9 @@ class HapticModule(PyMetaWearModule):
             libmetawear.mbl_mw_settings_get_battery_state_data_signal)
 
     def notifications(self, callback=None):
-        """Subscribe or unsubscribe to battery notifications.
+        """No subscriptions possible for Hptica module.
 
-        :param callable callback: Battery data notification callback
-            function. If `None`, unsubscription to battery notifications
-            is registered.
+        :raises: :py:exc:`~PyMetaWearException`
 
         """
         raise PyMetaWearException("Haptic module has no notifications.")

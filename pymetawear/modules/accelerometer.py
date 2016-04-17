@@ -16,10 +16,12 @@ from __future__ import absolute_import
 
 import re
 
-from ctypes import c_float
+from ctypes import c_float, cast, POINTER
 
 from pymetawear import libmetawear
+from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear import sensor
+from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
 from pymetawear.modules.base import PyMetaWearModule
 
 
@@ -54,6 +56,8 @@ class AccelerometerModule(PyMetaWearModule):
             self.fsr = {int(re.search('^FSR_([0-9]+)G', k).groups()[0]):
                             getattr(acc_class, k, None) for k in
                         filter(lambda x: x.startswith('FSR'), vars(acc_class))}
+
+        self._internal_callback = None
 
     def __str__(self):
         return "{0} {1}: Data rates (Hz): {2}, Data ranges (g): {3}".format(
@@ -144,3 +148,56 @@ class AccelerometerModule(PyMetaWearModule):
 
         if (data_rate is not None) or (data_range is not None):
             libmetawear.mbl_mw_acc_write_acceleration_config(self.board)
+
+    def notifications(self, callback=None):
+        """Subscribe or unsubscribe to accelerometer notifications.
+
+        Convenience method for handling accelerometer usage.
+
+        Example:
+
+        .. code-block:: python
+
+            def handle_acc_notification(data)
+                # Handle a (x,y,z) accelerometer tuple.
+                print("X: {0}, Y: {1}, Z: {2}".format(*data))
+
+            mwclient.accelerometer.notifications(handle_acc_notification)
+
+        :param callable callback: Accelerometer notification callback function.
+            If `None`, unsubscription to accelerometer notifications is registered.
+
+        """
+        if callback is None:
+            self._internal_callback = None
+            super(AccelerometerModule, self).notifications(None)
+            self.stop()
+            self.toggle_sampling(False)
+        else:
+            self._internal_callback = callback
+            super(AccelerometerModule, self).notifications(
+                self._callback_wrapper)
+            self.start()
+            self.toggle_sampling(True)
+
+    def _callback_wrapper(self, data):
+        if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
+            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
+            self._internal_callback((data_ptr.contents.x,
+                                     data_ptr.contents.y,
+                                     data_ptr.contents.z))
+        else:
+            raise PyMetaWearException('Incorrect data type id: ' +
+                str(data.contents.type_id))
+
+    def start(self):
+        libmetawear.mbl_mw_acc_start(self.board)
+
+    def stop(self):
+        libmetawear.mbl_mw_acc_stop(self.board)
+
+    def toggle_sampling(self, enabled=True):
+        if enabled:
+            libmetawear.mbl_mw_acc_enable_acceleration_sampling(self.board)
+        else:
+            libmetawear.mbl_mw_acc_disable_acceleration_sampling(self.board)

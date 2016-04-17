@@ -14,7 +14,11 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
+from ctypes import c_uint, cast, POINTER
+
 from pymetawear import libmetawear
+from pymetawear.exceptions import PyMetaWearException
+from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
 from pymetawear.modules.base import PyMetaWearModule
 
 
@@ -22,6 +26,7 @@ class SwitchModule(PyMetaWearModule):
 
     def __init__(self, board, debug=False):
         super(SwitchModule, self).__init__(board, debug)
+        self._internal_callback = None
 
     def __str__(self):
         return "{0}".format(
@@ -33,10 +38,6 @@ class SwitchModule(PyMetaWearModule):
     @property
     def module_name(self):
         return "Switch"
-
-    @property
-    def sensor_name(self):
-        return 'Switch'
 
     @property
     def data_signal(self):
@@ -52,13 +53,10 @@ class SwitchModule(PyMetaWearModule):
 
         .. code-block:: python
 
-            from ctypes import POINTER, c_uint, cast
-
             def switch_callback(data):
-                data_ptr = cast(data.contents.value, POINTER(c_uint))
-                if data_ptr.contents.value == 1:
+                if data == 1:
                     print("Switch pressed!")
-                elif data_ptr.contents.value == 0:
+                elif data == 0:
                     print("Switch released!")
 
             mwclient.switch.notifications(switch_callback)
@@ -67,4 +65,19 @@ class SwitchModule(PyMetaWearModule):
             If `None`, unsubscription to switch notifications is registered.
 
         """
-        super(SwitchModule, self).notifications(callback)
+        if callback is None:
+            self._internal_callback = None
+            super(SwitchModule, self).notifications(None)
+        else:
+            self._internal_callback = callback
+            super(SwitchModule, self).notifications(
+                self._callback_wrapper)
+
+    def _callback_wrapper(self, data):
+        if data.contents.type_id == DataTypeId.UINT32:
+            data_ptr = cast(data.contents.value, POINTER(c_uint))
+            self._internal_callback(data_ptr.contents.value)
+        else:
+            raise PyMetaWearException(
+                'Incorrect data type id: ' + str(data.contents.type_id))
+

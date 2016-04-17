@@ -67,14 +67,32 @@ class PyMetaWearModule(object):
 
     @property
     def module_name(self):
+        """Get module name.
+
+        :return: The name of this module.
+        :rtype: str
+
+        """
         return ''
 
     @property
     def sensor_name(self):
-        return ''
+        """Get sensor name, if applicable.
+
+        :return: The name of this module.
+        :rtype: str or None
+
+        """
+        return None
 
     @property
     def data_signal(self):
+        """Returns the data signal pointer value for the switch module.
+
+        :returns: The pointer value. (Long if on x64 architecture.)
+        :rtype: :py:class:`ctypes.c_long` or :py:class:`ctypes.c_int`
+
+        """
         raise PyMetaWearException(
             "No data signal exists for {0} module.".format(self))
 

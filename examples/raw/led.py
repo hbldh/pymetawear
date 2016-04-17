@@ -28,21 +28,16 @@ else:
 c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
+print("Blinking 10 times with green LED...")
+from ctypes import byref
+from pymetawear import libmetawear
+from pymetawear.mbientlab.metawear.peripheral import Led
 
-def switch_callback(data):
-    if data == 1:
-        print("Switch pressed!")
-    elif data == 0:
-        print("Switch released!")
+pattern = Led.Pattern(repeat_count=10)
+libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), Led.PRESET_BLINK)
+libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
+libmetawear.mbl_mw_led_play(c.board)
 
-# Create subscription
-c.switch.notifications(switch_callback)
-
-time.sleep(10.0)
-
-# Remove subscription
-c.switch.notifications(None)
-time.sleep(1.0)
+time.sleep(5.0)
 
 c.disconnect()
-

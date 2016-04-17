@@ -37,14 +37,10 @@ class LEDModule(PyMetaWearModule):
     def module_name(self):
         return "LED"
 
-    @property
-    def sensor_name(self):
-        return 'LED'
-
     def notifications(self, callback=None):
-        """Subscribe or unsubscribe to switch notifications.
+        """No subscriptions possible for LED module.
 
-        No subscriptions possible for LED module.
+        :raises: :py:exc:`~PyMetaWearException`
 
         """
         raise PyMetaWearException(
@@ -53,6 +49,7 @@ class LEDModule(PyMetaWearModule):
     def load_preset_pattern(self, preset_name, **kwargs):
         """Loads a preset configuration.
 
+        :param Led.Pattern pattern: One of the strings `blink`, `pulse` or `solid`.
         :param str preset_name: One of the strings `blink`, `pulse` or `solid`.
         :return: The preset pattern.
         :rtype: :py:class:`pymetawear.mbientlab.metawear.peripheral.Led.Pattern`
@@ -71,7 +68,7 @@ class LEDModule(PyMetaWearModule):
 
         """
         color = self._get_color(color.lower())
-        libmetawear.mbl_mw_led_write_pattern(byref(pattern), color)
+        libmetawear.mbl_mw_led_write_pattern(self.board, byref(pattern), color)
 
     def play(self):
         """Executes any stored LED pattern."""

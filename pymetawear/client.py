@@ -179,3 +179,16 @@ class MetaWearClient(object):
 
         """
         return self.backend.get_handle(uuid, notify_handle=notify_handle)
+
+    def _callback_wrapper(self, data):
+        if (data.contents.type_id == DataTypeId.UINT32):
+            data_ptr = cast(data.contents.value, POINTER(c_uint))
+            if data_ptr.contents.value == 1:
+                print("Switch pressed!")
+            elif data_ptr.contents.value == 0:
+                print("Switch released!")
+            else:
+                raise ValueError("Incorrect data returned.")
+        else:
+            raise RuntimeError('Incorrect data type id: ' + str(data.contents.type_id))
+
