@@ -82,7 +82,9 @@ convenience methods:
 
 .. code-block:: python
 
-    # Will be written soon.
+    pattern = c.led.load_preset_pattern('blink', repeat_count=10)
+    c.led.write_pattern(pattern, 'g')
+    c.led.play()
 
 or like this using the raw ``libmetawear`` shared library:
 
@@ -124,7 +126,11 @@ awaiting such focus.
 Completed Modules Partial Modules Unimplemented Modules
 ================= =============== =====================
 Accelerometer     Settings        All others
-Haptic            LED
+Haptic
 Switch
+LED
 ================= =============== =====================
 
+The accelerometer module has a strange delay in it right now, which will
+be resolved in later releases. Use the code in `examples/raw/accelerometer.py`
+if high speed is desired.
