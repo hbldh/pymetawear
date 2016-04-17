@@ -30,11 +30,13 @@ Contents
 --------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    discover
    client
+   exceptions
    backends/index
+   modules/index
 
 Installation
 ------------

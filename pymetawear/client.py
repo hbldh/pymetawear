@@ -17,17 +17,10 @@ import os
 import time
 import subprocess
 import signal
-import copy
-import warnings
-
-from ctypes import cast, POINTER, c_uint, c_float, c_ubyte, c_long
 
 from pymetawear import libmetawear, specs
 from pymetawear.exceptions import *
-from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
-    BatteryState, Tcs34725ColorAdc, FnDataPtr
-from pymetawear.utils import is_64bit
-
+from pymetawear import modules
 from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.backends.pybluez import PyBluezBackend
 
@@ -103,9 +96,6 @@ class MetaWearClient(object):
         self._address = address
         self._debug = debug
         self._initialized = False
-        self._64bit = is_64bit()
-
-        self.sensor_data_handler = FnDataPtr(self._sensor_data_handler)
 
         if backend == 'pygatt':
             self._backend = PyGattBackend(
@@ -128,6 +118,17 @@ class MetaWearClient(object):
             specs.DEV_INFO_FIRMWARE_CHAR[1]).decode().split('.')])
         self.model_version = int(self.backend.read_gatt_char_by_uuid(
             specs.DEV_INFO_MODEL_CHAR[1]).decode())
+
+        # Initialize module classes.
+        self.accelerometer = modules.AccelerometerModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_ACCELEROMETER),
+            debug=self._debug)
+        self.switch = modules.SwitchModule(self.board, debug=self._debug)
+        self.battery = modules.BatteryModule(self.board, debug=self._debug)
+        self.haptic = modules.HapticModule(self.board, debug=self._debug)
+        self.led = modules.LEDModule(self.board, debug=self._debug)
 
     def __str__(self):
         return "MetaWearClient, {0}".format(self._address)
@@ -157,104 +158,14 @@ class MetaWearClient(object):
         libmetawear.mbl_mw_metawearboard_free(self.board)
         self.backend.disconnect()
 
-    # MetaWear methods
-
-    def switch_notifications(self, callback=None):
-        """Subscribe or unsubscribe to switch notifications.
-
-        Convenience method for handling switch usage.
-
-        Example:
-
-        .. code-block:: python
-
-            from ctypes import POINTER, c_uint, cast
-
-            def switch_callback(data):
-                data_ptr = cast(data.contents.value, POINTER(c_uint))
-                if data_ptr.contents.value == 1:
-                    print("Switch pressed!")
-                elif data_ptr.contents.value == 0:
-                    print("Switch released!")
-
-            mwclient.switch_notifications(switch_callback)
-
-        :param callable callback: Switch notification callback function.
-            If `None`, unsubscription to switch notifications is registered.
-
-        """
-        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_switch_get_state_data_signal)
-        self._data_signal_subscription(data_signal, 'switch', callback)
-
-    def accelerometer_notifications(self, callback):
-        """Subscribe or unsubscribe to accelerometer notifications.
-
-        :param callable callback: Accelerometer data notification callback
-            function. If `None`, unsubscription to accelerometer notifications
-            is registered.
-
-        """
-        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_acc_get_acceleration_data_signal)
-        self._data_signal_subscription(data_signal, 'accelerometer', callback)
-
-    def battery_notifications(self, callback):
-        """Subscribe or unsubscribe to battery notifications.
-
-        :param callable callback: Battery data notification callback
-            function. If `None`, unsubscription to battery notifications
-            is registered.
-
-        """
-        data_signal = self._data_signal_preprocess(libmetawear.mbl_mw_settings_get_battery_state_data_signal)
-        self._data_signal_subscription(data_signal, 'battery', callback)
-
-    def read_battery_state(self):
-        """Triggers a battery state notification.
-
-        N.B. that a :meth:`~battery_notifications` call that registers a callback for
-        battery state should have been done prior to calling this method.
-
-        """
-        if self.backend.callbacks.get('battery') is None:
-            warnings.warn("No battery callback is registered!", RuntimeWarning)
-        libmetawear.mbl_mw_settings_read_battery_state(self.board)
-
-    def _data_signal_preprocess(self, data_signal_func):
-        if self._64bit:
-            data_signal_func.restype = c_long
-            data_signal = c_long(data_signal_func(self.board))
+    def set_logging_state(self, enabled=False):
+        if enabled:
+            libmetawear.mbl_mw_logging_start(self.board)
         else:
-            data_signal = data_signal_func(self.board)
-        return data_signal
+            libmetawear.mbl_mw_logging_stop(self.board)
 
-    def _data_signal_subscription(self, data_signal, signal_name, callback):
-        """Handle subscriptions to data signals on the MetaWear board.
-
-        :param int data_signal: The ``libmetawear`` ID of the data signal.
-        :param str signal_name: Key value to use for storing the callback.
-        :param callable callback: The function to call when
-            data signal notification arrives.
-
-        """
-        if callback is not None:
-            if self._debug:
-                print("Subscribing to {0} changes. (Sig#: {1})".format(
-                    signal_name, data_signal))
-            if self.backend.callbacks.get(signal_name) is not None:
-                raise PyMetaWearException(
-                    "Subscription to {0} signal already in place!")
-            self.backend.callbacks[signal_name] = \
-                (callback, FnDataPtr(callback))
-            libmetawear.mbl_mw_datasignal_subscribe(
-                data_signal, self.backend.callbacks[signal_name][1])
-        else:
-            if self._debug:
-                print("Unsubscribing to {0} changes. (Sig#: {1})".format(
-                    signal_name, data_signal))
-            if self.backend.callbacks.get(signal_name) is None:
-                return
-            libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
-            self.backend.callbacks.pop(signal_name)
+    def download_log(self, n_notifies):
+        libmetawear.mbl_mw_logging_download(self.board, n_notifies)
 
     # Helper methods
 
@@ -269,43 +180,15 @@ class MetaWearClient(object):
         """
         return self.backend.get_handle(uuid, notify_handle=notify_handle)
 
-    def _sensor_data_handler(self, data):
+    def _callback_wrapper(self, data):
         if (data.contents.type_id == DataTypeId.UINT32):
             data_ptr = cast(data.contents.value, POINTER(c_uint))
-            if self._debug:
-                print(
-                    "Sensor data received: {0}".format(data_ptr.contents.value))
-            return data_ptr.contents.value
-        elif (data.contents.type_id == DataTypeId.FLOAT):
-            data_ptr = cast(data.contents.value, POINTER(c_float))
-            if self._debug:
-                print(
-                    "Sensor data received: {0}".format(data_ptr.contents.value))
-            return data_ptr.contents.value
-        elif (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
-            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            if self._debug:
-                print("Sensor data received: {0}".format(data_ptr.contents))
-            return copy.deepcopy(data_ptr.contents)
-        elif (data.contents.type_id == DataTypeId.BATTERY_STATE):
-            data_ptr = cast(data.contents.value, POINTER(BatteryState))
-            if self._debug:
-                print("Sensor data received: {0}".format(data_ptr.contents))
-            return copy.deepcopy(data_ptr.contents)
-        elif (data.contents.type_id == DataTypeId.BYTE_ARRAY):
-            data_ptr = cast(data.contents.value,
-                            POINTER(c_ubyte * data.contents.length))
-            data_byte_array = []
-            for i in range(0, data.contents.length):
-                data_byte_array.append(data_ptr.contents[i])
-            if self._debug:
-                print("Sensor data received: {0}".format(data_byte_array))
-            return data_byte_array
-        elif (data.contents.type_id == DataTypeId.TCS34725_ADC):
-            data_ptr = cast(data.contents.value, POINTER(Tcs34725ColorAdc))
-            if self._debug:
-                print("Sensor data received: {0}".format(data_ptr.contents))
-            return copy.deepcopy(data_ptr.contents)
+            if data_ptr.contents.value == 1:
+                print("Switch pressed!")
+            elif data_ptr.contents.value == 0:
+                print("Switch released!")
+            else:
+                raise ValueError("Incorrect data returned.")
         else:
-            raise RuntimeError(
-                'Unrecognized data type id: ' + str(data.contents.type_id))
+            raise RuntimeError('Incorrect data type id: ' + str(data.contents.type_id))
+

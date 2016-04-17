@@ -64,10 +64,12 @@ of this repository.
 Basic Usage
 -----------
 
-Currently, this MetaWear client is a pretty thin object, only
-handling the Bluetooth connection and
-actual communication and mostly being called indirectly
-from the ``libmetawear`` C++ library.
+The MetaWear client can be used in two ways: either as Pythonic
+convenience class for handling a MetaWear board or as
+a simple communication client governed by the ``libmetawear`` C++ library.
+
+Creating a client, and thus also setting up a Bluetooth connection to the
+MetaWear board, is equal for both the two usage profiles:
 
 .. code-block:: python
 
@@ -75,7 +77,16 @@ from the ``libmetawear`` C++ library.
     backend = 'pybluez'  # Or 'pygatt'
     c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
 
-An example: blinking with the LED lights can be done like this:
+An example: blinking with the LED lights can be done like this with the
+convenience methods:
+
+.. code-block:: python
+
+    pattern = c.led.load_preset_pattern('blink', repeat_count=10)
+    c.led.write_pattern(pattern, 'g')
+    c.led.play()
+
+or like this using the raw ``libmetawear`` shared library:
 
 .. code-block:: python
 
@@ -87,6 +98,7 @@ An example: blinking with the LED lights can be done like this:
     libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), Led.PRESET_BLINK)
     libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
     libmetawear.mbl_mw_led_play(c.board)
+
 
 Actual addresses to your MetaWear board can be found by scanning, either
 directly with ``hcitool lescan`` or with the included ``discover_devices`` method:
@@ -100,3 +112,25 @@ directly with ``hcitool lescan`` or with the included ``discover_devices`` metho
 
 See the examples folder for more examples on how to use the ``libmetawear``
 library with this client.
+
+Modules
+~~~~~~~
+
+All functionality of the MetaWear C++ API is able to be used using the
+PyMetaWear client, and some of the modules have had convenience methods
+added to simplify the use of them. Below are two list, one of modules which
+have had their convenience methods written and one of modules that are
+awaiting such focus.
+
+================= =============== =====================
+Completed Modules Partial Modules Unimplemented Modules
+================= =============== =====================
+Accelerometer     Settings        All others
+Haptic
+Switch
+LED
+================= =============== =====================
+
+The accelerometer module has a strange delay in it right now, which will
+be resolved in later releases. Use the code in `examples/raw/accelerometer.py`
+if high speed is desired.

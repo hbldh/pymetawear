@@ -15,9 +15,8 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import time
-from ctypes import cast, POINTER, c_uint, c_long
-from pymetawear.client import discover_devices, MetaWearClient, libmetawear
-from pymetawear.mbientlab.metawear.core import DataTypeId, BatteryState, FnDataPtr
+
+from pymetawear.client import discover_devices, MetaWearClient
 
 print("Discovering nearby MetaWear boards...")
 metawear_devices = discover_devices(timeout=2)
@@ -31,31 +30,21 @@ print("New client created: {0}".format(c))
 
 
 def battery_callback(data):
-    if data.contents.type_id == DataTypeId.BATTERY_STATE:
-        data_ptr = cast(data.contents.value, POINTER(BatteryState))
-        print("[Battery Subscription Callback] Voltage: {0}, Charge: {1}".format(
-            int(data_ptr.contents.voltage), int(data_ptr.contents.charge)))
-    else:
-        raise RuntimeError('Incorrect data type id: ' + str(data.contents.type_id))
+    """Handle a battery status tuple."""
+    print("Voltage: {0}, Charge: {1}".format(
+        data[0], data[1]))
+
 
 print("Subscribe to battery notifications...")
-c.battery_notifications(battery_callback)
-
-time.sleep(5.0)
+c.battery.notifications(battery_callback)
+time.sleep(1.0)
 
 print("Trigger battery state notification...")
-c.read_battery_state()
-
-time.sleep(5.0)
+c.battery.read_battery_state()
+time.sleep(1.0)
 
 print("Unsubscribe to battery notifications...")
-c.battery_notifications(None)
-
-time.sleep(5.0)
-
-print("Trigger battery state notification (should yield a RuntimeWarning)...")
-c.read_battery_state()
-
-time.sleep(5.0)
+c.battery.notifications(None)
+time.sleep(1.0)
 
 c.disconnect()

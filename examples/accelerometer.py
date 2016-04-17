@@ -32,33 +32,21 @@ else:
 c = MetaWearClient(str(address), 'pybluez', debug=True)
 print("New client created: {0}".format(c))
 
+
 def acc_callback(data):
-    if (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
-        data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-        print("X: {0}, Y: {1}, Z: {2}".format(int(data_ptr.contents.voltage),
-                                              int(data_ptr.contents.charge)))
-    else:
-        raise RuntimeError('Incorrect data type id: ' + str(data.contents.type_id))
+    """Handle a (x,y,z) accelerometer tuple."""
+    print("X: {0}, Y: {1}, Z: {2}".format(*data))
 
 
 print("Write accelerometer settings...")
-libmetawear.mbl_mw_acc_set_odr(c.board, c_float(200.0))
-libmetawear.mbl_mw_acc_set_range(c.board, c_float(200.0))
-libmetawear.mbl_mw_acc_write_acceleration_config(c.board)
+c.accelerometer.set_settings(data_rate=200.0, data_range=2)
+print("Subscribing to accelerometer signal notifications...")
+c.accelerometer.notifications(acc_callback)
 
-#print("Enable acc sampling on board...")
-#libmetawear.mbl_mw_acc_enable_acceleration_sampling(c.board)
-
-print("Subscribing to accelerometer signal...")
-c.accelerometer_notifications(acc_callback)
-
-print("Start acc on board...")
-libmetawear.mbl_mw_acc_start(c.board)
-
-print("Waiting for update...")
 time.sleep(20.0)
 
-c.accelerometer_notifications(None)
+print("Unsubscribe to notification...")
+c.accelerometer.notifications(None)
 
 time.sleep(5.0)
 
