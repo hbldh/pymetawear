@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`base`
-==================
 
-Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-14
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+
+Created: 2016-04-14
 
 """
 
@@ -23,6 +22,7 @@ from pymetawear.utils import IS_64_BIT
 
 
 class Modules(object):
+    """Class for storing PyMetaWear module identifiers."""
 
     MBL_MW_MODULE_NA = c_uint8(0)
     MBL_MW_MODULE_SWITCH = c_uint8(1)
@@ -52,6 +52,12 @@ class Modules(object):
 
 
 class PyMetaWearModule(object):
+    """Base class for PyMetaWear module implementations.
+
+    :param ctypes.c_long board: The MetaWear board pointer value.
+    :param bool debug: If ``True``, module prints out debug information.
+
+    """
 
     def __init__(self, board, debug=False):
         self.board = board

@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`switch`
-==================
 
-Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-14
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+
+Created: 2016-04-14
 
 """
 
@@ -23,6 +22,12 @@ from pymetawear.modules.base import PyMetaWearModule
 
 
 class SwitchModule(PyMetaWearModule):
+    """MetaWear Switch module implementation.
+
+    :param ctypes.c_long board: The MetaWear board pointer value.
+    :param bool debug: If ``True``, module prints out debug information.
+
+    """
 
     def __init__(self, board, debug=False):
         super(SwitchModule, self).__init__(board, debug)

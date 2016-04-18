@@ -136,8 +136,6 @@ class MetaWearClient(object):
     def __repr__(self):
         return "<MetaWearClient, {0}>".format(self._address)
 
-    # Connection methods
-
     @property
     def backend(self):
         """The requester object for the backend used.
@@ -158,17 +156,6 @@ class MetaWearClient(object):
         libmetawear.mbl_mw_metawearboard_free(self.board)
         self.backend.disconnect()
 
-    def set_logging_state(self, enabled=False):
-        if enabled:
-            libmetawear.mbl_mw_logging_start(self.board)
-        else:
-            libmetawear.mbl_mw_logging_stop(self.board)
-
-    def download_log(self, n_notifies):
-        libmetawear.mbl_mw_logging_download(self.board, n_notifies)
-
-    # Helper methods
-
     def get_handle(self, uuid, notify_handle=False):
         """Get handle for a characteristic UUID.
 
@@ -180,15 +167,12 @@ class MetaWearClient(object):
         """
         return self.backend.get_handle(uuid, notify_handle=notify_handle)
 
-    def _callback_wrapper(self, data):
-        if (data.contents.type_id == DataTypeId.UINT32):
-            data_ptr = cast(data.contents.value, POINTER(c_uint))
-            if data_ptr.contents.value == 1:
-                print("Switch pressed!")
-            elif data_ptr.contents.value == 0:
-                print("Switch released!")
-            else:
-                raise ValueError("Incorrect data returned.")
+    def _set_logging_state(self, enabled=False):
+        if enabled:
+            libmetawear.mbl_mw_logging_start(self.board)
         else:
-            raise RuntimeError('Incorrect data type id: ' + str(data.contents.type_id))
+            libmetawear.mbl_mw_logging_stop(self.board)
+
+    def _download_log(self, n_notifies):
+        libmetawear.mbl_mw_logging_download(self.board, n_notifies)
 

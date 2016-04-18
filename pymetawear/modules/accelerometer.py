@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`accelerometer`
-==================
 
-Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-14
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+
+Created: 2016-04-14
 
 """
 
@@ -26,6 +25,14 @@ from pymetawear.modules.base import PyMetaWearModule
 
 
 class AccelerometerModule(PyMetaWearModule):
+    """MetaWear accelerometer module implementation.
+
+    :param ctypes.c_long board: The MetaWear board pointer value.
+    :param int module_id: The module id of this accelerometer
+        component, obtained from ``libmetawear``.
+    :param bool debug: If ``True``, module prints out debug information.
+
+    """
 
     def __init__(self, board, module_id, debug=False):
         super(AccelerometerModule, self).__init__(board, debug)
@@ -128,8 +135,8 @@ class AccelerometerModule(PyMetaWearModule):
 
         albeit that the latter example makes two writes to the board.
 
-        Call :meth:`~get_available_accelerometer_settings` to see which values
-        that can be set.
+        Call :meth:`~get_possible_settings` to see which values
+        that can be set for this sensor.
 
         :param float data_rate: The frequency of accelerometer updates in Hz.
         :param float data_range: The measurement range in the unit ``g``.
@@ -191,12 +198,19 @@ class AccelerometerModule(PyMetaWearModule):
                 str(data.contents.type_id))
 
     def start(self):
+        """Switches the accelerometer to active mode."""
         libmetawear.mbl_mw_acc_start(self.board)
 
     def stop(self):
+        """Switches the accelerometer to standby mode."""
         libmetawear.mbl_mw_acc_stop(self.board)
 
     def toggle_sampling(self, enabled=True):
+        """Enables or disables accelerometer sampling.
+
+        :param bool enabled: Desired state of the accelerometer.
+
+        """
         if enabled:
             libmetawear.mbl_mw_acc_enable_acceleration_sampling(self.board)
         else:

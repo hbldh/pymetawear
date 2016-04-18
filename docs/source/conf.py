@@ -67,7 +67,7 @@ with open('../../pymetawear/__init__.py', 'r') as fd:
     data = fd.read()
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         data, re.MULTILINE).group(1)
-    version = version.split('a')[0].split('b')[0].split('dev')[0].split('rc')[0]
+    version = version.split('a')[0].split('b')[0].split('.dev')[0].split('rc')[0]
     release = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         data, re.MULTILINE).group(1)
 

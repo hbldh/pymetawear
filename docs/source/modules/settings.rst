@@ -13,7 +13,7 @@ It is initialized at the creation of the :py:class:`~MetaWearClient`
 client and can then be accessed in the ``battery``
 attribute of the client.
 
-Example usage::
+Example usage:
 
 .. code-block:: python
 
