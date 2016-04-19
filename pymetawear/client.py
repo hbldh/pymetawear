@@ -86,12 +86,14 @@ class MetaWearClient(object):
     :param str address: A Bluetooth MAC address to a MetaWear board.
     :param str backend: Either ``pygatt`` or ``pybluez``, designating which
         BLE communication backend that should be used.
+    :param float timeout: Timeout for connecting to the MetaWear board. If
+        ``None`` timeout defaults to the backend default.
     :param bool debug: If printout of all sent and received
         data should be done.
 
     """
 
-    def __init__(self, address, backend='pygatt', debug=False):
+    def __init__(self, address, backend='pygatt', timeout=None, debug=False):
         """Constructor."""
         self._address = address
         self._debug = debug
@@ -99,10 +101,10 @@ class MetaWearClient(object):
 
         if backend == 'pygatt':
             self._backend = PyGattBackend(
-                self._address, debug=debug)
+                self._address, timeout=timeout, debug=debug)
         elif backend == 'pybluez':
             self._backend = PyBluezBackend(
-                self._address, debug=debug)
+                self._address, timeout=timeout, debug=debug)
         else:
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
 

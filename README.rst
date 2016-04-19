@@ -130,7 +130,3 @@ Haptic
 Switch
 LED
 ================= =============== =====================
-
-The accelerometer module has a strange delay in it right now, which will
-be resolved in later releases. Use the code in `examples/raw/accelerometer.py`
-if high speed is desired.
