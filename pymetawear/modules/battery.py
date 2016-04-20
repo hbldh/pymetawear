@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`battery`
-==================
 
-Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-14
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+
+Created: 2016-04-14
 
 """
 
@@ -15,8 +14,8 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import warnings
-
-from ctypes import c_uint, cast, POINTER
+from functools import wraps
+from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
@@ -25,9 +24,15 @@ from pymetawear.modules.base import PyMetaWearModule
 
 
 class BatteryModule(PyMetaWearModule):
+    """MetaWear Settings/Battery module implementation.
+
+    :param ctypes.c_long board: The MetaWear board pointer value.
+    :param bool debug: If ``True``, module prints out debug information.
+
+    """
+
     def __init__(self, board, debug=False):
         super(BatteryModule, self).__init__(board, debug)
-        self._internal_callback = None
 
     def __str__(self):
         return "{0}: {1}".format(self.module_name, self.sensor_name)
@@ -73,22 +78,8 @@ class BatteryModule(PyMetaWearModule):
             is registered.
 
         """
-        if callback is None:
-            self._internal_callback = None
-            super(BatteryModule, self).notifications(None)
-        else:
-            self._internal_callback = callback
-            super(BatteryModule, self).notifications(
-                self._callback_wrapper)
-
-    def _callback_wrapper(self, data):
-        if data.contents.type_id == DataTypeId.BATTERY_STATE:
-            data_ptr = cast(data.contents.value, POINTER(BatteryState))
-            self._internal_callback((int(data_ptr.contents.voltage),
-                                    int(data_ptr.contents.charge)))
-        else:
-            raise PyMetaWearException(
-                'Incorrect data type id: ' + str(data.contents.type_id))
+        super(BatteryModule, self).notifications(
+            battery_data(callback) if callback is not None else None)
 
     def read_battery_state(self):
         """Triggers a battery state notification.
@@ -101,3 +92,16 @@ class BatteryModule(PyMetaWearModule):
         if self.callback is None:
             warnings.warn("No battery callback is registered!", RuntimeWarning)
         libmetawear.mbl_mw_settings_read_battery_state(self.board)
+
+
+def battery_data(func):
+    @wraps(func)
+    def wrapper(data):
+        if data.contents.type_id == DataTypeId.BATTERY_STATE:
+            data_ptr = cast(data.contents.value, POINTER(BatteryState))
+            func((int(data_ptr.contents.voltage),
+                  int(data_ptr.contents.charge)))
+        else:
+            raise PyMetaWearException('Incorrect data type id: {0}'.format(
+                data.contents.type_id))
+    return wrapper

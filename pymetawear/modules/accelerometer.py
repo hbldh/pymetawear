@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`accelerometer`
-==================
 
-Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-14
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+
+Created: 2016-04-14
 
 """
 
@@ -15,7 +14,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import re
-
+from functools import wraps
 from ctypes import c_float, cast, POINTER
 
 from pymetawear import libmetawear
@@ -26,6 +25,14 @@ from pymetawear.modules.base import PyMetaWearModule
 
 
 class AccelerometerModule(PyMetaWearModule):
+    """MetaWear accelerometer module implementation.
+
+    :param ctypes.c_long board: The MetaWear board pointer value.
+    :param int module_id: The module id of this accelerometer
+        component, obtained from ``libmetawear``.
+    :param bool debug: If ``True``, module prints out debug information.
+
+    """
 
     def __init__(self, board, module_id, debug=False):
         super(AccelerometerModule, self).__init__(board, debug)
@@ -53,11 +60,9 @@ class AccelerometerModule(PyMetaWearModule):
                 acc_class = sensor.AccelerometerBosch
             else:
                 acc_class = self.acc_class
-            self.fsr = {int(re.search('^FSR_([0-9]+)G', k).groups()[0]):
+            self.fsr = {float(re.search('^FSR_([0-9]+)G', k).groups()[0]):
                             getattr(acc_class, k, None) for k in
                         filter(lambda x: x.startswith('FSR'), vars(acc_class))}
-
-        self._internal_callback = None
 
     def __str__(self):
         return "{0} {1}: Data rates (Hz): {2}, Data ranges (g): {3}".format(
@@ -90,15 +95,17 @@ class AccelerometerModule(PyMetaWearModule):
             raise ValueError("Requested ODR ({0}) was not part of "
                              "possible values: {1}".format(
                 value, [float(x) for x in sorted_ord_keys]))
-        return self.odr.get(sorted_ord_keys[diffs.index(min_diffs)])
+        return float(value)
 
     def _get_fsr(self, value):
-        fsr = self.fsr.get(value, None)
-        if fsr is None:
+        sorted_ord_keys = sorted(self.fsr.keys(), key=lambda x:(float(x)))
+        diffs = [abs(value - float(k)) for k in sorted_ord_keys]
+        min_diffs = min(diffs)
+        if min_diffs > 0.1:
             raise ValueError("Requested FSR ({0}) was not part of "
                              "possible values: {1}".format(
                 value, [x for x in sorted(self.fsr.keys())]))
-        return float(fsr)
+        return float(value)
 
     def get_current_settings(self):
         raise NotImplementedError()
@@ -128,8 +135,8 @@ class AccelerometerModule(PyMetaWearModule):
 
         albeit that the latter example makes two writes to the board.
 
-        Call :meth:`~get_available_accelerometer_settings` to see which values
-        that can be set.
+        Call :meth:`~get_possible_settings` to see which values
+        that can be set for this sensor.
 
         :param float data_rate: The frequency of accelerometer updates in Hz.
         :param float data_range: The measurement range in the unit ``g``.
@@ -168,36 +175,46 @@ class AccelerometerModule(PyMetaWearModule):
             If `None`, unsubscription to accelerometer notifications is registered.
 
         """
+
         if callback is None:
-            self._internal_callback = None
             super(AccelerometerModule, self).notifications(None)
             self.stop()
             self.toggle_sampling(False)
         else:
-            self._internal_callback = callback
             super(AccelerometerModule, self).notifications(
-                self._callback_wrapper)
+                sensor_data(callback))
             self.start()
             self.toggle_sampling(True)
 
-    def _callback_wrapper(self, data):
-        if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
-            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            self._internal_callback((data_ptr.contents.x,
-                                     data_ptr.contents.y,
-                                     data_ptr.contents.z))
-        else:
-            raise PyMetaWearException('Incorrect data type id: ' +
-                str(data.contents.type_id))
-
     def start(self):
+        """Switches the accelerometer to active mode."""
         libmetawear.mbl_mw_acc_start(self.board)
 
     def stop(self):
+        """Switches the accelerometer to standby mode."""
         libmetawear.mbl_mw_acc_stop(self.board)
 
     def toggle_sampling(self, enabled=True):
+        """Enables or disables accelerometer sampling.
+
+        :param bool enabled: Desired state of the accelerometer.
+
+        """
         if enabled:
             libmetawear.mbl_mw_acc_enable_acceleration_sampling(self.board)
         else:
             libmetawear.mbl_mw_acc_disable_acceleration_sampling(self.board)
+
+
+def sensor_data(f):
+    @wraps(f)
+    def wrapper(data):
+        if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
+            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
+            f((data_ptr.contents.x,
+               data_ptr.contents.y,
+               data_ptr.contents.z))
+        else:
+            raise PyMetaWearException('Incorrect data type id: {0}'.format(
+                data.contents.type_id))
+    return wrapper

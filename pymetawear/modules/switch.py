@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`switch`
-==================
 
-Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-14
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+
+Created: 2016-04-14
 
 """
 
@@ -14,6 +13,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
+from functools import wraps
 from ctypes import c_uint, cast, POINTER
 
 from pymetawear import libmetawear
@@ -23,6 +23,12 @@ from pymetawear.modules.base import PyMetaWearModule
 
 
 class SwitchModule(PyMetaWearModule):
+    """MetaWear Switch module implementation.
+
+    :param ctypes.c_long board: The MetaWear board pointer value.
+    :param bool debug: If ``True``, module prints out debug information.
+
+    """
 
     def __init__(self, board, debug=False):
         super(SwitchModule, self).__init__(board, debug)
@@ -65,19 +71,17 @@ class SwitchModule(PyMetaWearModule):
             If `None`, unsubscription to switch notifications is registered.
 
         """
-        if callback is None:
-            self._internal_callback = None
-            super(SwitchModule, self).notifications(None)
-        else:
-            self._internal_callback = callback
-            super(SwitchModule, self).notifications(
-                self._callback_wrapper)
+        super(SwitchModule, self).notifications(
+            switch_data(callback) if callback is not None else None)
 
-    def _callback_wrapper(self, data):
+
+def switch_data(func):
+    @wraps(func)
+    def wrapper(data):
         if data.contents.type_id == DataTypeId.UINT32:
             data_ptr = cast(data.contents.value, POINTER(c_uint))
             self._internal_callback(data_ptr.contents.value)
         else:
-            raise PyMetaWearException(
-                'Incorrect data type id: ' + str(data.contents.type_id))
-
+            raise PyMetaWearException('Incorrect data type id: {0}'.format(
+                data.contents.type_id))
+    return wrapper

@@ -13,10 +13,10 @@ PyMetaWear documentation
 
 Python package for connecting to and using `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
-PyMetawear is meant to be a thin wrapper around the
+PyMetaWear is meant to be a thin wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
 providing a more Pythonic interface. It has support for using either
-`pybluez <https://github.com/karulis/pybluez>`_ and
+`pybluez <https://github.com/karulis/pybluez>`_/
 `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ or
 `pygatt <https://github.com/peplin/pygatt>`_ for
 Bluetooth Low Energy communication.
@@ -45,7 +45,7 @@ First, make sure all dependencies are installed:
 
 .. code-block:: bash
 
-    $ sudo apt-get install cmake build-essential python-dev bluetooth libbluetooth-dev libboost-python-dev libboost-thread-dev
+    $ sudo apt-get install build-essential libglib2.0-dev python-dev bluetooth libbluetooth-dev libboost-python-dev libboost-thread-dev
 
 PyMetaWear can be installed from pip:
 

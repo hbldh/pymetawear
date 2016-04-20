@@ -19,20 +19,26 @@ from ctypes import create_string_buffer
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
 from pymetawear.utils import range_, bytearray_to_str
 from pymetawear.backends import BLECommunicationBackend
-from pymetawear.backends.pygatt.gatttool import PyMetaWearGATTToolBackend
+from pymetawear.backends.pygatt.gatttool import PyMetaWearGATTToolBackend, DEFAULT_CONNECT_TIMEOUT_S
 
 __all__ = ["PyGattBackend"]
 
 
 class PyGattBackend(BLECommunicationBackend):
+    """
+    Backend using `pygatt <https://github.com/peplin/pygatt>`_
+    for BLE communication.
+    """
 
-    def __init__(self, address, async=True, debug=False):
-        super(PyGattBackend, self).__init__(address, async, debug)
+    def __init__(self, address, async=True, timeout=None, debug=False):
+        super(PyGattBackend, self).__init__(address, async, timeout, debug)
         self._backend = None
+        self._timeout = DEFAULT_CONNECT_TIMEOUT_S if \
+            self._timeout is None else self._timeout
 
     @property
     def requester(self):
-        """Property handling `GattRequester` and its connection.
+        """Property handling the backend's device instance and its connection.
 
         :return: A connected ``pygatt`` BLE device instance.
         :rtype: :class:`pygatt.device.BLEDevice`
@@ -46,7 +52,7 @@ class PyGattBackend(BLECommunicationBackend):
             if self._debug:
                 print("Connecting GATTTool...")
             self._requester = self._backend.connect(
-                self._address, timeout=10.0, address_type='random')
+                self._address, timeout=self._timeout, address_type='random')
 
             if not self.requester._connected:
                 raise PyMetaWearConnectionTimeout(

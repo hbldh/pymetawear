@@ -41,12 +41,14 @@ class PyBluezBackend(BLECommunicationBackend):
     `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ for BLE communication.
     """
 
-    def __init__(self, address, async=True, debug=False):
+    def __init__(self, address, async=True, timeout=None, debug=False):
         self._primary_services = {}
         self._characteristics_cache = {}
         self._response = GATTResponse()
 
-        super(PyBluezBackend, self).__init__(address, async, debug)
+        super(PyBluezBackend, self).__init__(address, async, timeout, debug)
+
+        self._timeout = 5.0 if self._timeout is None else self._timeout
 
     def _build_handle_dict(self):
         self._primary_services = {uuid.UUID(x.get('uuid')): (x.get('start'), x.get('end'))
@@ -74,9 +76,10 @@ class PyBluezBackend(BLECommunicationBackend):
             self._requester.connect(wait=False, channel_type='random')
             # Using manual waiting since gattlib's `wait` keyword does not work.
             t = 0.0
-            while not self._requester.is_connected() and t < 5.0:
-                t += 0.1
-                time.sleep(0.1)
+            t_step = 0.25
+            while not self._requester.is_connected() and t < self._timeout:
+                t += t_step
+                time.sleep(t_step)
 
             if not self._requester.is_connected():
                 raise PyMetaWearConnectionTimeout(

@@ -24,10 +24,11 @@ from pymetawear.utils import string_types, is_64bit
 
 class BLECommunicationBackend(object):
 
-    def __init__(self, address, async=True, debug=False):
+    def __init__(self, address, async=True, timeout=None, debug=False):
         self._address = address
         self._async = async
         self._debug = debug
+        self._timeout = timeout
         self.initialized = False
 
         self._requester = None

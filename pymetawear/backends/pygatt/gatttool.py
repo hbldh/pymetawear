@@ -25,7 +25,8 @@ from pymetawear.utils import string_types
 
 
 class PyMetaWearGATTToolBLEDevice(GATTToolBLEDevice):
-    """PyMetaWear overriding ``get_handle`` method to make it Python 3 compliant."""
+    """PyMetaWear overriding ``get_handle`` method
+    to make it Python 3 compliant."""
 
     def get_handle(self, char_uuid):
         """
@@ -69,15 +70,6 @@ class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
 
     def connect(self, address, timeout=DEFAULT_CONNECT_TIMEOUT_S,
                 address_type='public'):
-        # Try to discern if Bluez 4.X is used.
-        try:
-            p = subprocess.Popen(["dpkg", "--status", "bluez"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            output = subprocess.check_output(('grep', '^Version:'), stdin=p.stdout)
-            p.wait()
-            major, minor_plus = output.decode().split('Version:')[-1].strip().split('.', 1)
-        except Exception as e:
-            major = '5'
-
         log.info('Connecting with timeout=%s', timeout)
         self._con.sendline('sec-level low')
         self._address = address
@@ -85,11 +77,10 @@ class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
             with self._connection_lock:
                 cmd = 'connect %s %s' % (self._address, address_type)
                 self._con.sendline(cmd)
-                if int(major) < 5:
-                    expect_str = self._address.encode().join([b'\[CON\]\[', b'\]\[LE\]'])
-                    self._con.expect(expect_str, timeout)
-                else:
-                    self._con.expect(b'Connection successful.*\[LE\]>', timeout)
+                self._con.expect(
+                    [b'Connection successful.*\[LE\]>',
+                     self._address.encode().join([b'\[CON\]\[', b'\]\[LE\]'])],
+                    timeout)
         except pexpect.TIMEOUT:
             message = ("Timed out connecting to %s after %s seconds."
                        % (self._address, timeout))

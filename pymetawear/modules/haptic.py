@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`haptic`
-==================
 
-Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-14
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+
+Created: 2016-04-14
 
 """
 
@@ -22,6 +21,13 @@ from pymetawear.modules.base import PyMetaWearModule
 
 
 class HapticModule(PyMetaWearModule):
+    """MetaWear Haptic module implementation.
+
+    :param ctypes.c_long board: The MetaWear board pointer value.
+    :param bool debug: If ``True``, module prints out debug information.
+
+    """
+
     def __init__(self, board, debug=False):
         super(HapticModule, self).__init__(board, debug)
 
@@ -41,7 +47,7 @@ class HapticModule(PyMetaWearModule):
             libmetawear.mbl_mw_settings_get_battery_state_data_signal)
 
     def notifications(self, callback=None):
-        """No subscriptions possible for Hptica module.
+        """No subscriptions possible for Haptic module.
 
         :raises: :py:exc:`~PyMetaWearException`
 

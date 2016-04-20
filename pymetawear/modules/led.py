@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`led`
-==================
 
-Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-16
+.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+
+Created: 2016-04-16
 
 """
 
@@ -23,6 +22,12 @@ from pymetawear.mbientlab.metawear.peripheral import Led
 
 
 class LEDModule(PyMetaWearModule):
+    """MetaWear Switch module implementation.
+
+    :param ctypes.c_long board: The MetaWear board pointer value.
+    :param bool debug: If ``True``, module prints out debug information.
+
+    """
 
     def __init__(self, board, debug=False):
         super(LEDModule, self).__init__(board, debug)
@@ -63,7 +68,7 @@ class LEDModule(PyMetaWearModule):
     def write_pattern(self, pattern, color):
         """Writes the led pattern to the board.
 
-        :param pattern:
+        :param Led.Pattern pattern: The pattern to write to board.
         :param str color: `g`, `b` or 'r'
 
         """

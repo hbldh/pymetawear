@@ -1,3 +1,9 @@
+v0.4.1 (2016-04-20)
+===================
+- Cleanup of new modules sensor data parsing.
+- Bug fix related to accelerometer module.
+- Timeout parameter for client and backends.
+
 v0.4.0 (2016-04-17)
 ===================
 - Major refactorisation into new module layout.

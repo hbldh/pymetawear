@@ -1,7 +1,7 @@
 .. _client:
 
-MetaWearClient
-==============
+MetaWear Client
+===============
 
 The MetaWear client provided by this package. It can be used as such:
 
