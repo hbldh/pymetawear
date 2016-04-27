@@ -16,6 +16,9 @@ from __future__ import absolute_import
 import platform
 
 
+IS_64_BIT = platform.architecture()[0] == '64bit'
+
+
 try:
     # Python 2
     range_ = xrange
@@ -37,6 +40,5 @@ except NameError:
             # PyGatt
             return bytes([x for x in ba])
 
-IS_64_BIT = platform.architecture()[0] == '64bit'
-def is_64bit():
-    return platform.architecture()[0] == '64bit'
+
+

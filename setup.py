@@ -71,16 +71,10 @@ def build_solution():
     # Copy the built shared library to pymetawear folder.
     shutil.copy(path_to_libmetawear_so,
                 os.path.join(basedir, 'pymetawear', 'libmetawear.so'))
-
     # Copy the Mbientlab Python wrappers to pymetawear folder.
     # First create folders if needed.
     try:
-        os.mkdir(basedir, 'pymetawear')
-    except:
-        pass
-
-    try:
-        os.mkdir(basedir, 'pymetawear', 'mbientlab')
+        os.makedirs(os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear'))
     except:
         pass
 
