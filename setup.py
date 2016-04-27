@@ -75,8 +75,12 @@ def build_solution():
     # Copy the Mbientlab Python wrappers to pymetawear folder.
     # First create folders if needed.
     try:
-        os.makedirs(os.path.join(
-            basedir, 'pymetawear', 'mbientlab'))
+        os.mkdir(basedir, 'pymetawear')
+    except:
+        pass
+
+    try:
+        os.mkdir(basedir, 'pymetawear', 'mbientlab')
     except:
         pass
 
