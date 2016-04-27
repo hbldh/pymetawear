@@ -75,11 +75,6 @@ def build_solution():
     # Copy the Mbientlab Python wrappers to pymetawear folder.
     # First create folders if needed.
     try:
-        os.makedirs(os.path.join(basedir, 'pymetawear', 'mbientlab'))
-    except:
-        pass
-
-    try:
         os.makedirs(os.path.join(
             basedir, 'pymetawear', 'mbientlab'))
     except:
@@ -90,14 +85,25 @@ def build_solution():
         f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
 
     # Copy all Python files from the MetWear C++ API Python wrapper
-    try:
-        shutil.copytree(os.path.join(path_to_metawear_python_wrappers,
-                                 'mbientlab', 'metawear'),
-                        os.path.join(basedir, 'pymetawear',
-                                 'mbientlab', 'metawear'))
-    except:
-        # Assume that they are already present.
-        pass
+    for pth, _, pyfiles in os.walk(
+            os.path.join(path_to_metawear_python_wrappers,
+                         'mbientlab', 'metawear')):
+        for py_file in filter(lambda x: os.path.splitext(x)[1] == '.py', pyfiles):
+            try:
+                shutil.copy(os.path.join(pth, py_file),
+                            os.path.join(basedir, 'pymetawear',
+                                     'mbientlab', 'metawear', py_file))
+            except:
+                pass
+            # FIXME: Temporary fix to handle import problem.
+            if py_file == 'functions.py':
+                import fileinput
+                file = fileinput.FileInput(os.path.join(
+                        basedir, 'pymetawear', 'mbientlab',
+                        'metawear', py_file), inplace=True, backup=None)
+                for line in file:
+                    print(line.replace('mbientlab.metawear', ''), end='')
+                file.close()
 
     with open(os.path.join(
             basedir, 'pymetawear', 'mbientlab', 'metawear',

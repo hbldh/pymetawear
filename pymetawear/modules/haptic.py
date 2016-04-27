@@ -41,11 +41,6 @@ class HapticModule(PyMetaWearModule):
     def module_name(self):
         return 'Haptic'
 
-    @property
-    def data_signal(self):
-        return self._data_signal_preprocess(
-            libmetawear.mbl_mw_settings_get_battery_state_data_signal)
-
     def notifications(self, callback=None):
         """No subscriptions possible for Haptic module.
 

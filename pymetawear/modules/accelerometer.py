@@ -206,14 +206,14 @@ class AccelerometerModule(PyMetaWearModule):
             libmetawear.mbl_mw_acc_disable_acceleration_sampling(self.board)
 
 
-def sensor_data(f):
-    @wraps(f)
+def sensor_data(func):
+    @wraps(func)
     def wrapper(data):
         if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
             data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            f((data_ptr.contents.x,
-               data_ptr.contents.y,
-               data_ptr.contents.z))
+            func((data_ptr.contents.x,
+                  data_ptr.contents.y,
+                  data_ptr.contents.z))
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))
