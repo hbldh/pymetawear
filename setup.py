@@ -37,14 +37,14 @@ class PyMetaWearBuilder(build_py.build_py):
 
 
 def build_solution():
-    basedir = os.path.abspath(os.path.dirname(__file__))
-
     # Establish source paths.
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    pkg_dir = os.path.join(basedir, 'pymetawear')
     path_to_libmetawear_so = os.path.join(
-        basedir, 'pymetawear', 'Metawear-CppAPI', 'dist', 'release', 'lib',
+        pkg_dir, 'Metawear-CppAPI', 'dist', 'release', 'lib',
         'x64' if os.uname()[-1] == 'x86_64' else 'x86', 'libmetawear.so')
     path_to_metawear_python_wrappers = os.path.join(
-        basedir, 'pymetawear', 'Metawear-CppAPI', 'wrapper', 'python')
+        pkg_dir, 'Metawear-CppAPI', 'wrapper', 'python')
 
     # Git submodule init
     p = subprocess.Popen(['git', 'submodule', 'init'],
@@ -59,28 +59,33 @@ def build_solution():
     # Run make file for MetaWear-CppAPI
     p = subprocess.Popen(
         ['make', 'clean'],
-        cwd=os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI'),
+        cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
         stdout=sys.stdout, stderr=sys.stderr)
     p.communicate()
     p = subprocess.Popen(
         ['make', 'build'],
-        cwd=os.path.join(basedir, 'pymetawear', 'Metawear-CppAPI'),
+        cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
         stdout=sys.stdout, stderr=sys.stderr)
     p.communicate()
 
     # Copy the built shared library to pymetawear folder.
     shutil.copy(path_to_libmetawear_so,
-                os.path.join(basedir, 'pymetawear', 'libmetawear.so'))
+                os.path.join(pkg_dir, 'libmetawear.so'))
+    
     # Copy the Mbientlab Python wrappers to pymetawear folder.
     # First create folders if needed.
     try:
-        os.makedirs(os.path.join(basedir, 'pymetawear', 'mbientlab', 'metawear'))
+        os.makedirs(os.path.join(pkg_dir, 'mbientlab', 'metawear'))
     except:
         pass
 
-    with open(os.path.join(
-            basedir, 'pymetawear', 'mbientlab', '__init__.py'), 'w') as f:
-        f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
+    init_files_to_create = [
+        os.path.join(pkg_dir, 'mbientlab', '__init__.py'),
+        os.path.join(pkg_dir, 'mbientlab', 'metawear', '__init__.py')
+    ]
+    for init_file in init_files_to_create:
+        with open(init_file, 'w') as f:
+            f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
 
     # Copy all Python files from the MetWear C++ API Python wrapper
     for pth, _, pyfiles in os.walk(
@@ -88,26 +93,11 @@ def build_solution():
                          'mbientlab', 'metawear')):
         for py_file in filter(lambda x: os.path.splitext(x)[1] == '.py', pyfiles):
             try:
-                shutil.copy(os.path.join(pth, py_file),
-                            os.path.join(basedir, 'pymetawear',
-                                     'mbientlab', 'metawear', py_file))
+                shutil.copy(
+                    os.path.join(pth, py_file),
+                    os.path.join(pkg_dir, 'mbientlab', 'metawear', py_file))
             except:
                 pass
-            # FIXME: Temporary fix to handle import problem.
-            if py_file == 'functions.py':
-                import fileinput
-                file = fileinput.FileInput(os.path.join(
-                        basedir, 'pymetawear', 'mbientlab',
-                        'metawear', py_file), inplace=True, backup=None)
-                for line in file:
-                    print(line.replace('mbientlab.metawear', ''), end='')
-                file.close()
-
-    with open(os.path.join(
-            basedir, 'pymetawear', 'mbientlab', 'metawear',
-            '__init__.py'), 'w') as f:
-        f.write("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
-
 
 with open('pymetawear/__init__.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',

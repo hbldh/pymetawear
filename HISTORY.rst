@@ -1,3 +1,8 @@
+v0.4.4 (2016-04-28)
+===================
+- Updated MetaWear-CppAPI submodule version.
+- Removed temporary build workaround.
+
 v0.4.3 (2016-04-27)
 ===================
 - Critical fix for switch notifications.
