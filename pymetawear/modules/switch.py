@@ -32,7 +32,6 @@ class SwitchModule(PyMetaWearModule):
 
     def __init__(self, board, debug=False):
         super(SwitchModule, self).__init__(board, debug)
-        self._internal_callback = None
 
     def __str__(self):
         return "{0}".format(
