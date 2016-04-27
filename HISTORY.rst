@@ -1,3 +1,10 @@
+v0.4.3 (2016-04-27)
+===================
+- Critical fix for switch notifications.
+- Updated MetaWear-CppAPI submodule version.
+- Now using the new ``setup_metawear`` method.
+- Restructured the ``IS_64_BIT`` usage which is still needed.
+
 v0.4.2 (2016-04-27)
 ===================
 - Critical fix for timeout in pybluez/gattlib backend.
