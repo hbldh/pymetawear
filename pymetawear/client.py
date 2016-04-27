@@ -132,6 +132,11 @@ class MetaWearClient(object):
             libmetawear.mbl_mw_metawearboard_lookup_module(
                 self.board, modules.Modules.MBL_MW_MODULE_GYRO),
             debug=self._debug)
+        self.ambient_light = modules.AmbientLightModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_AMBIENT_LIGHT),
+            debug=self._debug)
         self.switch = modules.SwitchModule(self.board, debug=self._debug)
         self.battery = modules.BatteryModule(self.board, debug=self._debug)
         self.haptic = modules.HapticModule(self.board, debug=self._debug)

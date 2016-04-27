@@ -185,7 +185,6 @@ class GyroscopeModule(PyMetaWearModule):
             If `None`, unsubscription to gyroscope notifications is registered.
 
         """
-
         if callback is None:
             super(GyroscopeModule, self).notifications(None)
             self.stop()
