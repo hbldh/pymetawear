@@ -127,6 +127,11 @@ class MetaWearClient(object):
             libmetawear.mbl_mw_metawearboard_lookup_module(
                 self.board, modules.Modules.MBL_MW_MODULE_ACCELEROMETER),
             debug=self._debug)
+        self.gyroscope = modules.GyroscopeModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_GYRO),
+            debug=self._debug)
         self.switch = modules.SwitchModule(self.board, debug=self._debug)
         self.battery = modules.BatteryModule(self.board, debug=self._debug)
         self.haptic = modules.HapticModule(self.board, debug=self._debug)
@@ -178,3 +183,6 @@ class MetaWearClient(object):
     def _download_log(self, n_notifies):
         libmetawear.mbl_mw_logging_download(self.board, n_notifies)
 
+    def soft_reset(self):
+        """Issues a soft reset to the board."""
+        libmetawear.mbl_mw_debug_reset(self.board)

@@ -29,6 +29,7 @@ class BLECommunicationBackend(object):
         self._async = async
         self._debug = debug
         self._timeout = timeout
+
         self.initialized = False
 
         self._requester = None

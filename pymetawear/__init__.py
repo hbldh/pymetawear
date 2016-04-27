@@ -9,9 +9,9 @@ import os
 from ctypes import cdll
 
 # Version information.
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 version = __version__  # backwards compatibility name
-version_info = (0, 4, 1)
+version_info = (0, 4, 2)
 
 if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
     libmetawear = cdll.LoadLibrary(os.environ["METAWEAR_LIB_SO_NAME"])

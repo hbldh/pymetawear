@@ -1,3 +1,11 @@
+v0.4.2 (2016-04-27)
+===================
+- Critical fix for timeout in pybluez/gattlib backend.
+- Added Gyroscope module.
+- Added soft reset method to client.
+- Updated examples.
+- Updated documentation.
+
 v0.4.1 (2016-04-20)
 ===================
 - Cleanup of new modules sensor data parsing.
