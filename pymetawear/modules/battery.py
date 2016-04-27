@@ -50,6 +50,7 @@ class BatteryModule(PyMetaWearModule):
 
     @property
     def data_signal(self):
+        #return libmetawear.mbl_mw_settings_get_battery_state_data_signal
         return self._data_signal_preprocess(
             libmetawear.mbl_mw_settings_get_battery_state_data_signal)
 

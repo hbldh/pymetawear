@@ -155,12 +155,12 @@ class GyroscopeModule(PyMetaWearModule):
             odr = self._get_odr(data_rate)
             if self._debug:
                 print("Setting Gyroscope ODR to {0}".format(odr))
-            libmetawear.mbl_mw_gyro_bmi160_set_odr(self.board, c_float(odr))
+            libmetawear.mbl_mw_gyro_bmi160_set_odr(self.board, odr)
         if data_range is not None:
             fsr = self._get_fsr(data_range)
             if self._debug:
                 print("Setting Gyroscope FSR to {0}".format(fsr))
-            libmetawear.mbl_mw_gyro_bmi160_set_range(self.board, c_float(fsr))
+            libmetawear.mbl_mw_gyro_bmi160_set_range(self.board, fsr)
 
         if (data_rate is not None) or (data_range is not None):
             libmetawear.mbl_mw_gyro_bmi160_write_config(self.board)
@@ -219,14 +219,14 @@ class GyroscopeModule(PyMetaWearModule):
             libmetawear.mbl_mw_gyro_bmi160_disable_rotation_sampling(self.board)
 
 
-def sensor_data(f):
-    @wraps(f)
+def sensor_data(func):
+    @wraps(func)
     def wrapper(data):
         if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
             data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            f((data_ptr.contents.x,
-               data_ptr.contents.y,
-               data_ptr.contents.z))
+            func((data_ptr.contents.x,
+                  data_ptr.contents.y,
+                  data_ptr.contents.z))
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))

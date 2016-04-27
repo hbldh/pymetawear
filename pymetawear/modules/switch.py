@@ -32,7 +32,6 @@ class SwitchModule(PyMetaWearModule):
 
     def __init__(self, board, debug=False):
         super(SwitchModule, self).__init__(board, debug)
-        self._internal_callback = None
 
     def __str__(self):
         return "{0}".format(
@@ -80,7 +79,7 @@ def switch_data(func):
     def wrapper(data):
         if data.contents.type_id == DataTypeId.UINT32:
             data_ptr = cast(data.contents.value, POINTER(c_uint))
-            self._internal_callback(data_ptr.contents.value)
+            func(data_ptr.contents.value)
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))
