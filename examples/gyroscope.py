@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`accelerometer`
+:mod:`gyroscope`
 ==================
 
 Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-10
+Created on 2016-04-26
 
 """
 
@@ -15,10 +15,8 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import time
-from ctypes import cast, POINTER, c_float, c_long
 
 from pymetawear.client import discover_devices, MetaWearClient, libmetawear
-from pymetawear.mbientlab.metawear.core import CartesianFloat, DataTypeId, FnDataPtr
 
 print("Warning: Incomplete example!")
 
@@ -33,15 +31,15 @@ c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 
-def acc_callback(data):
-    """Handle a (x,y,z) accelerometer tuple."""
+def gyro_callback(data):
+    """Handle a (x,y,z) gyroscope tuple."""
     print("X: {0}, Y: {1}, Z: {2}".format(*data))
 
 
-print("Write accelerometer settings...")
-c.accelerometer.set_settings(data_rate=200.0, data_range=2)
-print("Subscribing to accelerometer signal notifications...")
-c.accelerometer.notifications(acc_callback)
+print("Write gyroscope settings...")
+c.gyroscope.set_settings(data_rate=200.0, data_range=1000.0)
+print("Subscribing to gyroscope signal notifications...")
+c.gyroscope.notifications(gyro_callback)
 
 time.sleep(20.0)
 
