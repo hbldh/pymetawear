@@ -46,9 +46,8 @@ class PyBluezBackend(BLECommunicationBackend):
         self._characteristics_cache = {}
         self._response = GATTResponse()
 
-        super(PyBluezBackend, self).__init__(address, async, timeout, debug)
-
-        self._timeout = 5.0 if self._timeout is None else self._timeout
+        super(PyBluezBackend, self).__init__(
+            address, async, 5.0 if timeout is None else timeout, debug)
 
     def _build_handle_dict(self):
         self._primary_services = {uuid.UUID(x.get('uuid')): (x.get('start'), x.get('end'))

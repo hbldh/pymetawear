@@ -18,8 +18,6 @@ import time
 
 from pymetawear.client import discover_devices, MetaWearClient, libmetawear
 
-print("Warning: Incomplete example!")
-
 print("Discovering nearby MetaWear boards...")
 metawear_devices = discover_devices(timeout=2)
 if len(metawear_devices) < 1:
@@ -44,7 +42,7 @@ c.gyroscope.notifications(gyro_callback)
 time.sleep(20.0)
 
 print("Unsubscribe to notification...")
-c.accelerometer.notifications(None)
+c.gyroscope.notifications(None)
 
 time.sleep(5.0)
 

@@ -183,3 +183,6 @@ class MetaWearClient(object):
     def _download_log(self, n_notifies):
         libmetawear.mbl_mw_logging_download(self.board, n_notifies)
 
+    def soft_reset(self):
+        """Issues a soft reset to the board."""
+        libmetawear.mbl_mw_debug_reset(self.board)

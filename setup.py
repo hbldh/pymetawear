@@ -138,7 +138,7 @@ setup(
     },
     packages=find_packages(exclude=['tests', 'docs', 'examples']),
     # Adding MbientLab's Python code as package data since it is copied
-    # to folder after ``find_package`` is run.
+    # to folder after ``find_packages`` is run.
     package_data={
         'pymetawear': [
             'libmetawear.so',

@@ -21,8 +21,6 @@ from pymetawear.client import discover_devices, MetaWearClient, libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import CartesianFloat, DataTypeId, FnDataPtr
 
-print("Warning: Incomplete example!")
-
 print("Discovering nearby MetaWear boards...")
 metawear_devices = discover_devices(timeout=2)
 if len(metawear_devices) < 1:

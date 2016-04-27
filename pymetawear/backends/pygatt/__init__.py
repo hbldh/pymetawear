@@ -31,10 +31,12 @@ class PyGattBackend(BLECommunicationBackend):
     """
 
     def __init__(self, address, async=True, timeout=None, debug=False):
-        super(PyGattBackend, self).__init__(address, async, timeout, debug)
+
         self._backend = None
-        self._timeout = DEFAULT_CONNECT_TIMEOUT_S if \
-            self._timeout is None else self._timeout
+        super(PyGattBackend, self).__init__(
+            address, async,
+            DEFAULT_CONNECT_TIMEOUT_S if timeout is None else timeout,
+            debug)
 
     @property
     def requester(self):

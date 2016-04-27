@@ -21,7 +21,6 @@ from pymetawear import libmetawear
 from pymetawear.client import discover_devices, MetaWearClient
 from pymetawear.mbientlab.metawear.core import DataTypeId, FnDataPtr
 
-
 print("Discovering nearby MetaWear boards...")
 metawear_devices = discover_devices(timeout=2)
 if len(metawear_devices) < 1:

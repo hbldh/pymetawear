@@ -20,8 +20,6 @@ from ctypes import cast, POINTER, c_float, c_long
 from pymetawear.client import discover_devices, MetaWearClient, libmetawear
 from pymetawear.mbientlab.metawear.core import CartesianFloat, DataTypeId, FnDataPtr
 
-print("Warning: Incomplete example!")
-
 print("Discovering nearby MetaWear boards...")
 metawear_devices = discover_devices(timeout=2)
 if len(metawear_devices) < 1:
@@ -39,7 +37,7 @@ def acc_callback(data):
 
 
 print("Write accelerometer settings...")
-c.accelerometer.set_settings(data_rate=200.0, data_range=2)
+c.accelerometer.set_settings(data_rate=200.0, data_range=8.0)
 print("Subscribing to accelerometer signal notifications...")
 c.accelerometer.notifications(acc_callback)
 
