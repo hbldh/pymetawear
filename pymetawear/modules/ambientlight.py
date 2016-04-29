@@ -13,13 +13,14 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
+import copy
 import re
 from functools import wraps
-from ctypes import c_uint, cast, POINTER
+from ctypes import c_uint, cast, POINTER, c_float, c_ubyte
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
+from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, BatteryState, Tcs34725ColorAdc
 from pymetawear.modules.base import PyMetaWearModule, Modules
 from pymetawear.mbientlab.metawear.sensor import AmbientLightLtr329
 
@@ -229,10 +230,34 @@ class AmbientLightModule(PyMetaWearModule):
 def ambient_light_data(func):
     @wraps(func)
     def wrapper(data):
-        if data.contents.type_id == DataTypeId.UINT32:
+        if (data.contents.type_id == DataTypeId.UINT32):
             data_ptr = cast(data.contents.value, POINTER(c_uint))
-            func(data_ptr.contents.value)
+            func(int(data_ptr.contents.value))
+        elif (data.contents.type_id == DataTypeId.FLOAT):
+            data_ptr = cast(data.contents.value, POINTER(c_float));
+            func(float(data_ptr.contents.value))
+        elif (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
+            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
+            func((data_ptr.contents.x,
+                  data_ptr.contents.y,
+                  data_ptr.contents.z))
+        elif (data.contents.type_id == DataTypeId.BATTERY_STATE):
+            data_ptr = cast(data.contents.value, POINTER(BatteryState))
+            func((int(data_ptr.contents.voltage),
+                  int(data_ptr.contents.charge)))
+        elif (data.contents.type_id == DataTypeId.BYTE_ARRAY):
+            data_ptr = cast(data.contents.value,
+                            POINTER(c_ubyte * data.contents.length))
+            data_byte_array = []
+            for i in range(0, data.contents.length):
+                data_byte_array.append(int(data_ptr.contents[i]))
+            func(data_byte_array)
+        elif (data.contents.type_id == DataTypeId.TCS34725_ADC):
+            data_ptr = cast(data.contents.value, POINTER(Tcs34725ColorAdc))
+            data_tcs34725_adc = copy.deepcopy(data_ptr.contents)
+            func(data_tcs34725_adc)
         else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
+            raise RuntimeError(
+                'Unrecognized data type id: ' + str(data.contents.type_id))
+
     return wrapper

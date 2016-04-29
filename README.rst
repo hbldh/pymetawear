@@ -125,9 +125,14 @@ awaiting such focus.
 ================= =============== =====================
 Completed Modules Partial Modules Unimplemented Modules
 ================= =============== =====================
-Accelerometer     Settings        All others
-Gyroscope
-Haptic
-Switch
-LED
+Accelerometer     Settings        Barometer
+Gyroscope                         Color Detector
+Haptic                            Humidity
+Switch                            GPIO
+LED                               I2C
+                                  Magnetometer
+                                  NeoPixel
+                                  Proximity
+                                  iBeacon
+                                  Temperature
 ================= =============== =====================
