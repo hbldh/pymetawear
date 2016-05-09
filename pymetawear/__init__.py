@@ -7,7 +7,7 @@
 
 import os
 from ctypes import cdll, c_long
-from pymetawear.mbientlab.metawear.core import FnDataPtr
+from pymetawear.mbientlab.metawear.core import FnDataPtr, FnVoid
 from pymetawear.mbientlab.metawear.functions import setup_libmetawear
 from pymetawear.utils import IS_64_BIT
 
@@ -29,6 +29,9 @@ setup_libmetawear(libmetawear)
 if IS_64_BIT:
     libmetawear.mbl_mw_datasignal_subscribe.argtypes = [c_long, FnDataPtr]
     libmetawear.mbl_mw_datasignal_unsubscribe.argtypes = [c_long, ]
+    libmetawear.mbl_mw_datasignal_log.argtypes = [c_long, FnDataPtr, FnVoid]
+    libmetawear.mbl_mw_datasignal_remove_logger.argtypes = [c_long, ]
+
 
 
 

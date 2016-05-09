@@ -59,10 +59,12 @@ class SwitchModule(PyMetaWearModule):
         .. code-block:: python
 
             def switch_callback(data):
-                if data == 1:
-                    print("Switch pressed!")
-                elif data == 0:
-                    print("Switch released!")
+                epoch = data[0]
+                status = data[1]
+                if status == 1:
+                    print("[{0}] Switch pressed!".format(epoch))
+                elif status == 0:
+                    print("[{0}] Switch released!".format(epoch))
 
             mwclient.switch.notifications(switch_callback)
 
@@ -78,8 +80,9 @@ def switch_data(func):
     @wraps(func)
     def wrapper(data):
         if data.contents.type_id == DataTypeId.UINT32:
+            epoch = int(data.contents.epoch)
             data_ptr = cast(data.contents.value, POINTER(c_uint))
-            func(data_ptr.contents.value)
+            func((epoch, data_ptr.contents.value))
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))

@@ -166,8 +166,10 @@ class AccelerometerModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_acc_notification(data)
-                # Handle a (x,y,z) accelerometer tuple.
-                print("X: {0}, Y: {1}, Z: {2}".format(*data))
+                # Handle a (epoch_time, (x,y,z)) accelerometer tuple.
+                epoch = data[0]
+                xyz = data[1]
+                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(epoch, *data))
 
             mwclient.accelerometer.notifications(handle_acc_notification)
 
@@ -210,10 +212,11 @@ def sensor_data(func):
     @wraps(func)
     def wrapper(data):
         if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
+            epoch = int(data.contents.epoch)
             data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            func((data_ptr.contents.x,
-                  data_ptr.contents.y,
-                  data_ptr.contents.z))
+            func((epoch, (data_ptr.contents.x,
+                          data_ptr.contents.y,
+                          data_ptr.contents.z)))
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))

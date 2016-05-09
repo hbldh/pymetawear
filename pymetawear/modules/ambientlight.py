@@ -56,15 +56,16 @@ class AmbientLightModule(PyMetaWearModule):
             # Parse possible output data rates for this accelerometer.
             self._gain = {
                 int(re.search('^GAIN_([0-9]+)X', k).groups()[0]):
-                    getattr(self.ambient_light_class, k, None) for k in filter(
-                lambda x: x.startswith('GAIN'), vars(self.ambient_light_class))}
+                    getattr(self.ambient_light_class, k, None) for k in
+                filter(lambda x: x.startswith('GAIN'),
+                       vars(self.ambient_light_class))}
             self._integration_time = {
                 int(re.search('^INTEGRATION_TIME_([0-9]+)MS', k).groups()[0]):
                     getattr(self.ambient_light_class, k, None) for k in
                 filter(lambda x: x.startswith('INTEGRATION_TIME'),
                        vars(self.ambient_light_class))}
             self._measurement_rate = {
-                int(re.search('^MEASUREMENT_RATE_([0-9]+)S', k).groups()[0]):
+                int(re.search('^MEASUREMENT_RATE_([0-9]+)MS', k).groups()[0]):
                     getattr(self.ambient_light_class, k, None) for k in
                 filter(lambda x: x.startswith('MEASUREMENT_RATE'),
                        vars(self.ambient_light_class))}
