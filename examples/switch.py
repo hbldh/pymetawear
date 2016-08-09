@@ -16,24 +16,21 @@ from __future__ import absolute_import
 
 import time
 
-from pymetawear.client import discover_devices, MetaWearClient
+from .discover import scan_and_select_le_device
+from pymetawear.client import MetaWearClient
 
-print("Discovering nearby MetaWear boards...")
-metawear_devices = discover_devices(timeout=2)
-if len(metawear_devices) < 1:
-    raise ValueError("No MetaWear boards could be detected.")
-else:
-    address = metawear_devices[0][0]
-
-c = MetaWearClient(str(address), debug=True)
+address = scan_and_select_le_device()
+c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 
 def switch_callback(data):
-    if data == 1:
-        print("Switch pressed!")
-    elif data == 0:
-        print("Switch released!")
+    """Handle a (epoch, status) switch tuple."""
+    epoch = data[0]
+    status = data[1]
+    print("[{0}] Switch {1}}!".format(
+        epoch, 'pressed' if status else 'released'))
+
 
 # Create subscription
 c.switch.notifications(switch_callback)

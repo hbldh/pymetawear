@@ -169,7 +169,7 @@ class AccelerometerModule(PyMetaWearModule):
                 # Handle a (epoch_time, (x,y,z)) accelerometer tuple.
                 epoch = data[0]
                 xyz = data[1]
-                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(epoch, *data))
+                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(epoch, *xyz))
 
             mwclient.accelerometer.notifications(handle_acc_notification)
 

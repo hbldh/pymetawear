@@ -25,7 +25,7 @@ from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.backends.pybluez import PyBluezBackend
 
 
-def discover_devices(timeout=5, only_metawear=True):
+def discover_devices(timeout=5):
     """Discover Bluetooth Devices nearby.
 
     Using hcitool in subprocess, since DiscoveryService in pybluez/gattlib
@@ -50,8 +50,6 @@ def discover_devices(timeout=5, only_metawear=True):
     * `StackOverflow, hcitool lescan with timeout <https://stackoverflow.com/questions/26874829/hcitool-lescan-will-not-print-in-real-time-to-a-file>`_
 
     :param int timeout: Duration of scanning.
-    :param bool only_metawear: If only addresses with the string 'metawear'
-        in its name should be returned.
     :return: List of tuples with `(address, name)`.
     :rtype: list
 
@@ -68,10 +66,7 @@ def discover_devices(timeout=5, only_metawear=True):
             raise PyMetaWearException("Could not perform scan.")
     ble_devices = list(set([tuple(x.split(' ')) for x in
                             filter(None, out.decode('utf8').split('\n')[1:])]))
-    if only_metawear:
-        return list(filter(lambda x: 'metawear' in x[1].lower(), ble_devices))
-    else:
-        return ble_devices
+    return ble_devices
 
 
 class MetaWearClient(object):
@@ -98,6 +93,9 @@ class MetaWearClient(object):
         self._address = address
         self._debug = debug
         self._initialized = False
+
+        if self._debug:
+            print("Creating MetaWearClient for {0}...".format(address))
 
         if backend == 'pygatt':
             self._backend = PyGattBackend(

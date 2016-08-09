@@ -15,25 +15,18 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import time
-from ctypes import cast, POINTER, c_float, c_long
 
-from pymetawear.client import discover_devices, MetaWearClient, libmetawear
-from pymetawear.mbientlab.metawear.core import CartesianFloat, DataTypeId, FnDataPtr
+from .discover import scan_and_select_le_device
+from pymetawear.client import MetaWearClient
 
-print("Discovering nearby MetaWear boards...")
-metawear_devices = discover_devices(timeout=2)
-if len(metawear_devices) < 1:
-    raise ValueError("No MetaWear boards could be detected.")
-else:
-    address = metawear_devices[0][0]
-
+address = scan_and_select_le_device()
 c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 
 def acc_callback(data):
-    """Handle a (x,y,z) accelerometer tuple."""
-    print("X: {0}, Y: {1}, Z: {2}".format(*data))
+    """Handle a (epoch, (x,y,z)) accelerometer tuple."""
+    print("Epoch time: [{0}] - X: {1}, Y: {2}, Z: {3}".format(data[0], *data[1]))
 
 
 print("Write accelerometer settings...")

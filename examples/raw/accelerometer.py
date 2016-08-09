@@ -21,14 +21,11 @@ from pymetawear.client import discover_devices, MetaWearClient, libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import CartesianFloat, DataTypeId, FnDataPtr
 
-print("Discovering nearby MetaWear boards...")
-metawear_devices = discover_devices(timeout=2)
-if len(metawear_devices) < 1:
-    raise ValueError("No MetaWear boards could be detected.")
-else:
-    address = metawear_devices[0][0]
+from ..discover import scan_and_select_le_device
+from pymetawear.client import MetaWearClient
 
-c = MetaWearClient(str(address), 'pybluez', debug=True)
+address = scan_and_select_le_device()
+c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 

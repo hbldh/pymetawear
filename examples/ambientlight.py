@@ -16,15 +16,10 @@ from __future__ import absolute_import
 
 import time
 
-from pymetawear.client import discover_devices, MetaWearClient, libmetawear
+from .discover import scan_and_select_le_device
+from pymetawear.client import MetaWearClient
 
-print("Discovering nearby MetaWear boards...")
-metawear_devices = discover_devices(timeout=2)
-if len(metawear_devices) < 1:
-    raise ValueError("No MetaWear boards could be detected.")
-else:
-    address = metawear_devices[0][0]
-
+address = scan_and_select_le_device()
 c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
