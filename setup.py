@@ -55,15 +55,24 @@ def build_solution():
     path_to_metawear_python_wrappers = os.path.join(
         pkg_dir, 'Metawear-CppAPI', 'wrapper', 'python')
 
-    # # Git submodule init
-    # p = subprocess.Popen(['git', 'submodule', 'init'],
-    #                      cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
-    # p.communicate()
-    #
-    # # Git submodule update
-    # p = subprocess.Popen(['git', 'submodule', 'update'],
-    #                      cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
-    # p.communicate()
+    # Git submodule init
+    p = subprocess.Popen(['git', 'submodule', 'init'],
+                         cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
+    p.communicate()
+
+    # Git submodule update
+    p = subprocess.Popen(['git', 'submodule', 'update'],
+                         cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
+    p.communicate()
+
+    constants_h_file = os.path.join(
+        pkg_dir, 'Metawear-CppAPI', 'src', 'metawear',
+        'core', 'cpp', 'constant.h')
+    with open(constants_h_file, 'rt') as f:
+        t = f.read()
+    t = t.replace('TIME_PER_COMMAND = 150', 'TIME_PER_COMMAND = 300')
+    with open(constants_h_file, 'wt') as f:
+        f.write(t)
 
     # Run make file for MetaWear-CppAPI
     p = subprocess.Popen(
