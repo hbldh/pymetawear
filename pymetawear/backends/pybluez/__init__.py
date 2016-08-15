@@ -96,7 +96,8 @@ class PyBluezBackend(BLECommunicationBackend):
         # Subscribe to Notify Characteristic.
         handle = self.get_handle(characteristic_uuid, notify_handle=True)
         bytes_to_send = bytearray([0x01, 0x00])
-        return self.requester.write_by_handle_async(handle, bytes(bytes_to_send), self._response)
+        return self.requester.write_by_handle_async(
+            handle, bytes(bytes_to_send), self._response)
 
     # Read and Write methods
 

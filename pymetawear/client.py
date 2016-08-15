@@ -21,8 +21,18 @@ import signal
 from pymetawear import libmetawear, specs
 from pymetawear.exceptions import *
 from pymetawear import modules
-from pymetawear.backends.pygatt import PyGattBackend
-from pymetawear.backends.pybluez import PyBluezBackend
+try:
+    from pymetawear.backends.pygatt import PyGattBackend
+except ImportError:
+    PyGattBackend = None
+try:
+    from pymetawear.backends.pybluez import PyBluezBackend
+except ImportError:
+    PyGattBackend = None
+try:
+    from pymetawear.backends.bluepy import BluepyBackend
+except ImportError:
+    PyGattBackend = None
 
 
 def discover_devices(timeout=5):
@@ -98,10 +108,22 @@ class MetaWearClient(object):
             print("Creating MetaWearClient for {0}...".format(address))
 
         if backend == 'pygatt':
+            if PyGattBackend is None:
+                raise PyMetaWearException(
+                    "Need to install pygatt[GATTTOOL] package to use this backend.")
             self._backend = PyGattBackend(
                 self._address, timeout=timeout, debug=debug)
         elif backend == 'pybluez':
+            if PyBluezBackend is None:
+                raise PyMetaWearException(
+                    "Need to install pybluez[ble] package to use this backend.")
             self._backend = PyBluezBackend(
+                self._address, timeout=timeout, debug=debug)
+        elif backend == 'bluepy':
+            if BluepyBackend is None:
+                raise PyMetaWearException(
+                    "Need to install bluepy package to use this backend.")
+            self._backend = BluepyBackend(
                 self._address, timeout=timeout, debug=debug)
         else:
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
@@ -109,9 +131,9 @@ class MetaWearClient(object):
         if self._debug:
             print("Waiting for MetaWear board to be fully initialized...")
 
-        while not (libmetawear.mbl_mw_metawearboard_is_initialized(
-                self.board) and self.backend.initialized):
-            time.sleep(0.1)
+        while (not self.backend.initialized) and (not
+                libmetawear.mbl_mw_metawearboard_is_initialized(self.board)):
+            self.backend.sleep(0.1)
 
         self.firmware_version = tuple(
             [int(x) for x in self.backend.read_gatt_char_by_uuid(
@@ -148,7 +170,7 @@ class MetaWearClient(object):
 
     @property
     def backend(self):
-        """The requester object for the backend used.
+        """The backend object for this client.
 
         :return: The connected BLE backend.
         :rtype: :class:`pymetawear.backend.BLECommunicationBackend`

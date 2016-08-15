@@ -16,7 +16,7 @@ from __future__ import absolute_import
 
 import time
 
-from .discover import scan_and_select_le_device
+from discover import scan_and_select_le_device
 from pymetawear.client import MetaWearClient
 
 address = scan_and_select_le_device()

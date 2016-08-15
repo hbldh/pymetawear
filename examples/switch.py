@@ -16,11 +16,11 @@ from __future__ import absolute_import
 
 import time
 
-from .discover import scan_and_select_le_device
+from discover import scan_and_select_le_device
 from pymetawear.client import MetaWearClient
 
 address = scan_and_select_le_device()
-c = MetaWearClient(str(address), 'pygatt', debug=True)
+c = MetaWearClient(str(address), 'bluepy', debug=True)
 print("New client created: {0}".format(c))
 
 
@@ -42,4 +42,3 @@ c.switch.notifications(None)
 time.sleep(1.0)
 
 c.disconnect()
-

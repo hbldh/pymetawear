@@ -11,6 +11,7 @@ from __future__ import print_function
 # from __future__ import unicode_literals
 from __future__ import absolute_import
 
+import time
 from ctypes import byref
 import uuid
 
@@ -30,7 +31,7 @@ class BLECommunicationBackend(object):
         self._debug = debug
         self._timeout = timeout
 
-        self.initialized = False
+        self._initialized = False
 
         self._requester = None
 
@@ -71,6 +72,10 @@ class BLECommunicationBackend(object):
 
     def _build_handle_dict(self):
         pass
+
+    @property
+    def initialized(self):
+        return self._initialized
 
     @property
     def requester(self):
@@ -147,7 +152,7 @@ class BLECommunicationBackend(object):
     def _initialized_fcn(self):
         if self._debug:
             print("{0} initialized.".format(self))
-        self.initialized = True
+        self._initialized = True
 
     def handle_notify_char_output(self, handle, value):
         if self._debug:
@@ -207,3 +212,7 @@ class BLECommunicationBackend(object):
             handle = -1
 
         print("{0:<6s} 0x{1:04x}: {2}".format(action, handle, data_as_hex))
+
+    def sleep(self, t):
+        """Make backend sleep."""
+        time.sleep(t)
