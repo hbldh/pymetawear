@@ -50,7 +50,6 @@ class BatteryModule(PyMetaWearModule):
 
     @property
     def data_signal(self):
-        #return libmetawear.mbl_mw_settings_get_battery_state_data_signal
         return self._data_signal_preprocess(
             libmetawear.mbl_mw_settings_get_battery_state_data_signal)
 
@@ -94,7 +93,7 @@ class BatteryModule(PyMetaWearModule):
         """
         if self.callback is None:
             warnings.warn("No battery callback is registered!", RuntimeWarning)
-        libmetawear.mbl_mw_settings_read_battery_state(self.board)
+        libmetawear.mbl_mw_datasignal_read(self.data_signal)
 
 
 def battery_data(func):

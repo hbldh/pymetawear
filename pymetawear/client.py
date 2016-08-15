@@ -28,15 +28,15 @@ except ImportError:
 try:
     from pymetawear.backends.pybluez import PyBluezBackend
 except ImportError:
-    PyGattBackend = None
+    PyBluezBackend = None
 try:
     from pymetawear.backends.bluepy import BluepyBackend
 except ImportError:
-    PyGattBackend = None
+    BluepyBackend = None
 
 
 def discover_devices(timeout=5):
-    """Discover Bluetooth Devices nearby.
+    """Discover Bluetooth Low Energy Devices nearby.
 
     Using hcitool in subprocess, since DiscoveryService in pybluez/gattlib
     requires sudo, and hcitool can be allowed to do scan without elevated

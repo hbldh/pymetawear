@@ -9,10 +9,10 @@ Created on 2016-04-02
 
 """
 
+from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from __future__ import absolute_import
 
 import time
 
@@ -20,7 +20,7 @@ from discover import scan_and_select_le_device
 from pymetawear.client import MetaWearClient
 
 address = scan_and_select_le_device()
-c = MetaWearClient(str(address), 'bluepy', debug=True)
+c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 
@@ -28,7 +28,7 @@ def switch_callback(data):
     """Handle a (epoch, status) switch tuple."""
     epoch = data[0]
     status = data[1]
-    print("[{0}] Switch {1}}!".format(
+    print("[{0}] Switch {1}!".format(
         epoch, 'pressed' if status else 'released'))
 
 

@@ -26,8 +26,10 @@ print("New client created: {0}".format(c))
 
 def battery_callback(data):
     """Handle a battery status tuple."""
-    print("Voltage: {0}, Charge: {1}".format(
-        data[0], data[1]))
+    epoch = data[0]
+    battery = data[1]
+    print("[{0}] Voltage: {1}, Charge: {2}".format(
+        epoch, battery[0], battery[1]))
 
 
 print("Subscribe to battery notifications...")

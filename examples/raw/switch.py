@@ -19,7 +19,7 @@ import time
 
 from pymetawear import libmetawear
 from pymetawear.client import discover_devices, MetaWearClient
-from pymetawear.mbientlab.metawear.core import DataTypeId, FnDataPtr
+from pymetawear.mbientlab.metawear.core import DataTypeId, Fn_DataPtr
 
 print("Discovering nearby MetaWear boards...")
 metawear_devices = discover_devices(timeout=2)
@@ -47,7 +47,7 @@ def switch_callback(data):
 
 # Subscribe:
 data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(c.board)
-fcn_dptr = FnDataPtr(switch_callback)
+fcn_dptr = Fn_DataPtr(switch_callback)
 libmetawear.mbl_mw_datasignal_subscribe(data_signal, fcn_dptr)
 
 time.sleep(10.0)

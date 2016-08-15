@@ -179,9 +179,9 @@ class AccelerometerModule(PyMetaWearModule):
         """
 
         if callback is None:
-            super(AccelerometerModule, self).notifications(None)
-            self.stop()
             self.toggle_sampling(False)
+            self.stop()
+            super(AccelerometerModule, self).notifications(None)
         else:
             super(AccelerometerModule, self).notifications(
                 sensor_data(callback))

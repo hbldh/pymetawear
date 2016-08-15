@@ -47,8 +47,9 @@ class AmbientLightModule(PyMetaWearModule):
         self.module_id = module_id
 
         if self.module_id == Modules.MBL_MW_MODULE_NA:
-            # No gyroscope present!
+            # No ambient light sensor present!
             self.ambient_light_class = None
+            self.is_present = False
         else:
             self.ambient_light_class = AmbientLightLtr329
 

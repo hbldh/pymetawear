@@ -17,13 +17,29 @@ from __future__ import absolute_import
 import time
 from ctypes import cast, POINTER, c_float, c_long
 
-from ..discover import scan_and_select_le_device
-from pymetawear.client import MetaWearClient, libmetawear
+from pymetawear.client import MetaWearClient, libmetawear, discover_devices
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import \
-    CartesianFloat, DataTypeId, FnDataPtr
+    CartesianFloat, DataTypeId, Fn_DataPtr
 
-print("Warning: Incomplete example!")
+
+def scan_and_select_le_device(timeout=3):
+    print("Discovering nearby Bluetooth Low Energy devices...")
+    ble_devices = discover_devices(timeout=timeout)
+    if len(ble_devices) > 1:
+        for i, d in enumerate(ble_devices):
+            print("[{0}] - {1}: {2}".format(i+1, *d))
+        s = input("Which device do you want to connect to? ")
+        if int(s) <= (i + 1):
+            address = ble_devices[int(s) - 1][0]
+        else:
+            raise ValueError("Incorrect selection. Aborting...")
+    elif len(ble_devices) == 1:
+        address = ble_devices[0][0]
+    else:
+        raise ValueError("DId not detect any BLE devices.")
+    return address
+
 
 address = scan_and_select_le_device()
 c = MetaWearClient(str(address), 'pygatt', debug=True)
@@ -40,7 +56,7 @@ def _callback(data):
     else:
         raise PyMetaWearException('Incorrect data type id: ' +
             str(data.contents.type_id))
-the_callback = FnDataPtr(_callback)
+the_callback = Fn_DataPtr(_callback)
 
 
 print("Set gyroscope settings...")

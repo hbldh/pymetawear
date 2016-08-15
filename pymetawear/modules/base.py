@@ -17,7 +17,7 @@ from ctypes import c_long, c_uint8
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.core import FnDataPtr
+from pymetawear.mbientlab.metawear.core import Fn_DataPtr
 from pymetawear.utils import IS_64_BIT
 
 
@@ -62,6 +62,7 @@ class PyMetaWearModule(object):
     def __init__(self, board, debug=False):
         self.board = board
         self._debug = debug
+        self.is_present = True
 
         self.callback = None
 
@@ -129,7 +130,7 @@ class PyMetaWearModule(object):
             if self.callback is not None:
                 raise PyMetaWearException(
                     "Subscription to {0} signal already in place!")
-            self.callback = (callback, FnDataPtr(callback))
+            self.callback = (callback, Fn_DataPtr(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
                 data_signal, self.callback[1])
         else:

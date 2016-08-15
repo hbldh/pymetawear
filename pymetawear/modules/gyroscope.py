@@ -188,14 +188,14 @@ class GyroscopeModule(PyMetaWearModule):
 
         """
         if callback is None:
-            super(GyroscopeModule, self).notifications(None)
-            self.stop()
             self.toggle_sampling(False)
+            self.stop()
+            super(GyroscopeModule, self).notifications(None)
         else:
             super(GyroscopeModule, self).notifications(
                 sensor_data(callback))
-            self.toggle_sampling(True)
             self.start()
+            self.toggle_sampling(True)
 
     @require_bmi160
     def start(self):

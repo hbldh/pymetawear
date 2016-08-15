@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-discover
------------------------------------
+:mod:`discover`
+---------------
 
 :copyright: 2016-08-09 by hbldh <henrik.blidh@swedwise.com>
 
