@@ -30,7 +30,9 @@ def baro_callback(data):
 
 
 print("Write barometer settings...")
-c.barometer.set_settings(oversampling='low_power')
+c.barometer.set_settings(oversampling='high',
+                         iir_filter='avg_8',
+                         standby_time=250.0)
 print("Subscribing to barometer signal notifications...")
 c.barometer.notifications(baro_callback)
 

@@ -50,7 +50,7 @@ class BarometerModule(PyMetaWearModule):
 
         if self.barometer_class is not None:
             self.oversampling = {"".join(re.search(
-                '^OVERSAMPLING_([A-Z\_]*)', k).groups()):
+                '^OVERSAMPLING_([A-Z\_]*)', k).groups()).lower():
                                      getattr(sensor.BarometerBosch, k, None) for
                                  k in filter(
                 lambda x: x.startswith('OVERSAMPLING'),
@@ -60,7 +60,7 @@ class BarometerModule(PyMetaWearModule):
                     self.oversampling[k] = self.oversampling[k][0]
 
             self.iir_filter = {"".join(re.search(
-                '^IIR_FILTER_([0-9AVG\_OFF]+)', k).groups()):
+                '^IIR_FILTER_([0-9AVG\_OFF]+)', k).groups()).lower():
                                    getattr(sensor.BarometerBosch, k, None) for
                                k in filter(
                 lambda x: x.startswith('IIR_FILTER'),
@@ -109,22 +109,20 @@ class BarometerModule(PyMetaWearModule):
                 libmetawear.mbl_mw_baro_bosch_get_pressure_data_signal)
 
     def _get_oversampling(self, value):
-        sorted_ord_keys = sorted(self.oversampling.keys(), key=lambda x:(x.lower()))
-        if value.lower() in sorted_ord_keys:
-            return value.lower()
+        if value.lower() in self.oversampling:
+            return self.oversampling.get(value.lower())
         else:
             raise ValueError("Requested oversampling ({0}) was not part of "
                              "possible values: {1}".format(
-                value.lower(), sorted_ord_keys))
+                value.lower(), self.oversampling.keys()))
 
     def _get_iir_filter(self, value):
-        sorted_ord_keys = sorted(self.iir_filter.keys(), key=lambda x:(x.lower()))
-        if value.lower() in sorted_ord_keys:
-            return value.lower()
+        if value.lower() in self.iir_filter:
+            return self.iir_filter.get(value.lower())
         else:
             raise ValueError("Requested IIR filter ({0}) was not part of "
                              "possible values: {1}".format(
-                value.lower(), sorted_ord_keys))
+                value.lower(), self.iir_filter.keys()))
 
     def _get_standby_time(self, value):
         sorted_ord_keys = sorted(self.standby_time.keys(), key=lambda x: (float(x)))
