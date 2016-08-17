@@ -75,12 +75,14 @@ libmetawear.mbl_mw_gyro_bmi160_start(c.board)
 
 time.sleep(20.0)
 
-print("Unsubscribe to notification...")
-libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
 print("Stop gyroscope...")
 libmetawear.mbl_mw_gyro_bmi160_stop(c.board)
 print("Disable gyroscope sampling...")
 libmetawear.mbl_mw_gyro_bmi160_disable_rotation_sampling(c.board)
+print("Unsubscribe to notification...")
+libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
+
+
 
 time.sleep(5.0)
 

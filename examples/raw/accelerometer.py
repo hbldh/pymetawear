@@ -37,7 +37,7 @@ def scan_and_select_le_device(timeout=3):
     elif len(ble_devices) == 1:
         address = ble_devices[0][0]
     else:
-        raise ValueError("DId not detect any BLE devices.")
+        raise ValueError("Did not detect any BLE devices.")
     return address
 
 address = scan_and_select_le_device()
@@ -59,10 +59,11 @@ _acc_callback = Fn_DataPtr(acc_callback)
 
 
 print("Write accelerometer settings...")
-libmetawear.mbl_mw_acc_set_odr(c.board, c_float(200.0))
-libmetawear.mbl_mw_acc_set_range(c.board, c_float(2.0))
+libmetawear.mbl_mw_acc_set_odr(c.board, c_float(50.0))
+libmetawear.mbl_mw_acc_set_range(c.board, c_float(4.0))
 print("Write accelerometer config....")
 libmetawear.mbl_mw_acc_write_acceleration_config(c.board)
+
 print("Subscribing to accelerometer signal...")
 libmetawear.mbl_mw_acc_get_acceleration_data_signal.restype = c_long
 data_signal = c_long(libmetawear.mbl_mw_acc_get_acceleration_data_signal(c.board))
@@ -72,14 +73,15 @@ libmetawear.mbl_mw_acc_enable_acceleration_sampling(c.board)
 print("Start acc on board...")
 libmetawear.mbl_mw_acc_start(c.board)
 
-time.sleep(20.0)
+time.sleep(10.0)
 
-print("Unsubscribe to notification...")
-libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
+
 print("Stop accelerometer...")
 libmetawear.mbl_mw_acc_stop(c.board)
 print("Disable accelerometer sampling...")
 libmetawear.mbl_mw_acc_disable_acceleration_sampling(c.board)
+print("Unsubscribe to notification...")
+libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
 
 time.sleep(5.0)
 

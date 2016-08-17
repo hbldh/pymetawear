@@ -179,14 +179,14 @@ class AccelerometerModule(PyMetaWearModule):
         """
 
         if callback is None:
-            self.toggle_sampling(False)
             self.stop()
+            self.toggle_sampling(False)
             super(AccelerometerModule, self).notifications(None)
         else:
             super(AccelerometerModule, self).notifications(
                 sensor_data(callback))
-            self.start()
             self.toggle_sampling(True)
+            self.start()
 
     def start(self):
         """Switches the accelerometer to active mode."""

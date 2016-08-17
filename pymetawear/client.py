@@ -98,7 +98,7 @@ class MetaWearClient(object):
 
     """
 
-    def __init__(self, address, backend='pygatt', timeout=None, debug=False):
+    def __init__(self, address, backend='pygatt', timeout=10.0, debug=False):
         """Constructor."""
         self._address = address
         self._debug = debug
@@ -151,6 +151,11 @@ class MetaWearClient(object):
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
                 self.board, modules.Modules.MBL_MW_MODULE_GYRO),
+            debug=self._debug)
+        self.barometer = modules.BarometerModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_BAROMETER),
             debug=self._debug)
         self.ambient_light = modules.AmbientLightModule(
             self.board,

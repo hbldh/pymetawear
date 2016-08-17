@@ -16,10 +16,10 @@ from __future__ import absolute_import
 
 from .base import PyMetaWearModule, Modules
 from .accelerometer import AccelerometerModule
-from .gyroscope import GyroscopeModule
 from .ambientlight import AmbientLightModule
-from .switch import SwitchModule
+from .barometer import BarometerModule
 from .battery import BatteryModule
+from .gyroscope import GyroscopeModule
 from .haptic import HapticModule
 from .led import LEDModule
-
+from .switch import SwitchModule
