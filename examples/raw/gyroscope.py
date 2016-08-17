@@ -15,6 +15,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import time
+import platform
 from ctypes import cast, POINTER, c_float, c_long
 
 from pymetawear.client import MetaWearClient, libmetawear, discover_devices
@@ -65,8 +66,11 @@ libmetawear.mbl_mw_gyro_bmi160_set_range(c.board, 1)
 print("Write gyroscope config....")
 libmetawear.mbl_mw_gyro_bmi160_write_config(c.board)
 print("Subscribing to gyroscope signal...")
-libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal.restype = c_long
-data_signal = c_long(libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal(c.board))
+if platform.architecture()[0] == '64bit':
+    libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal.restype = c_long
+    data_signal = c_long(libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal(c.board))
+else:
+    data_signal = libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal(c.board)
 libmetawear.mbl_mw_datasignal_subscribe(data_signal, the_callback)
 print("Enable gyro sampling on board...")
 libmetawear.mbl_mw_gyro_bmi160_enable_rotation_sampling(c.board)

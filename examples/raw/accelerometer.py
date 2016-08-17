@@ -15,6 +15,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import time
+import platform
 from ctypes import cast, POINTER, c_float, c_long
 
 from pymetawear.client import discover_devices, MetaWearClient, libmetawear
@@ -65,8 +66,11 @@ print("Write accelerometer config....")
 libmetawear.mbl_mw_acc_write_acceleration_config(c.board)
 
 print("Subscribing to accelerometer signal...")
-libmetawear.mbl_mw_acc_get_acceleration_data_signal.restype = c_long
-data_signal = c_long(libmetawear.mbl_mw_acc_get_acceleration_data_signal(c.board))
+if platform.architecture()[0] == '64bit':
+    libmetawear.mbl_mw_acc_get_acceleration_data_signal.restype = c_long    
+    data_signal = c_long(libmetawear.mbl_mw_acc_get_acceleration_data_signal(c.board))
+else:
+    data_signal = libmetawear.mbl_mw_acc_get_acceleration_data_signal(c.board)
 libmetawear.mbl_mw_datasignal_subscribe(data_signal, _acc_callback)
 print("Enable acc sampling on board...")
 libmetawear.mbl_mw_acc_enable_acceleration_sampling(c.board)

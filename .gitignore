@@ -101,6 +101,10 @@ $RECYCLE.BIN/
 .ipynb_checkpoints/
 
 
+### Visual Studio Code
+.vscode/
+
+
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion
 

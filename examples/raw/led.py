@@ -18,13 +18,25 @@ import time
 
 from pymetawear.client import discover_devices, MetaWearClient
 
-print("Discovering nearby MetaWear boards...")
-metawear_devices = discover_devices(timeout=2)
-if len(metawear_devices) < 1:
-    raise ValueError("No MetaWear boards could be detected.")
-else:
-    address = metawear_devices[0][0]
+def scan_and_select_le_device(timeout=3):
+    print("Discovering nearby Bluetooth Low Energy devices...")
+    ble_devices = discover_devices(timeout=timeout)
+    if len(ble_devices) > 1:
+        for i, d in enumerate(ble_devices):
+            print("[{0}] - {1}: {2}".format(i+1, *d))
+        s = input("Which device do you want to connect to? ")
+        if int(s) <= (i + 1):
+            address = ble_devices[int(s) - 1][0]
+        else:
+            raise ValueError("Incorrect selection. Aborting...")
+    elif len(ble_devices) == 1:
+        address = ble_devices[0][0]
+    else:
+        raise ValueError("DId not detect any BLE devices.")
+    return address
 
+
+address = scan_and_select_le_device()
 c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
