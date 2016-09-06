@@ -41,13 +41,13 @@ class PyBluezBackend(BLECommunicationBackend):
     `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ for BLE communication.
     """
 
-    def __init__(self, address, async=True, timeout=None, debug=False):
+    def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
         self._primary_services = {}
         self._characteristics_cache = {}
         self._response = GATTResponse()
 
         super(PyBluezBackend, self).__init__(
-            address, async, 5.0 if timeout is None else timeout, debug)
+            address, interface, async, 10.0 if timeout is None else timeout, debug)
 
     def _build_handle_dict(self):
         self._primary_services = {uuid.UUID(x.get('uuid')): (x.get('start'), x.get('end'))
@@ -67,7 +67,8 @@ class PyBluezBackend(BLECommunicationBackend):
         if self._requester is None:
             if self._debug:
                 print("Creating new GATTRequester...")
-            self._requester = Requester(self.handle_notify_char_output, self._address, False)
+            self._requester = Requester(self.handle_notify_char_output, self._address,
+                                        False, self._interface)
 
         if not self._requester.is_connected():
             if self._debug:

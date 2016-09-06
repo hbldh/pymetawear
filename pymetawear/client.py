@@ -34,6 +34,8 @@ try:
 except ImportError:
     BluepyBackend = None
 
+PYMETAWEAR_TIMEOUT = os.environ.get('PYMETAWEAR_TIMEOUT', )
+
 
 def discover_devices(timeout=5):
     """Discover Bluetooth Low Energy Devices nearby.
@@ -98,7 +100,7 @@ class MetaWearClient(object):
 
     """
 
-    def __init__(self, address, backend='pygatt', timeout=10.0, debug=False):
+    def __init__(self, address, backend='pygatt', interface='hci0', timeout=None, debug=False):
         """Constructor."""
         self._address = address
         self._debug = debug
@@ -112,19 +114,22 @@ class MetaWearClient(object):
                 raise PyMetaWearException(
                     "Need to install pygatt[GATTTOOL] package to use this backend.")
             self._backend = PyGattBackend(
-                self._address, timeout=timeout, debug=debug)
+                self._address, interface=interface, 
+                timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
         elif backend == 'pybluez':
             if PyBluezBackend is None:
                 raise PyMetaWearException(
                     "Need to install pybluez[ble] package to use this backend.")
             self._backend = PyBluezBackend(
-                self._address, timeout=timeout, debug=debug)
+                self._address, interface=interface, 
+                timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
         elif backend == 'bluepy':
             if BluepyBackend is None:
                 raise PyMetaWearException(
                     "Need to install bluepy package to use this backend.")
             self._backend = BluepyBackend(
-                self._address, timeout=timeout, debug=debug)
+                self._address, interface=interface, 
+                timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
         else:
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
 

@@ -15,6 +15,7 @@ from __future__ import absolute_import
 import time
 import threading
 import uuid
+import warnings
 from ctypes import create_string_buffer
 
 from bluepy.btle import Peripheral, ADDR_TYPE_RANDOM, BTLEException, DefaultDelegate, Characteristic
@@ -42,13 +43,15 @@ class BluepyBackend(BLECommunicationBackend):
     for BLE communication.
     """
 
-    def __init__(self, address, async=False, timeout=None, debug=False):
+    def __init__(self, address, interface=None, async=False, timeout=None, debug=False):
         self._primary_services = {}
         self._characteristics_cache = {}
         self._peripheral = None
 
+        warnings.warn("Bluepy backend does not handle notifications properly yet.", RuntimeWarning)
+
         super(BluepyBackend, self).__init__(
-            address, async, 5.0 if timeout is None else timeout, debug)
+            address, interface, async, 10.0 if timeout is None else timeout, debug)
 
     def _build_handle_dict(self):
         self._primary_services = {
@@ -90,7 +93,9 @@ class BluepyBackend(BLECommunicationBackend):
         if not self._is_connected:
             if self._debug:
                 print("Connecting Peripheral...")
-            self._peripheral.connect(self._address, addrType=ADDR_TYPE_RANDOM)
+            self._peripheral.connect(
+                self._address, addrType=ADDR_TYPE_RANDOM,
+                iface=str(self._interface).replace('hci', ''))
 
             if not self._is_connected:
                 raise PyMetaWearConnectionTimeout(

@@ -1,2 +1,2 @@
 pybluez[ble]>=0.22
-pygatt[GATTTOOL]>=2.0.1
+pygatt[GATTTOOL]>=2.1.0

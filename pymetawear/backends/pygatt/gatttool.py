@@ -17,10 +17,18 @@ from uuid import UUID
 
 import pygatt
 from pygatt import exceptions
-from pygatt.backends.gatttool.gatttool import DEFAULT_CONNECT_TIMEOUT_S, log, \
-    NotConnectedError, NotificationTimeout, GATTToolBLEDevice, pexpect
+from pygatt.backends.gatttool.gatttool import log, GATTToolBLEDevice, DEFAULT_CONNECT_TIMEOUT_S
 
 from pymetawear.utils import string_types
+
+if hasattr(bytes, 'fromhex'):
+    # Python 3.
+    def _hex_value_parser(x):
+        return bytearray.fromhex(x.decode('utf8'))
+else:
+    # Python 2.7
+    def _hex_value_parser(x):
+        return bytearray.fromhex(x)
 
 
 class PyMetaWearGATTToolBLEDevice(GATTToolBLEDevice):
@@ -54,44 +62,29 @@ class PyMetaWearGATTToolBLEDevice(GATTToolBLEDevice):
 
 
 class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
-    """PyMetaWear overriding some method to handle some issues with pygatt.
-
-    * Modification of the GATTToolBackend to handle multiple byte output from notifications.
-    * Added BlueZ 4.X handling in ``connect``.
+    """PyMetaWear overriding ``_handle_notification_string`` to
+    address some issues with pygatt.
 
     Will be removed once pull request is drafted and accepted.
 
     """
 
     def __init__(self, *args, **kwargs):
-        self._notification_regex = re.compile("=\s(0x[0-9a-fA-F]{4})\svalue:\s(.*)$")
         super(PyMetaWearGATTToolBackend, self).__init__(*args, **kwargs)
 
-    def connect(self, address, timeout=DEFAULT_CONNECT_TIMEOUT_S,
-                address_type='public'):
-        log.info('Connecting with timeout=%s', timeout)
-        self._con.sendline('sec-level low')
-        self._address = address
-        try:
-            with self._connection_lock:
-                cmd = 'connect %s %s' % (self._address, address_type)
-                self._con.sendline(cmd)
-                self._con.expect(
-                    [b'Connection successful.*\[LE\]>',
-                     self._address.encode().join([b'\[CON\]\[', b'\]\[LE\]'])],
-                    timeout)
-        except pexpect.TIMEOUT:
-            message = ("Timed out connecting to %s after %s seconds."
-                       % (self._address, timeout))
-            log.error(message)
-            raise NotConnectedError(message)
+    def _handle_notification_string(self, event):
+        msg = event["after"]
+        if not msg:
+            log.warn("Blank message received in notification, ignored")
+            return
 
-        self._connected_device = PyMetaWearGATTToolBLEDevice(address, self)
-        return self._connected_device
+        split_msg = msg.strip().split(None, 5)
+        if len(split_msg) < 6:
+            log.warn("Unable to parse notification string, ignoring: %s", msg)
+            return
 
-    def _handle_notification_string(self, msg):
-        hex_handle, hex_values = self._notification_regex.search(msg.decode().strip()).groups()
+        hex_handle, _, hex_values = split_msg[3:]
         handle = int(hex_handle, 16)
-        value = bytearray([int(x, 16) for x in hex_values.strip().split(' ')])
+        value = _hex_value_parser(hex_values)
         if self._connected_device is not None:
             self._connected_device.receive_notification(handle, value)

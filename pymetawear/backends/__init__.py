@@ -25,8 +25,9 @@ from pymetawear.utils import string_types
 
 class BLECommunicationBackend(object):
 
-    def __init__(self, address, async=True, timeout=None, debug=False):
-        self._address = address
+    def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
+        self._address = str(address)
+        self._interface = str(interface)
         self._async = async
         self._debug = debug
         self._timeout = timeout

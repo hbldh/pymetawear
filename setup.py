@@ -170,11 +170,13 @@ setup(
         ],
     },
     install_requires=[
-        'pybluez[ble]>=0.22',
-        'pygatt[GATTTOOL]>=2.0.1',
+        'pygatt[GATTTOOL]>=2.1.0',
         'pexpect>=4.2.0'
     ],
-    extras_require={'bluepy': 'bluepy>=1.0.5'},
+    extras_require={
+        'bluepy': 'bluepy>=1.0.5',
+        'pybluez': 'pybluez[ble]>=0.22'
+    },
     ext_modules=[],
     entry_points={
     }

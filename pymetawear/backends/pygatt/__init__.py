@@ -30,11 +30,11 @@ class PyGattBackend(BLECommunicationBackend):
     for BLE communication.
     """
 
-    def __init__(self, address, async=True, timeout=None, debug=False):
+    def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
 
         self._backend = None
         super(PyGattBackend, self).__init__(
-            address, async,
+            address, interface, async,
             DEFAULT_CONNECT_TIMEOUT_S if timeout is None else timeout,
             debug)
 
@@ -49,7 +49,7 @@ class PyGattBackend(BLECommunicationBackend):
         if self._requester is None:
             if self._debug:
                 print("Creating new GATTToolBackend and starting GATTtool process...")
-            self._backend = PyMetaWearGATTToolBackend()
+            self._backend = PyMetaWearGATTToolBackend(hci_device=self._interface)
             self._backend.start(reset_on_start=False)
             if self._debug:
                 print("Connecting GATTTool...")
