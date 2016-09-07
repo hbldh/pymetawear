@@ -69,7 +69,7 @@ class MagnetometerModule(PyMetaWearModule):
 
     @property
     def module_name(self):
-        return "Gyroscope"
+        return "Magnetometer"
 
     @property
     def sensor_name(self):
@@ -102,7 +102,7 @@ class MagnetometerModule(PyMetaWearModule):
 
     @require_bmm150
     def set_settings(self, power_preset):
-        """Set gyroscope settings.
+        """Set magnetometer settings.
 
          .code-block:: python
 

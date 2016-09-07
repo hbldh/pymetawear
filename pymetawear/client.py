@@ -152,6 +152,11 @@ class MetaWearClient(object):
             libmetawear.mbl_mw_metawearboard_lookup_module(
                 self.board, modules.Modules.MBL_MW_MODULE_GYRO),
             debug=self._debug)
+        self.magnetometer = modules.MagnetometerModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_MAGNETOMETER),
+            debug=self._debug)
         self.barometer = modules.BarometerModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
