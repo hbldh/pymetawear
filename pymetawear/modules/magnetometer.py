@@ -55,7 +55,7 @@ class MagnetometerModule(PyMetaWearModule):
             self.mag_class = sensor.MagnetometerBmm150
 
         if self.mag_class is not None:
-            self.power_presets = {re.search('^POWER_PRESET_(.+)', k).groups()[0]:
+            self.power_presets = {re.search('^POWER_PRESET_([A-Z\_]*)', k).groups()[0].lower():
                                   getattr(self.mag_class, k, None) for k in filter(
                 lambda x: x.startswith('POWER_PRESET_'), vars(self.mag_class))}
 
@@ -85,10 +85,11 @@ class MagnetometerModule(PyMetaWearModule):
             libmetawear.mbl_mw_mag_bmm150_get_b_field_data_signal)
 
     def _get_power_preset(self, value):
-        if value not in self.power_presets.keys():
+        if value.lower() in self.power_presets:
+            return self.power_presets.get(value)
+        else:
             raise ValueError("Requested power preset ({0}) was not part of "
-                             "possible values: {1}".format(value, [self.power_presets.keys()]))
-        return self.power_presets.get(value)
+                             "possible values: {1}".format(value.lower(), [self.power_presets.keys()]))
 
     @require_bmm150
     def get_current_settings(self):
@@ -97,7 +98,7 @@ class MagnetometerModule(PyMetaWearModule):
     @require_bmm150
     def get_possible_settings(self):
         return {
-            'power_preset': [sorted(self.power_presets.keys())]
+            'power_preset': [sorted(self.power_presets.keys(), key=lambda x:(x.lower()))]
         }
 
     @require_bmm150
