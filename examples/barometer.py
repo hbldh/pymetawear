@@ -20,26 +20,26 @@ from discover import scan_and_select_le_device
 from pymetawear.client import MetaWearClient
 
 address = scan_and_select_le_device()
-c = MetaWearClient(str(address), 'pygatt', debug=True)
+c = MetaWearClient(str(address), 'pybluez', debug=True)
 print("New client created: {0}".format(c))
 
 
+def baro_callback(data):
+    """Handle a (epoch, value) barometer tuple."""
+    print("Epoch time: [{0}] - Altitude: {1}".format(data[0], data[1]))
 
-def acc_callback(data):
-    """Handle a (epoch, (x,y,z)) accelerometer tuple."""
-    print("Epoch time: [{0}] - X: {1}, Y: {2}, Z: {3}".format(data[0], *data[1]))
 
-
-print("Write accelerometer settings...")
-c.accelerometer.set_settings(data_rate=200.0, data_range=8.0)
-print("Subscribing to accelerometer signal notifications...")
-c.accelerometer.high_frequency_stream = True
-c.accelerometer.notifications(acc_callback)
+print("Write barometer settings...")
+c.barometer.set_settings(oversampling='high',
+                         iir_filter='avg_8',
+                         standby_time=250.0)
+print("Subscribing to barometer signal notifications...")
+c.barometer.notifications(baro_callback)
 
 time.sleep(20.0)
 
 print("Unsubscribe to notification...")
-c.accelerometer.notifications(None)
+c.barometer.notifications(None)
 
 time.sleep(5.0)
 

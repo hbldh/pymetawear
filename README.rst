@@ -1,4 +1,4 @@
-PyMetawear
+PyMetaWear
 ==========
 
 .. image:: https://travis-ci.org/hbldh/pymetawear.svg?branch=master
@@ -6,35 +6,62 @@ PyMetawear
 .. image:: https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master
     :target: https://coveralls.io/github/hbldh/pymetawear?branch=master
 
-Python package for connecting to and using `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
+Python package for connecting to and using
+`MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
 PyMetawear is meant to be a thin wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
-providing a more Pythonic interface. It has support for using either
-`pybluez <https://github.com/karulis/pybluez>`_/
-`gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ or
-`pygatt <https://github.com/peplin/pygatt>`_ for
-Bluetooth Low Energy communication.
+providing a more Pythonic interface. It has support for several different
+Python packages for Bluetooth Low Energy communication:
 
-PyMetaWear can be run with Python 2.7 with both backends, but only with the `pygatt` backend for Python 3.
+- `pygatt <https://github.com/peplin/pygatt>`_
+- `pybluez <https://github.com/karulis/pybluez>`_ with
+  `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_
+- `bluepy <https://github.com/IanHarvey/bluepy>`_ (not completely functional yet)
 
-    - PyMetaWear is currently a Linux only package!
-    - PyMetaWear is only tested with Ubuntu 14.04+ and Linux Mint 17 as of yet!
+PyMetaWear can be run with Python 2 or 3 with both backends,
+but only with the `pygatt` backend for Python 3.5. It is currently a
+Linux only package.
 
 Installation
 ------------
 
-First, make sure all dependencies are installed:
-
-.. code-block:: bash
-
-    $ sudo apt-get install build-essential libglib2.0-dev python-dev bluetooth libbluetooth-dev libboost-python-dev libboost-thread-dev
-
-PyMetaWear can be installed from pip:
-
 .. code-block:: bash
 
     $ pip install git+git://github.com/hbldh/pymetawear.git
+
+Currently, only the `pygatt <https://github.com/peplin/pygatt>`_ communication
+backend is installed by default. The other backends can be installed as extras:
+
+.. code-block:: bash
+
+    $ pip install git+git://github.com/hbldh/pymetawear.git[pybluez]
+
+or
+
+.. code-block:: bash
+
+    $ pip install git+git://github.com/hbldh/pymetawear.git[bluepy]
+
+Requirements for ``pymetawear``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``build-essential``
+* ``python-dev``
+
+Additional requirements for ``pybluez``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~
+
+* ``libglib2.0-dev``
+* ``bluetooth``
+* ``libbluetooth-dev``
+* ``libboost-python-dev``
+* ``libboost-thread-dev``
+
+Additional requirements for ``bluepy``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* ``libglib2.0-dev``
+
 
 Development
 ~~~~~~~~~~~
@@ -74,7 +101,7 @@ MetaWear board, is equal for both the two usage profiles:
 .. code-block:: python
 
     from pymetawear.client import MetaWearClient
-    backend = 'pybluez'  # Or 'pygatt'
+    backend = 'pygatt'  # Or 'pybluez' or 'bluepy'
     c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
 
 An example: blinking with the LED lights can be done like this with the
@@ -125,9 +152,12 @@ awaiting such focus.
 ================= =============== =====================
 Completed Modules Partial Modules Unimplemented Modules
 ================= =============== =====================
-Accelerometer     Settings        All others
-Gyroscope
-Haptic
-Switch
-LED
+Accelerometer     Settings        Temperature
+Gyroscope                         Color Detector
+Haptic                            Humidity
+Switch                            GPIO
+LED                               I2C
+Barometer                         iBeacon
+Magnetometer                      NeoPixel
+                                  Proximity
 ================= =============== =====================

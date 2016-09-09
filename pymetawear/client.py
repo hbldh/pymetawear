@@ -21,16 +21,27 @@ import signal
 from pymetawear import libmetawear, specs
 from pymetawear.exceptions import *
 from pymetawear import modules
-from pymetawear.backends.pygatt import PyGattBackend
-from pymetawear.backends.pybluez import PyBluezBackend
+try:
+    from pymetawear.backends.pygatt import PyGattBackend
+except ImportError:
+    PyGattBackend = None
+try:
+    from pymetawear.backends.pybluez import PyBluezBackend
+except ImportError:
+    PyBluezBackend = None
+try:
+    from pymetawear.backends.bluepy import BluepyBackend
+except ImportError:
+    BluepyBackend = None
+
+PYMETAWEAR_TIMEOUT = os.environ.get('PYMETAWEAR_TIMEOUT', )
 
 
-def discover_devices(timeout=5, only_metawear=True):
-    """Discover Bluetooth Devices nearby.
+def discover_devices(timeout=5):
+    """Discover Bluetooth Low Energy Devices nearby.
 
-    Using hcitool in subprocess, since DiscoveryService in pybluez/gattlib
-    requires sudo, and hcitool can be allowed to do scan without elevated
-    permission.
+    Using ``hcitool`` from Bluez in subprocess, which requires root privileges.
+    However, ``hcitool`` can be allowed to do scan without elevated permission.
 
     .. code-block:: bash
 
@@ -50,8 +61,6 @@ def discover_devices(timeout=5, only_metawear=True):
     * `StackOverflow, hcitool lescan with timeout <https://stackoverflow.com/questions/26874829/hcitool-lescan-will-not-print-in-real-time-to-a-file>`_
 
     :param int timeout: Duration of scanning.
-    :param bool only_metawear: If only addresses with the string 'metawear'
-        in its name should be returned.
     :return: List of tuples with `(address, name)`.
     :rtype: list
 
@@ -68,10 +77,7 @@ def discover_devices(timeout=5, only_metawear=True):
             raise PyMetaWearException("Could not perform scan.")
     ble_devices = list(set([tuple(x.split(' ')) for x in
                             filter(None, out.decode('utf8').split('\n')[1:])]))
-    if only_metawear:
-        return list(filter(lambda x: 'metawear' in x[1].lower(), ble_devices))
-    else:
-        return ble_devices
+    return ble_devices
 
 
 class MetaWearClient(object):
@@ -93,27 +99,46 @@ class MetaWearClient(object):
 
     """
 
-    def __init__(self, address, backend='pygatt', timeout=None, debug=False):
+    def __init__(self, address, backend='pygatt',
+                 interface='hci0', timeout=None, debug=False):
         """Constructor."""
         self._address = address
         self._debug = debug
         self._initialized = False
 
+        if self._debug:
+            print("Creating MetaWearClient for {0}...".format(address))
+
         if backend == 'pygatt':
+            if PyGattBackend is None:
+                raise PyMetaWearException(
+                    "Need to install pygatt[GATTTOOL] package to use this backend.")
             self._backend = PyGattBackend(
-                self._address, timeout=timeout, debug=debug)
+                self._address, interface=interface, 
+                timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
         elif backend == 'pybluez':
+            if PyBluezBackend is None:
+                raise PyMetaWearException(
+                    "Need to install pybluez[ble] package to use this backend.")
             self._backend = PyBluezBackend(
-                self._address, timeout=timeout, debug=debug)
+                self._address, interface=interface, 
+                timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
+        elif backend == 'bluepy':
+            if BluepyBackend is None:
+                raise PyMetaWearException(
+                    "Need to install bluepy package to use this backend.")
+            self._backend = BluepyBackend(
+                self._address, interface=interface, 
+                timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
         else:
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
 
         if self._debug:
             print("Waiting for MetaWear board to be fully initialized...")
 
-        while not (libmetawear.mbl_mw_metawearboard_is_initialized(
-                self.board) and self.backend.initialized):
-            time.sleep(0.1)
+        while (not self.backend.initialized) and (not
+                libmetawear.mbl_mw_metawearboard_is_initialized(self.board)):
+            self.backend.sleep(0.1)
 
         self.firmware_version = tuple(
             [int(x) for x in self.backend.read_gatt_char_by_uuid(
@@ -132,6 +157,21 @@ class MetaWearClient(object):
             libmetawear.mbl_mw_metawearboard_lookup_module(
                 self.board, modules.Modules.MBL_MW_MODULE_GYRO),
             debug=self._debug)
+        self.magnetometer = modules.MagnetometerModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_MAGNETOMETER),
+            debug=self._debug)
+        self.barometer = modules.BarometerModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_BAROMETER),
+            debug=self._debug)
+        self.ambient_light = modules.AmbientLightModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_AMBIENT_LIGHT),
+            debug=self._debug)
         self.switch = modules.SwitchModule(self.board, debug=self._debug)
         self.battery = modules.BatteryModule(self.board, debug=self._debug)
         self.haptic = modules.HapticModule(self.board, debug=self._debug)
@@ -145,7 +185,7 @@ class MetaWearClient(object):
 
     @property
     def backend(self):
-        """The requester object for the backend used.
+        """The backend object for this client.
 
         :return: The connected BLE backend.
         :rtype: :class:`pymetawear.backend.BLECommunicationBackend`

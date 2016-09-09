@@ -50,7 +50,6 @@ class BatteryModule(PyMetaWearModule):
 
     @property
     def data_signal(self):
-        #return libmetawear.mbl_mw_settings_get_battery_state_data_signal
         return self._data_signal_preprocess(
             libmetawear.mbl_mw_settings_get_battery_state_data_signal)
 
@@ -68,8 +67,10 @@ class BatteryModule(PyMetaWearModule):
         .. code-block:: python
 
             def battery_callback(data):
-                print("Voltage: {0}, Charge: {1}".format(
-                    data[0], data[1]))
+                epoch = data[0]
+                battery = data[1]
+                print("[{0}] Voltage: {1}, Charge: {2}".format(
+                    epoch, battery[0], battery[1]))
 
             mwclient.battery.notifications(battery_callback)
             mwclient.battery.read_battery_state()
@@ -92,16 +93,17 @@ class BatteryModule(PyMetaWearModule):
         """
         if self.callback is None:
             warnings.warn("No battery callback is registered!", RuntimeWarning)
-        libmetawear.mbl_mw_settings_read_battery_state(self.board)
+        libmetawear.mbl_mw_datasignal_read(self.data_signal)
 
 
 def battery_data(func):
     @wraps(func)
     def wrapper(data):
         if data.contents.type_id == DataTypeId.BATTERY_STATE:
+            epoch = int(data.contents.epoch)
             data_ptr = cast(data.contents.value, POINTER(BatteryState))
-            func((int(data_ptr.contents.voltage),
-                  int(data_ptr.contents.charge)))
+            func((epoch, (int(data_ptr.contents.voltage),
+                          int(data_ptr.contents.charge))))
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))

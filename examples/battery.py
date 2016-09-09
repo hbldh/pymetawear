@@ -16,23 +16,20 @@ from __future__ import absolute_import
 
 import time
 
-from pymetawear.client import discover_devices, MetaWearClient
+from discover import scan_and_select_le_device
+from pymetawear.client import MetaWearClient
 
-print("Discovering nearby MetaWear boards...")
-metawear_devices = discover_devices(timeout=2)
-if len(metawear_devices) < 1:
-    raise ValueError("No MetaWear boards could be detected.")
-else:
-    address = metawear_devices[0][0]
-
+address = scan_and_select_le_device()
 c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 
 def battery_callback(data):
     """Handle a battery status tuple."""
-    print("Voltage: {0}, Charge: {1}".format(
-        data[0], data[1]))
+    epoch = data[0]
+    battery = data[1]
+    print("[{0}] Voltage: {1}, Charge: {2}".format(
+        epoch, battery[0], battery[1]))
 
 
 print("Subscribe to battery notifications...")

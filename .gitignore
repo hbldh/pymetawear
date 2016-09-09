@@ -1,9 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
 
-# Never add the submodule data to Git.
-#pymetawear/Metawear-CppAPI/*
+libmetawear.so*
 # Never add potentially built elements of submodule either.
-pymetawear/mbientlab
+pymetawear/mbientlab/
 
 ### Linux template
 *~
@@ -100,6 +99,10 @@ $RECYCLE.BIN/
 ### IPythonNotebook template
 # Temporary data
 .ipynb_checkpoints/
+
+
+### Visual Studio Code
+.vscode/
 
 
 ### JetBrains template

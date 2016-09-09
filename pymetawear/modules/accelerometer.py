@@ -38,6 +38,8 @@ class AccelerometerModule(PyMetaWearModule):
         super(AccelerometerModule, self).__init__(board, debug)
         self.module_id = module_id
 
+        self.high_frequency_stream = False
+
         acc_sensors = [
             sensor.AccelerometerBmi160,
             sensor.AccelerometerBma255,
@@ -84,8 +86,12 @@ class AccelerometerModule(PyMetaWearModule):
 
     @property
     def data_signal(self):
-        return self._data_signal_preprocess(
-            libmetawear.mbl_mw_acc_get_acceleration_data_signal)
+        if self.high_frequency_stream:
+            return self._data_signal_preprocess(
+                libmetawear.mbl_mw_acc_get_high_freq_acceleration_data_signal)
+        else:
+            return self._data_signal_preprocess(
+                libmetawear.mbl_mw_acc_get_acceleration_data_signal)
 
     def _get_odr(self, value):
         sorted_ord_keys = sorted(self.odr.keys(), key=lambda x:(float(x)))
@@ -166,8 +172,10 @@ class AccelerometerModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_acc_notification(data)
-                # Handle a (x,y,z) accelerometer tuple.
-                print("X: {0}, Y: {1}, Z: {2}".format(*data))
+                # Handle a (epoch_time, (x,y,z)) accelerometer tuple.
+                epoch = data[0]
+                xyz = data[1]
+                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(epoch, *xyz))
 
             mwclient.accelerometer.notifications(handle_acc_notification)
 
@@ -177,14 +185,14 @@ class AccelerometerModule(PyMetaWearModule):
         """
 
         if callback is None:
-            super(AccelerometerModule, self).notifications(None)
             self.stop()
             self.toggle_sampling(False)
+            super(AccelerometerModule, self).notifications(None)
         else:
             super(AccelerometerModule, self).notifications(
                 sensor_data(callback))
-            self.start()
             self.toggle_sampling(True)
+            self.start()
 
     def start(self):
         """Switches the accelerometer to active mode."""
@@ -210,10 +218,11 @@ def sensor_data(func):
     @wraps(func)
     def wrapper(data):
         if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
+            epoch = int(data.contents.epoch)
             data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            func((data_ptr.contents.x,
-                  data_ptr.contents.y,
-                  data_ptr.contents.z))
+            func((epoch, (data_ptr.contents.x,
+                          data_ptr.contents.y,
+                          data_ptr.contents.z)))
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))

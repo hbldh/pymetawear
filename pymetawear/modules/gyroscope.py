@@ -47,6 +47,8 @@ class GyroscopeModule(PyMetaWearModule):
         super(GyroscopeModule, self).__init__(board, debug)
         self.module_id = module_id
 
+        self.high_frequency_stream = False
+
         if self.module_id == Modules.MBL_MW_MODULE_NA:
             # No gyroscope present!
             self.gyro_class = None
@@ -87,8 +89,12 @@ class GyroscopeModule(PyMetaWearModule):
     @property
     @require_bmi160
     def data_signal(self):
-        return self._data_signal_preprocess(
-            libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal)
+        if self.high_frequency_stream:
+            return self._data_signal_preprocess(
+                libmetawear.mbl_mw_gyro_bmi160_get_high_freq_rotation_data_signal)
+        else:
+            return self._data_signal_preprocess(
+                libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal)
 
     def _get_odr(self, value):
         sorted_ord_keys = sorted(self.odr.keys(), key=lambda x:(float(x)))
@@ -176,8 +182,10 @@ class GyroscopeModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_notification(data):
-                # Handle a (x,y,z) gyroscope tuple.
-                print("X: {0}, Y: {1}, Z: {2}".format(*data))
+                # Handle a (epoch_time, (x,y,z)) gyroscope tuple.
+                epoch = data[0]
+                xyz = data[1]
+                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(epoch, *xyz))
 
             mwclient.gyroscope.notifications(handle_notification)
 
@@ -185,11 +193,10 @@ class GyroscopeModule(PyMetaWearModule):
             If `None`, unsubscription to gyroscope notifications is registered.
 
         """
-
         if callback is None:
-            super(GyroscopeModule, self).notifications(None)
             self.stop()
             self.toggle_sampling(False)
+            super(GyroscopeModule, self).notifications(None)
         else:
             super(GyroscopeModule, self).notifications(
                 sensor_data(callback))
@@ -223,10 +230,11 @@ def sensor_data(func):
     @wraps(func)
     def wrapper(data):
         if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
+            epoch = int(data.contents.epoch)
             data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            func((data_ptr.contents.x,
-                  data_ptr.contents.y,
-                  data_ptr.contents.z))
+            func((epoch, (data_ptr.contents.x,
+                          data_ptr.contents.y,
+                          data_ptr.contents.z)))
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))

@@ -18,6 +18,7 @@ import sys
 import subprocess
 import shutil
 import re
+import glob
 from codecs import open
 
 from setuptools import setup, find_packages
@@ -40,9 +41,17 @@ def build_solution():
     # Establish source paths.
     basedir = os.path.abspath(os.path.dirname(__file__))
     pkg_dir = os.path.join(basedir, 'pymetawear')
-    path_to_libmetawear_so = os.path.join(
-        pkg_dir, 'Metawear-CppAPI', 'dist', 'release', 'lib',
-        'x64' if os.uname()[-1] == 'x86_64' else 'x86', 'libmetawear.so')
+
+    arch = os.uname()[-1]
+    if arch in ('x86_64', 'amd64'):
+        dist_dir = 'x64'
+    elif arch == 'armv7l':
+        dist_dir = 'arm'
+    else:
+        dist_dir = 'x86'
+
+    path_to_dist_dir = os.path.join(
+        pkg_dir, 'Metawear-CppAPI', 'dist', 'release', 'lib', dist_dir)
     path_to_metawear_python_wrappers = os.path.join(
         pkg_dir, 'Metawear-CppAPI', 'wrapper', 'python')
 
@@ -56,6 +65,17 @@ def build_solution():
                          cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
     p.communicate()
 
+    # Increase TIME_PER_COMMAND in MetaWear-CppAPI by pre-build
+    # patching of constants.h.
+    constants_h_file = os.path.join(
+        pkg_dir, 'Metawear-CppAPI', 'src', 'metawear',
+        'core', 'cpp', 'constant.h')
+    with open(constants_h_file, 'rt') as f:
+        t = f.read()
+    t = t.replace('TIME_PER_COMMAND = 150', 'TIME_PER_COMMAND = 300')
+    with open(constants_h_file, 'wt') as f:
+        f.write(t)
+
     # Run make file for MetaWear-CppAPI
     p = subprocess.Popen(
         ['make', 'clean'],
@@ -68,10 +88,27 @@ def build_solution():
         stdout=sys.stdout, stderr=sys.stderr)
     p.communicate()
 
+    for f in [s for s in os.listdir(pkg_dir) if s.startswith('libmetawear')]:
+        os.remove(os.path.join(pkg_dir, f))
+
+    symlinks_to_create = []
     # Copy the built shared library to pymetawear folder.
-    shutil.copy(path_to_libmetawear_so,
-                os.path.join(pkg_dir, 'libmetawear.so'))
-    
+    for dist_file in glob.glob(path_to_dist_dir + "/libmetawear.*"):
+        print(dist_file)
+        if os.path.islink(dist_file):
+            symlinks_to_create.append(
+                (os.path.basename(os.readlink(dist_file)),
+                os.path.basename(dist_file)))
+        else:
+            destination_file = os.path.join(
+                pkg_dir, os.path.basename(dist_file))
+            shutil.copy(dist_file, destination_file)
+
+    # Create symlinks for the libmetawear shared library.
+    for symlink_src, symlink_dest in symlinks_to_create:
+        destination_symlink = os.path.join(pkg_dir, symlink_dest)
+        os.symlink(symlink_src, destination_symlink)
+
     # Copy the Mbientlab Python wrappers to pymetawear folder.
     # First create folders if needed.
     try:
@@ -112,7 +149,7 @@ setup(
     name='pymetawear',
     version=version,
     author='Henrik Blidh',
-    author_email='henrik.blidh@nedobmkull.com',
+    author_email='henrik.blidh@nedomkull.com',
     url='https://github.com/hbldh/pymetawear',
     description='Python Lib for connecting to and using MetaWear boards.',
     long_description=read('README.rst') + '\n\n' + read('HISTORY.rst'),
@@ -135,15 +172,19 @@ setup(
     # to folder after ``find_packages`` is run.
     package_data={
         'pymetawear': [
-            'libmetawear.so',
+            'libmetawear.so*',
             'mbientlab/*.py',
             'mbientlab/metawear/*.py'
         ],
     },
     install_requires=[
-        'pybluez[ble]>=0.22',
-        'pygatt[GATTTOOL]>=2.0.1'
+        'pygatt[GATTTOOL]==2.1.0',
+        'pexpect>=4.2.0'
     ],
+    extras_require={
+        'bluepy': 'bluepy>=1.0.5',
+        'pybluez': 'pybluez[ble]>=0.22'
+    },
     ext_modules=[],
     entry_points={
     }
