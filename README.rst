@@ -1,4 +1,4 @@
-PyMetawear
+PyMetaWear
 ==========
 
 .. image:: https://travis-ci.org/hbldh/pymetawear.svg?branch=master
@@ -6,7 +6,8 @@ PyMetawear
 .. image:: https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master
     :target: https://coveralls.io/github/hbldh/pymetawear?branch=master
 
-Python package for connecting to and using `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
+Python package for connecting to and using
+`MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
 PyMetawear is meant to be a thin wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
