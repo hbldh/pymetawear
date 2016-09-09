@@ -14,7 +14,8 @@ can be found by performing a scan.
 
 The :func:`~discover_devices` function uses the
 ``hcitool`` application, provided by the `BlueZ  <http://www.bluez.org/>`_
-bluetooth application.
+bluetooth application. See docstring below for more details about privileges
+using ``hcitool`` from Python.
 
 API
 ---

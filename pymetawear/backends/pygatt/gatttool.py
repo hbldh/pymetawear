@@ -12,12 +12,11 @@ from __future__ import print_function
 #from __future__ import unicode_literals
 from __future__ import absolute_import
 
-import re
 from uuid import UUID
 
 import pygatt
 from pygatt import exceptions
-from pygatt.backends.gatttool.gatttool import log, GATTToolBLEDevice, DEFAULT_CONNECT_TIMEOUT_S
+from pygatt.backends.gatttool.gatttool import log, GATTToolBLEDevice
 
 from pymetawear.utils import string_types
 

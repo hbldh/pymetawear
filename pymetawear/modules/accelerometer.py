@@ -38,6 +38,8 @@ class AccelerometerModule(PyMetaWearModule):
         super(AccelerometerModule, self).__init__(board, debug)
         self.module_id = module_id
 
+        self.high_frequency_stream = False
+
         acc_sensors = [
             sensor.AccelerometerBmi160,
             sensor.AccelerometerBma255,
@@ -84,8 +86,12 @@ class AccelerometerModule(PyMetaWearModule):
 
     @property
     def data_signal(self):
-        return self._data_signal_preprocess(
-            libmetawear.mbl_mw_acc_get_acceleration_data_signal)
+        if self.high_frequency_stream:
+            return self._data_signal_preprocess(
+                libmetawear.mbl_mw_acc_get_high_freq_acceleration_data_signal)
+        else:
+            return self._data_signal_preprocess(
+                libmetawear.mbl_mw_acc_get_acceleration_data_signal)
 
     def _get_odr(self, value):
         sorted_ord_keys = sorted(self.odr.keys(), key=lambda x:(float(x)))
