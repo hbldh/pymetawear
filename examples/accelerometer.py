@@ -24,6 +24,7 @@ c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 
+
 def acc_callback(data):
     """Handle a (epoch, (x,y,z)) accelerometer tuple."""
     print("Epoch time: [{0}] - X: {1}, Y: {2}, Z: {3}".format(data[0], *data[1]))
@@ -32,6 +33,7 @@ def acc_callback(data):
 print("Write accelerometer settings...")
 c.accelerometer.set_settings(data_rate=200.0, data_range=8.0)
 print("Subscribing to accelerometer signal notifications...")
+c.accelerometer.high_frequency_stream = True
 c.accelerometer.notifications(acc_callback)
 
 time.sleep(20.0)

@@ -47,6 +47,8 @@ class GyroscopeModule(PyMetaWearModule):
         super(GyroscopeModule, self).__init__(board, debug)
         self.module_id = module_id
 
+        self.high_frequency_stream = False
+
         if self.module_id == Modules.MBL_MW_MODULE_NA:
             # No gyroscope present!
             self.gyro_class = None
@@ -87,8 +89,12 @@ class GyroscopeModule(PyMetaWearModule):
     @property
     @require_bmi160
     def data_signal(self):
-        return self._data_signal_preprocess(
-            libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal)
+        if self.high_frequency_stream:
+            return self._data_signal_preprocess(
+                libmetawear.mbl_mw_gyro_bmi160_get_high_freq_rotation_data_signal)
+        else:
+            return self._data_signal_preprocess(
+                libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal)
 
     def _get_odr(self, value):
         sorted_ord_keys = sorted(self.odr.keys(), key=lambda x:(float(x)))

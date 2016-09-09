@@ -12,19 +12,18 @@ from __future__ import print_function
 #from __future__ import unicode_literals
 from __future__ import absolute_import
 
-import re
 from uuid import UUID
 
 import pygatt
 from pygatt import exceptions
-from pygatt.backends.gatttool.gatttool import log, GATTToolBLEDevice, DEFAULT_CONNECT_TIMEOUT_S
+from pygatt.backends.gatttool.gatttool import log, GATTToolBLEDevice
 
 from pymetawear.utils import string_types
 
 if hasattr(bytes, 'fromhex'):
     # Python 3.
     def _hex_value_parser(x):
-        return bytearray.fromhex(x.decode('utf8'))
+        return bytes.fromhex(x.decode('utf8'))
 else:
     # Python 2.7
     def _hex_value_parser(x):

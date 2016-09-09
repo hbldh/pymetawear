@@ -15,6 +15,7 @@ from __future__ import absolute_import
 import uuid
 
 from ctypes import create_string_buffer
+from pygatt.backends.gatttool.gatttool import DEFAULT_CONNECT_TIMEOUT_S
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
 from pymetawear.utils import range_, bytearray_to_str

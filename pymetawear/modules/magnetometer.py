@@ -112,7 +112,8 @@ class MagnetometerModule(PyMetaWearModule):
         Call :meth:`~get_possible_settings` to see which values
         that can be set for this sensor.
 
-        :param str power_preset: The power preset, influencing the data rate, accuracy and power consumption
+        :param str power_preset: The power preset, influencing the data rate,
+            accuracy and power consumption
 
         """
         pp = self._get_power_preset(power_preset)

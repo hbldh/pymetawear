@@ -40,9 +40,8 @@ PYMETAWEAR_TIMEOUT = os.environ.get('PYMETAWEAR_TIMEOUT', )
 def discover_devices(timeout=5):
     """Discover Bluetooth Low Energy Devices nearby.
 
-    Using hcitool in subprocess, since DiscoveryService in pybluez/gattlib
-    requires sudo, and hcitool can be allowed to do scan without elevated
-    permission.
+    Using ``hcitool`` from Bluez in subprocess, which requires root privileges.
+    However, ``hcitool`` can be allowed to do scan without elevated permission.
 
     .. code-block:: bash
 
@@ -100,7 +99,8 @@ class MetaWearClient(object):
 
     """
 
-    def __init__(self, address, backend='pygatt', interface='hci0', timeout=None, debug=False):
+    def __init__(self, address, backend='pygatt',
+                 interface='hci0', timeout=None, debug=False):
         """Constructor."""
         self._address = address
         self._debug = debug

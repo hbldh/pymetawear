@@ -65,6 +65,8 @@ def build_solution():
                          cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
     p.communicate()
 
+    # Increase TIME_PER_COMMAND in MetaWear-CppAPI by pre-build
+    # patching of constants.h.
     constants_h_file = os.path.join(
         pkg_dir, 'Metawear-CppAPI', 'src', 'metawear',
         'core', 'cpp', 'constant.h')
@@ -86,6 +88,9 @@ def build_solution():
         stdout=sys.stdout, stderr=sys.stderr)
     p.communicate()
 
+    for f in [s for s in os.listdir(pkg_dir) if s.startswith('libmetawear')]:
+        os.remove(os.path.join(pkg_dir, f))
+
     symlinks_to_create = []
     # Copy the built shared library to pymetawear folder.
     for dist_file in glob.glob(path_to_dist_dir + "/libmetawear.*"):
@@ -95,11 +100,14 @@ def build_solution():
                 (os.path.basename(os.readlink(dist_file)),
                 os.path.basename(dist_file)))
         else:
-            shutil.copy(dist_file, os.path.join(
-                pkg_dir, os.path.basename(dist_file)))
+            destination_file = os.path.join(
+                pkg_dir, os.path.basename(dist_file))
+            shutil.copy(dist_file, destination_file)
 
+    # Create symlinks for the libmetawear shared library.
     for symlink_src, symlink_dest in symlinks_to_create:
-        os.symlink(symlink_src, os.path.join(pkg_dir, symlink_dest))
+        destination_symlink = os.path.join(pkg_dir, symlink_dest)
+        os.symlink(symlink_src, destination_symlink)
 
     # Copy the Mbientlab Python wrappers to pymetawear folder.
     # First create folders if needed.
@@ -170,7 +178,7 @@ setup(
         ],
     },
     install_requires=[
-        'pygatt[GATTTOOL]>=2.1.0',
+        'pygatt[GATTTOOL]==2.1.0',
         'pexpect>=4.2.0'
     ],
     extras_require={
