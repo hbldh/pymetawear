@@ -86,7 +86,7 @@ class MagnetometerModule(PyMetaWearModule):
 
     def _get_power_preset(self, value):
         if value.lower() in self.power_presets:
-            return self.power_presets.get(value)
+            return self.power_presets.get(value.lower())
         else:
             raise ValueError("Requested power preset ({0}) was not part of "
                              "possible values: {1}".format(value.lower(), [self.power_presets.keys()]))
