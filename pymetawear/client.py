@@ -34,8 +34,6 @@ try:
 except ImportError as e:
     BluepyBackend = e
 
-PYMETAWEAR_TIMEOUT = os.environ.get('PYMETAWEAR_TIMEOUT', )
-
 
 def discover_devices(timeout=5):
     """Discover Bluetooth Low Energy Devices nearby.
@@ -109,27 +107,36 @@ class MetaWearClient(object):
         if self._debug:
             print("Creating MetaWearClient for {0}...".format(address))
 
+        # Handling of timeout.
+        if timeout is None:
+            timeout = os.environ.get('PYMETAWEAR_TIMEOUT', None)
+            if timeout is not None:
+                try:
+                    timeout = float(timeout)
+                except:
+                    timeout = None
+
         if backend == 'pygatt':
             if isinstance(PyGattBackend, Exception):
                 raise PyMetaWearException(
                     "pygatt[GATTTOOL] package error :{0}".format(PyGattBackend))
             self._backend = PyGattBackend(
                 self._address, interface=interface,
-                timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
+                timeout=timeout, debug=debug)
         elif backend == 'pybluez':
             if isinstance(PyBluezBackend, Exception):
                 raise PyMetaWearException(
                     "pybluez[ble] package error: {0}".format(PyBluezBackend))
             self._backend = PyBluezBackend(
                 self._address, interface=interface,
-                timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
+                timeout=timeout, debug=debug)
         elif backend == 'bluepy':
             if isinstance(BluepyBackend, Exception):
                 raise PyMetaWearException(
                     "bluepy package error: {0}".format(BluepyBackend))
             self._backend = BluepyBackend(
                 self._address, interface=interface,
-                timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
+                timeout=timeout, debug=debug)
         else:
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
 
