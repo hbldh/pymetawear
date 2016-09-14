@@ -23,16 +23,16 @@ from pymetawear.exceptions import *
 from pymetawear import modules
 try:
     from pymetawear.backends.pygatt import PyGattBackend
-except ImportError:
-    PyGattBackend = None
+except ImportError as e:
+    PyGattBackend = e
 try:
     from pymetawear.backends.pybluez import PyBluezBackend
-except ImportError:
-    PyBluezBackend = None
+except ImportError as e:
+    PyBluezBackend = e
 try:
     from pymetawear.backends.bluepy import BluepyBackend
-except ImportError:
-    BluepyBackend = None
+except ImportError as e:
+    BluepyBackend = e
 
 PYMETAWEAR_TIMEOUT = os.environ.get('PYMETAWEAR_TIMEOUT', )
 
@@ -110,25 +110,25 @@ class MetaWearClient(object):
             print("Creating MetaWearClient for {0}...".format(address))
 
         if backend == 'pygatt':
-            if PyGattBackend is None:
+            if isinstance(PyGattBackend, Exception):
                 raise PyMetaWearException(
-                    "Need to install pygatt[GATTTOOL] package to use this backend.")
+                    "pygatt[GATTTOOL] package error :{0}".format(PyGattBackend))
             self._backend = PyGattBackend(
-                self._address, interface=interface, 
+                self._address, interface=interface,
                 timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
         elif backend == 'pybluez':
-            if PyBluezBackend is None:
+            if isinstance(PyBluezBackend, Exception):
                 raise PyMetaWearException(
-                    "Need to install pybluez[ble] package to use this backend.")
+                    "pybluez[ble] package error: {0}".format(PyBluezBackend))
             self._backend = PyBluezBackend(
-                self._address, interface=interface, 
+                self._address, interface=interface,
                 timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
         elif backend == 'bluepy':
-            if BluepyBackend is None:
+            if isinstance(BluepyBackend, Exception):
                 raise PyMetaWearException(
-                    "Need to install bluepy package to use this backend.")
+                    "bluepy package error: {0}".format(BluepyBackend))
             self._backend = BluepyBackend(
-                self._address, interface=interface, 
+                self._address, interface=interface,
                 timeout=PYMETAWEAR_TIMEOUT if timeout is None else timeout, debug=debug)
         else:
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
