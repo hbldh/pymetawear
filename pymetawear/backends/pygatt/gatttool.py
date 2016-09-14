@@ -16,7 +16,8 @@ from uuid import UUID
 
 import pygatt
 from pygatt import exceptions
-from pygatt.backends.gatttool.gatttool import log, GATTToolBLEDevice
+from pygatt.backends.gatttool.gatttool import log, GATTToolBLEDevice, \
+    DEFAULT_CONNECT_TIMEOUT_S, NotificationTimeout, NotConnectedError
 
 from pymetawear.utils import string_types
 
@@ -70,6 +71,26 @@ class PyMetaWearGATTToolBackend(pygatt.backends.GATTToolBackend):
 
     def __init__(self, *args, **kwargs):
         super(PyMetaWearGATTToolBackend, self).__init__(*args, **kwargs)
+
+    def connect(self, address, timeout=DEFAULT_CONNECT_TIMEOUT_S,
+                address_type='public'):
+        log.info('Connecting with timeout=%s', timeout)
+        self.sendline('sec-level low')
+        self._address = address
+
+        try:
+            cmd = 'connect {0} {1}'.format(self._address, address_type)
+            with self._receiver.event("connect", timeout):
+                self.sendline(cmd)
+        except NotificationTimeout:
+            message = "Timed out connecting to {0} after {1} seconds.".format(
+                self._address, timeout
+            )
+            log.error(message)
+            raise NotConnectedError(message)
+
+        self._connected_device = PyMetaWearGATTToolBLEDevice(address, self)
+        return self._connected_device
 
     def _handle_notification_string(self, event):
         msg = event["after"]
