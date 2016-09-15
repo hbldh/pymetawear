@@ -1,3 +1,20 @@
+v0.5.1 (2016-09-15)
+===================
+- Corrections to make it distributable via PyPI.
+
+v0.5.0 (2016-09-15)
+===================
+- Using MetaWear-CppAPI version 0.5.22
+- Changed building procedure to handle ARM processors
+- Updated requirements to make pygatt default, all others extras
+- Bluepy backend implemented and partially working
+- BL interface selection for all backends
+- Magnetometer module
+- Barometer module
+- Ambient Light module
+- Modifying notification wrappers to accommodate Epoch value in the data.
+- High speed sampling for accelerometer and gyroscope
+
 v0.4.4 (2016-04-28)
 ===================
 - Updated MetaWear-CppAPI submodule version.

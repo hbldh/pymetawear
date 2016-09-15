@@ -28,20 +28,20 @@ Installation
 
 .. code-block:: bash
 
-    $ pip install git+git://github.com/hbldh/pymetawear.git
+    $ pip install pymetawear
 
 Currently, only the `pygatt <https://github.com/peplin/pygatt>`_ communication
 backend is installed by default. The other backends can be installed as extras:
 
 .. code-block:: bash
 
-    $ pip install git+git://github.com/hbldh/pymetawear.git[pybluez]
+    $ pip install pymetawear[pybluez]
 
 or
 
 .. code-block:: bash
 
-    $ pip install git+git://github.com/hbldh/pymetawear.git[bluepy]
+    $ pip install pymetawear[bluepy]
 
 Requirements for ``pymetawear``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,7 +50,7 @@ Requirements for ``pymetawear``
 * ``python-dev``
 
 Additional requirements for ``pybluez``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``libglib2.0-dev``
 * ``bluetooth``

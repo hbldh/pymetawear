@@ -55,15 +55,23 @@ def build_solution():
     path_to_metawear_python_wrappers = os.path.join(
         pkg_dir, 'Metawear-CppAPI', 'wrapper', 'python')
 
-    # Git submodule init
-    p = subprocess.Popen(['git', 'submodule', 'init'],
-                         cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
-    p.communicate()
+    if os.path.exists(os.path.join(basedir, '.git')):
+        # The package was cloned from Github and the submodule can
+        # therefore be brought in by Git methods.
 
-    # Git submodule update
-    p = subprocess.Popen(['git', 'submodule', 'update'],
-                         cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
-    p.communicate()
+        # Git submodule init
+        p = subprocess.Popen(['git', 'submodule', 'init'],
+                             cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
+        p.communicate()
+
+        # Git submodule update
+        p = subprocess.Popen(['git', 'submodule', 'update'],
+                             cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
+        p.communicate()
+    else:
+        # The package was downloaded as zip or tar.gz from PyPI. It should
+        # have the MetaWear-CppAPI folder bundled and the building can be done immediately.
+        pass
 
     # Run make file for MetaWear-CppAPI
     p = subprocess.Popen(
@@ -140,7 +148,7 @@ setup(
     author='Henrik Blidh',
     author_email='henrik.blidh@nedomkull.com',
     url='https://github.com/hbldh/pymetawear',
-    description='Python Lib for connecting to and using MetaWear boards.',
+    description="Python client for connecting to MbientLab's MetaWear boards",
     long_description=read('README.rst') + '\n\n' + read('HISTORY.rst'),
     license='MIT',
     platforms=['Linux'],

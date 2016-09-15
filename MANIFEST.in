@@ -1,7 +1,17 @@
-include LICENSE README.rst HISTORY.rst requirements.txt
+include LICENSE
+include README.rst
+include HISTORY.rst
+include CONTRIBUTORS.md
+include requirements.txt
 
-recursive-include examples *
-recursive-include tests *
+recursive-include pymetawear/Metawear-CppAPI *
+prune pymetawear/Metawear-CppAPI/.git
+prune pymetawear/Metawear-CppAPI/build
+prune pymetawear/Metawear-CppAPI/dist
 
+recursive-include examples *.py
+recursive-include tests *.py
 recursive-include docs *
 prune docs/build
+
+global-exclude __pycache__/*
