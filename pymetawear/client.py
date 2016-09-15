@@ -21,6 +21,7 @@ import signal
 from pymetawear import libmetawear, specs
 from pymetawear.exceptions import *
 from pymetawear import modules
+from pymetawear.mbientlab.metawear.core import Status
 try:
     from pymetawear.backends.pygatt import PyGattBackend
 except ImportError as e:
@@ -147,6 +148,15 @@ class MetaWearClient(object):
                 libmetawear.mbl_mw_metawearboard_is_initialized(self.board)):
             self.backend.sleep(0.1)
 
+        # Check if initialization has been completed successfully.
+        if self.backend.initialized != Status.OK:
+            if self.backend._initialization_status == Status.ERROR_TIMEOUT:
+                raise PyMetaWearConnectionTimeout("libmetawear initialization status 16: Timeout")
+            else:
+                raise PyMetaWearException("libmetawear initialization status {0}".format(
+                    self.backend._initialization_status))
+
+        # Read out firmware and model version.
         self.firmware_version = tuple(
             [int(x) for x in self.backend.read_gatt_char_by_uuid(
             specs.DEV_INFO_FIRMWARE_CHAR[1]).decode().split('.')])
@@ -185,7 +195,8 @@ class MetaWearClient(object):
         self.led = modules.LEDModule(self.board, debug=self._debug)
 
     def __str__(self):
-        return "MetaWearClient, {0}".format(self._address)
+        return "MetaWearClient, {0}, Model: {1}, Firmware: {2}.{3}.{4}".format(
+            self._address, self.model_version, *self.firmware_version)
 
     def __repr__(self):
         return "<MetaWearClient, {0}>".format(self._address)

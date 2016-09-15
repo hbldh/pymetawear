@@ -11,6 +11,7 @@ from __future__ import print_function
 # from __future__ import unicode_literals
 from __future__ import absolute_import
 
+import os
 import time
 from ctypes import byref
 import uuid
@@ -25,14 +26,15 @@ from pymetawear.utils import string_types
 
 class BLECommunicationBackend(object):
 
-    def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
+    def __init__(self, address, interface=None,
+                 async=True, timeout=None, debug=False):
         self._address = str(address)
         self._interface = str(interface)
         self._async = async
         self._debug = debug
         self._timeout = timeout
 
-        self._initialized = False
+        self._initialization_status = -1
 
         self._requester = None
 
@@ -62,6 +64,10 @@ class BLECommunicationBackend(object):
         # Now create a libmetawear board object and initialize it.
         self.board = libmetawear.mbl_mw_metawearboard_create(
             byref(self._btle_connection))
+
+        _response_time = os.environ.get('PYMETAWEAR_RESPONSE_TIME', 300)
+        libmetawear.mbl_mw_metawearboard_set_time_for_response(self.board, int(_response_time))
+
         libmetawear.mbl_mw_metawearboard_initialize(
             self.board, self.callbacks.get('initialization')[1])
 
@@ -76,7 +82,7 @@ class BLECommunicationBackend(object):
 
     @property
     def initialized(self):
-        return self._initialized
+        return self._initialization_status >= 0
 
     @property
     def requester(self):
@@ -153,7 +159,7 @@ class BLECommunicationBackend(object):
     def _initialized_fcn(self, board, status):
         if self._debug:
             print("{0} initialized with status {1}.".format(self, status))
-        self._initialized = status == 0
+        self._initialization_status = status
 
     def handle_notify_char_output(self, handle, value):
         if self._debug:

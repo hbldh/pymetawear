@@ -74,7 +74,7 @@ class BluepyBackend(BLECommunicationBackend):
     @property
     def initialized(self):
         #self.requester.waitForNotifications(0.1)
-        return self._initialized
+        return self._initialization_status
 
     @property
     def requester(self):

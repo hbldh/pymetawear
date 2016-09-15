@@ -28,7 +28,7 @@ def require_bmm150(f):
     def wrapper(*args, **kwargs):
         if getattr(args[0], 'mag_class', None) is None:
             raise PyMetaWearException("There is not Magnetometer "
-                                      "module of your MetaWear board!")
+                                      "module on your MetaWear board!")
         return f(*args, **kwargs)
 
     return wrapper
