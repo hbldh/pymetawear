@@ -45,7 +45,7 @@ def build_solution():
     arch = os.uname()[-1]
     if arch in ('x86_64', 'amd64'):
         dist_dir = 'x64'
-    elif arch == 'armv7l':
+    elif 'arm' in arch:
         dist_dir = 'arm'
     else:
         dist_dir = 'x86'
@@ -64,17 +64,6 @@ def build_solution():
     p = subprocess.Popen(['git', 'submodule', 'update'],
                          cwd=basedir, stdout=sys.stdout, stderr=sys.stderr)
     p.communicate()
-
-    # Increase TIME_PER_COMMAND in MetaWear-CppAPI by pre-build
-    # patching of constants.h.
-    constants_h_file = os.path.join(
-        pkg_dir, 'Metawear-CppAPI', 'src', 'metawear',
-        'core', 'cpp', 'constant.h')
-    with open(constants_h_file, 'rt') as f:
-        t = f.read()
-    t = t.replace('TIME_PER_COMMAND = 150', 'TIME_PER_COMMAND = 300')
-    with open(constants_h_file, 'wt') as f:
-        f.write(t)
 
     # Run make file for MetaWear-CppAPI
     p = subprocess.Popen(
@@ -167,7 +156,8 @@ setup(
         'build_py': PyMetaWearBuilder,
         'develop': PyMetaWearDeveloper
     },
-    packages=find_packages(exclude=['tests', 'docs', 'examples']),
+    packages=find_packages(exclude=['tests', 'docs', 'examples', 'examples.*']),
+    include_package_data=True,
     # Adding MbientLab's Python code as package data since it is copied
     # to folder after ``find_packages`` is run.
     package_data={
