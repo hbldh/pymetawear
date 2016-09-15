@@ -1,3 +1,7 @@
+v0.5.1 (2016-09-15)
+===================
+- Corrections to make it distributable via PyPI.
+
 v0.5.0 (2016-09-15)
 ===================
 - Using MetaWear-CppAPI version 0.5.22
