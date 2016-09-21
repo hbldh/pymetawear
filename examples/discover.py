@@ -35,5 +35,5 @@ def scan_and_select_le_device(timeout=3):
     elif len(ble_devices) == 1:
         address = ble_devices[0][0]
     else:
-        raise ValueError("DId not detect any BLE devices.")
+        raise ValueError("Did not detect any BLE devices.")
     return address

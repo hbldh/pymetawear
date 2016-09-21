@@ -191,6 +191,8 @@ class MetaWearClient(object):
             debug=self._debug)
         self.switch = modules.SwitchModule(self.board, debug=self._debug)
         self.battery = modules.BatteryModule(self.board, debug=self._debug)
+        self.temperature = modules.TemperatureModule(
+            self.board, debug=self._debug)
         self.haptic = modules.HapticModule(self.board, debug=self._debug)
         self.led = modules.LEDModule(self.board, debug=self._debug)
 

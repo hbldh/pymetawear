@@ -24,3 +24,4 @@ from .haptic import HapticModule
 from .led import LEDModule
 from .magnetometer import MagnetometerModule
 from .switch import SwitchModule
+from .temperature import TemperatureModule
