@@ -37,7 +37,7 @@ except ImportError as e:
 
 
 def discover_devices(timeout=5):
-    """Discover Bluetooth Low Energy Devices nearby.
+    """Discover Bluetooth Low Energy Devices nearby on Linux
 
     Using ``hcitool`` from Bluez in subprocess, which requires root privileges.
     However, ``hcitool`` can be allowed to do scan without elevated permission.

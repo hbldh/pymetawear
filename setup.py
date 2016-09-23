@@ -15,6 +15,7 @@ from __future__ import absolute_import
 
 import os
 import sys
+import platform
 import subprocess
 import shutil
 import re
@@ -41,17 +42,6 @@ def build_solution():
     # Establish source paths.
     basedir = os.path.abspath(os.path.dirname(__file__))
     pkg_dir = os.path.join(basedir, 'pymetawear')
-
-    arch = os.uname()[-1]
-    if arch in ('x86_64', 'amd64'):
-        dist_dir = 'x64'
-    elif 'arm' in arch:
-        dist_dir = 'arm'
-    else:
-        dist_dir = 'x86'
-
-    path_to_dist_dir = os.path.join(
-        pkg_dir, 'Metawear-CppAPI', 'dist', 'release', 'lib', dist_dir)
     path_to_metawear_python_wrappers = os.path.join(
         pkg_dir, 'Metawear-CppAPI', 'wrapper', 'python')
 
@@ -73,38 +63,86 @@ def build_solution():
         # have the MetaWear-CppAPI folder bundled and the building can be done immediately.
         pass
 
-    # Run make file for MetaWear-CppAPI
-    p = subprocess.Popen(
-        ['make', 'clean'],
-        cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
-        stdout=sys.stdout, stderr=sys.stderr)
-    p.communicate()
-    p = subprocess.Popen(
-        ['make', 'build'],
-        cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
-        stdout=sys.stdout, stderr=sys.stderr)
-    p.communicate()
-
-    for f in [s for s in os.listdir(pkg_dir) if s.startswith('libmetawear')]:
-        os.remove(os.path.join(pkg_dir, f))
-
-    symlinks_to_create = []
-    # Copy the built shared library to pymetawear folder.
-    for dist_file in glob.glob(path_to_dist_dir + "/libmetawear.*"):
-        print(dist_file)
-        if os.path.islink(dist_file):
-            symlinks_to_create.append(
-                (os.path.basename(os.readlink(dist_file)),
-                os.path.basename(dist_file)))
+    if platform.uname()[0] == 'Linux':
+        arch = os.uname()[-1]
+        if arch in ('x86_64', 'amd64'):
+            dist_dir = 'x64'
+        elif 'arm' in arch:
+            dist_dir = 'arm'
         else:
+            dist_dir = 'x86'
+
+        # Run make file for MetaWear-CppAPI
+        p = subprocess.Popen(
+            ['make', 'clean'],
+            cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
+            stdout=sys.stdout, stderr=sys.stderr)
+        p.communicate()
+        p = subprocess.Popen(
+            ['make', 'build'],
+            cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
+            stdout=sys.stdout, stderr=sys.stderr)
+        p.communicate()
+
+        path_to_dist_dir = os.path.join(
+            pkg_dir, 'Metawear-CppAPI', 'dist', 'release', 'lib', dist_dir)
+
+        for f in [s for s in os.listdir(pkg_dir) if s.startswith('libmetawear')]:
+            os.remove(os.path.join(pkg_dir, f))
+
+        symlinks_to_create = []
+        # Copy the built shared library to pymetawear folder.
+        for dist_file in glob.glob(path_to_dist_dir + "/libmetawear.*"):
+            if os.path.islink(dist_file):
+                symlinks_to_create.append(
+                    (os.path.basename(os.readlink(dist_file)),
+                     os.path.basename(dist_file)))
+            else:
+                destination_file = os.path.join(
+                    pkg_dir, os.path.basename(dist_file))
+                shutil.copy(dist_file, destination_file)
+
+        # Create symlinks for the libmetawear shared library.
+        for symlink_src, symlink_dest in symlinks_to_create:
+            destination_symlink = os.path.join(pkg_dir, symlink_dest)
+            os.symlink(symlink_src, destination_symlink)
+
+    elif platform.uname()[0] == 'Windows':
+        arch = platform.architecture()[0]
+        if arch == '32bit':
+            dist_dir = 'Win32'
+            msbuild_file = 'MetaWear.Win32.vcxproj'
+            build_options = '/p:Configuration=Release;Platform=Win32'
+        elif 'arm' in arch:
+            dist_dir = 'ARM'
+            msbuild_file = 'MetaWear.WinRT.vcxproj'
+            build_options = '/p:Configuration=Release;Platform=ARM'
+        else:
+            dist_dir = 'x64'
+            msbuild_file = 'MetaWear.Win32.vcxproj'
+            build_options = '/p:Configuration=Release;Platform=x64'
+
+        # Run msbuild file for MetaWear-CppAPI
+        vsvars_file = glob.glob('c:\\Progr*/**/**/Too*/vsvars32.bat')[0]
+        p = subprocess.Popen('"{0}" & MSBuild.exe {1} {2}'.format(
+            vsvars_file, msbuild_file, build_options),
+            cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
+            stdout=sys.stdout, stderr=sys.stderr)
+        p.communicate()
+
+        for f in [s for s in os.listdir(pkg_dir) if (s.startswith('MetaWear') and s.endswith('.dll'))]:
+            os.remove(os.path.join(pkg_dir, f))
+
+        path_to_dist_dir = os.path.join(
+            pkg_dir, 'Metawear-CppAPI', 'dist', 'Release', 'lib', dist_dir)
+
+        # Copy the built shared library to pymetawear folder.
+        for dist_file in glob.glob(path_to_dist_dir + "/MetaWear.*.dll"):
             destination_file = os.path.join(
                 pkg_dir, os.path.basename(dist_file))
             shutil.copy(dist_file, destination_file)
-
-    # Create symlinks for the libmetawear shared library.
-    for symlink_src, symlink_dest in symlinks_to_create:
-        destination_symlink = os.path.join(pkg_dir, symlink_dest)
-        os.symlink(symlink_src, destination_symlink)
+    else:
+        raise NotImplementedError("Building on this platform is not implemented.")
 
     # Copy the Mbientlab Python wrappers to pymetawear folder.
     # First create folders if needed.

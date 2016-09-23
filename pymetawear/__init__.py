@@ -6,7 +6,10 @@
 # -----------------------------------------------------------------------------
 
 import os
+import platform
+import glob
 from ctypes import cdll, c_longlong
+
 from pymetawear.mbientlab.metawear.core import Fn_DataPtr, Fn_VoidPtr_Int
 from pymetawear.mbientlab.metawear.functions import setup_libmetawear
 from pymetawear.utils import IS_64_BIT
@@ -19,9 +22,15 @@ version_info = (0, 5, 2, 'dev1')
 if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
     libmetawear = cdll.LoadLibrary(os.environ["METAWEAR_LIB_SO_NAME"])
 else:
+    if platform.uname()[0] == 'Windows':
+        dll_files = list(glob.glob(os.path.join(os.path.abspath(
+            os.path.dirname(__file__)), 'MetaWear.*.dll')))
+        shared_lib_file_name = dll_files[0]
+    else:
+        shared_lib_file_name = 'libmetawear.so'
     libmetawear = cdll.LoadLibrary(
         os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                     'libmetawear.so'))
+                     shared_lib_file_name))
 
 setup_libmetawear(libmetawear)
 
