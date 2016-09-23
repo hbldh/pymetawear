@@ -15,12 +15,12 @@ from __future__ import absolute_import
 import uuid
 
 from ctypes import create_string_buffer
-from pygatt.backends.gatttool.gatttool import DEFAULT_CONNECT_TIMEOUT_S
+from pygatt import BLEAddressType
+from pygatt.backends.gatttool import gatttool
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.utils import range_, bytearray_to_str
+from pymetawear.utils import range_
 from pymetawear.backends import BLECommunicationBackend
-from pymetawear.backends.pygatt.gatttool import PyMetaWearGATTToolBackend
 
 __all__ = ["PyGattBackend"]
 
@@ -36,7 +36,7 @@ class PyGattBackend(BLECommunicationBackend):
         self._backend = None
         super(PyGattBackend, self).__init__(
             address, interface, async,
-            DEFAULT_CONNECT_TIMEOUT_S if timeout is None else timeout,
+            gatttool.DEFAULT_CONNECT_TIMEOUT_S if timeout is None else timeout,
             debug)
 
     @property
@@ -50,12 +50,12 @@ class PyGattBackend(BLECommunicationBackend):
         if self._requester is None:
             if self._debug:
                 print("Creating new GATTToolBackend and starting GATTtool process...")
-            self._backend = PyMetaWearGATTToolBackend(hci_device=self._interface)
+            self._backend = gatttool.GATTToolBackend(hci_device=self._interface)
             self._backend.start(reset_on_start=False)
             if self._debug:
                 print("Connecting GATTTool...")
             self._requester = self._backend.connect(
-                self._address, timeout=self._timeout, address_type='random')
+                self._address, timeout=self._timeout, address_type=BLEAddressType.random)
 
             if not self.requester._connected:
                 raise PyMetaWearConnectionTimeout(
@@ -118,8 +118,8 @@ class PyGattBackend(BLECommunicationBackend):
 
     @staticmethod
     def read_response_to_str(response):
-        return create_string_buffer(bytearray_to_str(response), len(response))
+        return create_string_buffer(bytes(response), len(response))
 
     @staticmethod
     def notify_response_to_str(response):
-        return create_string_buffer(bytearray_to_str(response), len(response))
+        return create_string_buffer(bytes(response), len(response))

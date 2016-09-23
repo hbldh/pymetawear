@@ -214,7 +214,7 @@ setup(
         ],
     },
     install_requires=[
-        'pygatt[GATTTOOL]==2.1.0',
+        'pygatt[GATTTOOL]>=3.0.0',
         'pexpect>=4.2.0'
     ],
     extras_require={
