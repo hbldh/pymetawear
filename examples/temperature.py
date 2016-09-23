@@ -20,26 +20,30 @@ from discover import scan_and_select_le_device
 from pymetawear.client import MetaWearClient
 
 address = scan_and_select_le_device()
-c = MetaWearClient(str(address), 'pygatt', debug=True)
+c = MetaWearClient(str(address), 'pygatt', timeout=10, debug=False)
 print("New client created: {0}".format(c))
 
 
 def temperature_callback(data):
     epoch = data[0]
     temp = data[1]
-    print("[{0}] Temperature {1}".format(epoch, temp))
+    print("[{0}] Temperature {1} \u2103".format(epoch, temp))
 
+for channel in c.temperature.channels:
 
-print("Subscribe to Temperature notifications...")
-c.temperature.notifications(temperature_callback)
-time.sleep(1.0)
+    c.temperature.set_settings(channel)
+    time.sleep(0.1)
 
-print("Trigger temperature notification...")
-c.temperature.read_temperature()
-time.sleep(1.0)
+    print("Subscribe to {0} Temperature notifications...".format(channel))
+    c.temperature.notifications(temperature_callback)
+    time.sleep(1.0)
 
-print("Unsubscribe to temperature notifications...")
-c.temperature.notifications(None)
-time.sleep(1.0)
+    print("Trigger {0} temperature notification...".format(channel))
+    c.temperature.read_temperature()
+    time.sleep(1.0)
+
+    print("Unsubscribe to temperature notifications...")
+    c.temperature.notifications(None)
+    time.sleep(1.0)
 
 c.disconnect()

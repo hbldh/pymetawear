@@ -30,9 +30,16 @@ _CHANNEL_ID_TO_SOURCE_NAME = {
     2: 'BMP280',
     3: 'On-Board'
 }
-_SOURCE_NAME_TO_CHANNEL_ID = {
-    v: k for k,v in _CHANNEL_ID_TO_SOURCE_NAME.items()}
-
+_CHANNEL_ID_TO_SOURCE_NAME_4 = {
+    0: 'On-Die',
+    1: 'On-Board',
+    2: 'External',
+    3: 'BMP280'
+}
+_CHANNEL_ID_TO_SOURCE_NAME_2 = {
+    0: 'On-Die',
+    1: 'External',
+}
 
 class TemperatureModule(PyMetaWearModule):
     """MetaWear Temperature module implementation.
@@ -49,10 +56,20 @@ class TemperatureModule(PyMetaWearModule):
         self.n_channels = int(
             libmetawear.mbl_mw_multi_chnl_temp_get_num_channels(self.board))
         self.channels = {}
+        if self.n_channels == 4:
+            self._channel_source_mapping = _CHANNEL_ID_TO_SOURCE_NAME_4
+        elif self.n_channels == 2:
+            self._channel_source_mapping = _CHANNEL_ID_TO_SOURCE_NAME_2
+        else:
+            self._channel_source_mapping = _CHANNEL_ID_TO_SOURCE_NAME
+
+        self._reverse_channel_source_mapping = {
+            v: k for k,v in self._channel_source_mapping.items()}
+
         for i in range(self.n_channels):
             source_enum = libmetawear.mbl_mw_multi_chnl_temp_get_source(
                 self.board, i)
-            self.channels[_CHANNEL_ID_TO_SOURCE_NAME.get(source_enum)] = source_enum
+            self.channels[self._channel_source_mapping.get(source_enum)] = source_enum
 
     def __str__(self):
         return "{0}".format(self.module_name)
@@ -126,7 +143,7 @@ class TemperatureModule(PyMetaWearModule):
         """
         if channel is not None:
             if channel in self.channels:
-                self._active_channel = _SOURCE_NAME_TO_CHANNEL_ID.get(channel)
+                self._active_channel = self._reverse_channel_source_mapping.get(channel)
             else:
                 warnings.warn("Desired channel {0} was not one of the possible ones: {1}.".format(
                     channel, self.get_possible_settings().get('channel')))
