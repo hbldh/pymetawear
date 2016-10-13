@@ -1,3 +1,9 @@
+v0.5.2 (2016-10-13)
+===================
+- Temperature Module
+- Using Pygatt 3.0.0 (including PR from PyMetaWear contributors)
+- Builds on Windows
+
 v0.5.1 (2016-09-15)
 ===================
 - Corrections to make it distributable via PyPI.
