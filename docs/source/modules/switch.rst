@@ -26,7 +26,7 @@ Example usage:
             print("Switch released!")
 
     # Enable notifications and register a callback for them.
-    c.switch.notifications(handle_switch_notification)
+    c.switch.notifications(switch_callback)
 
 API
 ---

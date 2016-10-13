@@ -37,7 +37,7 @@ except ImportError as e:
 
 
 def discover_devices(timeout=5):
-    """Discover Bluetooth Low Energy Devices nearby.
+    """Discover Bluetooth Low Energy Devices nearby on Linux
 
     Using ``hcitool`` from Bluez in subprocess, which requires root privileges.
     However, ``hcitool`` can be allowed to do scan without elevated permission.
@@ -191,6 +191,8 @@ class MetaWearClient(object):
             debug=self._debug)
         self.switch = modules.SwitchModule(self.board, debug=self._debug)
         self.battery = modules.BatteryModule(self.board, debug=self._debug)
+        self.temperature = modules.TemperatureModule(
+            self.board, debug=self._debug)
         self.haptic = modules.HapticModule(self.board, debug=self._debug)
         self.led = modules.LEDModule(self.board, debug=self._debug)
 

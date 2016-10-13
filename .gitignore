@@ -1,6 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 
 libmetawear.so*
+MetaWear.*.dll
 # Never add potentially built elements of submodule either.
 pymetawear/mbientlab/
 

@@ -21,12 +21,12 @@ Example usage:
     # Set a large oversampling value.
     c.barometer.set_settings(oversampling='ultra_high')
 
-    def handle_barometer_notification(data):
+    def barometer_callback(data):
         """Handle a (epoch, altitude) barometer tuple."""
         print("[{0}]: Altitude: {1} m".format(*data))
 
     # Enable notifications and register a callback for them.
-    c.barometer.notifications(handle_barometer_notification)
+    c.barometer.notifications(barometer_callback)
 
 API
 ---

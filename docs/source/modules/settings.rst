@@ -25,12 +25,13 @@ Example usage:
     """Handle a battery status tuple."""
         print("Voltage: {0}, Charge: {1}".format(
             data[0], data[1]))
-
+    # Enable notifications and register a callback for them.
     mwclient.battery.notifications(battery_callback)
+    # Trigger battery status notification.
     mwclient.battery.read_battery_state()
 
-    # Enable notifications and register a callback for them.
-    c.switch.notifications(handle_switch_notification)
+
+
 
 API
 ~~~

@@ -9,8 +9,10 @@ MetaWear modules
    base
    accelerometer
    gyroscope
+   magnetometer
    barometer
    led
    settings
    haptic
    switch
+   temperature
