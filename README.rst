@@ -153,12 +153,13 @@ awaiting such focus.
 ================= =============== =====================
 Completed Modules Partial Modules Unimplemented Modules
 ================= =============== =====================
-Accelerometer     Settings        Temperature
+Accelerometer     Settings        Proximity
 Gyroscope                         Color Detector
 Haptic                            Humidity
 Switch                            GPIO
 LED                               I2C
 Barometer                         iBeacon
 Magnetometer                      NeoPixel
-                                  Proximity
+Temperature
+Ambient Light
 ================= =============== =====================
