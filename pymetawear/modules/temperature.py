@@ -157,13 +157,13 @@ class TemperatureModule(PyMetaWearModule):
 
         """
         if self.callback is None:
-            warnings.warn("No battery callback is registered!", RuntimeWarning)
+            warnings.warn("No temperature callback is registered!", RuntimeWarning)
         libmetawear.mbl_mw_datasignal_read(self.data_signal)
 
     def notifications(self, callback=None):
-        """Subscribe or unsubscribe to switch notifications.
+        """Subscribe or unsubscribe to temperature notifications.
 
-        Convenience method for handling switch usage.
+        Convenience method for handling temperature usage.
 
         Example:
 
