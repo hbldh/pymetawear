@@ -14,14 +14,17 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import warnings
+import logging
 from functools import wraps
 from ctypes import c_uint, cast, POINTER, c_long, c_float
 
-from pymetawear import libmetawear, IS_64_BIT
+from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import DataTypeId
 from pymetawear.mbientlab.metawear.sensor import MultiChannelTemperature
 from pymetawear.modules.base import PyMetaWearModule
+
+log = logging.getLogger(__name__)
 
 _CHANNEL_ID_TO_SOURCE_NAME = {
     -1: 'Invalid',
@@ -41,6 +44,7 @@ _CHANNEL_ID_TO_SOURCE_NAME_2 = {
     1: 'External',
 }
 
+
 class TemperatureModule(PyMetaWearModule):
     """MetaWear Temperature module implementation.
 
@@ -51,6 +55,7 @@ class TemperatureModule(PyMetaWearModule):
 
     def __init__(self, board, debug=False):
         super(TemperatureModule, self).__init__(board, debug)
+
         self._active_channel = 0
 
         self.n_channels = int(
@@ -71,6 +76,9 @@ class TemperatureModule(PyMetaWearModule):
                 self.board, i)
             self.channels[self._channel_source_mapping.get(source_enum)] = source_enum
 
+        if debug:
+            log.setLevel(logging.DEBUG)
+
     def __str__(self):
         return "{0}".format(self.module_name)
 
@@ -83,15 +91,8 @@ class TemperatureModule(PyMetaWearModule):
 
     @property
     def data_signal(self):
-        data_signal_func = \
-            libmetawear.mbl_mw_multi_chnl_temp_get_temperature_data_signal
-        if IS_64_BIT:
-            data_signal_func.restype = c_long
-            data_signal = c_long(data_signal_func(
-                self.board, self._active_channel))
-        else:
-            data_signal = data_signal_func(self.board, self._active_channel)
-        return data_signal
+        return libmetawear.mbl_mw_multi_chnl_temp_get_temperature_data_signal(
+            self.board, self._active_channel)
 
     def configure_external_thermistor(self, channel_id, data_pin,
                                       pulldown_pin, active_high):

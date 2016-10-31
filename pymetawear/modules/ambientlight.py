@@ -13,8 +13,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
-import copy
 import re
+import copy
+import logging
 from functools import wraps
 from ctypes import c_uint, cast, POINTER, c_float, c_ubyte
 
@@ -23,6 +24,8 @@ from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, BatteryState, Tcs34725ColorAdc
 from pymetawear.modules.base import PyMetaWearModule, Modules
 from pymetawear.mbientlab.metawear.sensor import AmbientLightLtr329
+
+log = logging.getLogger(__name__)
 
 
 def require_ltr329(f):
@@ -71,6 +74,9 @@ class AmbientLightModule(PyMetaWearModule):
                 filter(lambda x: x.startswith('MEASUREMENT_RATE'),
                        vars(self.ambient_light_class))}
 
+        if debug:
+            log.setLevel(logging.DEBUG)
+
     def __str__(self):
         return "{0}".format(
             self.module_name)
@@ -85,8 +91,7 @@ class AmbientLightModule(PyMetaWearModule):
     @property
     @require_ltr329
     def data_signal(self):
-        return self._data_signal_preprocess(
-            libmetawear.mbl_mw_als_ltr329_get_illuminance_data_signal)
+        return libmetawear.mbl_mw_als_ltr329_get_illuminance_data_signal(self.board)
 
     @require_ltr329
     def get_current_settings(self):
@@ -173,17 +178,17 @@ class AmbientLightModule(PyMetaWearModule):
         if gain is not None:
             g = self._get_gain(gain)
             if self._debug:
-                print("Setting Ambient Light gain to {0}".format(g))
+                log.debug("Setting Ambient Light gain to {0}".format(g))
             libmetawear.mbl_mw_als_ltr329_set_gain(self.board, g)
         if integration_time is not None:
             itime = self._get_integration_time(integration_time)
             if self._debug:
-                print("Setting Ambient Light integration time to {0}".format(itime))
+                log.debug("Setting Ambient Light integration time to {0}".format(itime))
             libmetawear.mbl_mw_als_ltr329_set_integration_time(self.board, itime)
         if measurement_rate is not None:
             mr = self._get_measurement_rate(measurement_rate)
             if self._debug:
-                print("Setting Ambient Light measurement rate to {0}".format(mr))
+                log.debug("Setting Ambient Light measurement rate to {0}".format(mr))
             libmetawear.mbl_mw_als_ltr329_set_measurement_rate(self.board, mr)
 
         if (gain is not None) or (integration_time is not None) or \

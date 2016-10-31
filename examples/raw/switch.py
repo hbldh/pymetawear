@@ -59,11 +59,7 @@ def switch_callback(data):
 
 
 # Subscribe
-if platform.architecture()[0] == '64bit':
-    libmetawear.mbl_mw_switch_get_state_data_signal.restype = c_long
-    data_signal = c_long(libmetawear.mbl_mw_switch_get_state_data_signal(c.board))
-else:
-    data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(c.board)
+data_signal = libmetawear.mbl_mw_switch_get_state_data_signal(c.board)
 fcn_dptr = Fn_DataPtr(switch_callback)
 libmetawear.mbl_mw_datasignal_subscribe(data_signal, fcn_dptr)
 

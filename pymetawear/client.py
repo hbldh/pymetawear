@@ -17,8 +17,9 @@ import os
 import time
 import subprocess
 import signal
+import logging
 
-from pymetawear import libmetawear, specs
+from pymetawear import libmetawear, specs, add_stream_logger
 from pymetawear.exceptions import *
 from pymetawear import modules
 from pymetawear.mbientlab.metawear.core import Status
@@ -34,6 +35,8 @@ try:
     from pymetawear.backends.bluepy import BluepyBackend
 except ImportError as e:
     BluepyBackend = e
+
+log = logging.getLogger(__name__)
 
 
 def discover_devices(timeout=5):
@@ -106,7 +109,8 @@ class MetaWearClient(object):
         self._initialized = False
 
         if self._debug:
-            print("Creating MetaWearClient for {0}...".format(address))
+            add_stream_logger()
+            log.info("Creating MetaWearClient for {0}...".format(address))
 
         # Handling of timeout.
         if timeout is None:
@@ -142,7 +146,7 @@ class MetaWearClient(object):
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
 
         if self._debug:
-            print("Waiting for MetaWear board to be fully initialized...")
+            log.debug("Waiting for MetaWear board to be fully initialized...")
 
         while (not self.backend.initialized) and (not
                 libmetawear.mbl_mw_metawearboard_is_initialized(self.board)):

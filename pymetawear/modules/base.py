@@ -13,12 +13,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
-from ctypes import c_long, c_uint8
+import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import Fn_DataPtr
-from pymetawear.utils import IS_64_BIT
+
+log = logging.getLogger(__name__)
 
 
 class Modules(object):
@@ -63,8 +64,10 @@ class PyMetaWearModule(object):
         self.board = board
         self._debug = debug
         self.is_present = True
-
         self.callback = None
+
+        if debug:
+            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "PyMetaWear module: {0}".format()
@@ -125,7 +128,7 @@ class PyMetaWearModule(object):
         data_signal = self.data_signal
         if callback is not None:
             if self._debug:
-                print("Subscribing to {0} changes. (Sig#: {1})".format(
+                log.debug("Subscribing to {0} changes. (Sig#: {1})".format(
                     self.module_name, data_signal))
             if self.callback is not None:
                 raise PyMetaWearException(
@@ -135,17 +138,9 @@ class PyMetaWearModule(object):
                 data_signal, self.callback[1])
         else:
             if self._debug:
-                print("Unsubscribing to {0} changes. (Sig#: {1})".format(
+                log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
                     self.module_name, data_signal))
             if self.callback is None:
                 return
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
             self.callback = None
-
-    def _data_signal_preprocess(self, data_signal_func):
-        if IS_64_BIT:
-            data_signal_func.restype = c_long
-            data_signal = c_long(data_signal_func(self.board))
-        else:
-            data_signal = data_signal_func(self.board)
-        return data_signal

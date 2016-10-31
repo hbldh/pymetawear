@@ -57,14 +57,7 @@ def temperature_callback(data):
 channel = 0
 
 # Subscribe to notifications
-if platform.architecture()[0] == '64bit':
-    libmetawear.mbl_mw_multi_chnl_temp_get_temperature_data_signal.restype = c_long
-    data_signal = c_long(
-        libmetawear.mbl_mw_multi_chnl_temp_get_temperature_data_signal(
-            c.board, channel))
-else:
-    data_signal = libmetawear.mbl_mw_multi_chnl_temp_get_temperature_data_signal(
-        c.board, channel)
+data_signal = libmetawear.mbl_mw_multi_chnl_temp_get_temperature_data_signal(c.board, channel)
 fcn_dptr = Fn_DataPtr(temperature_callback)
 libmetawear.mbl_mw_datasignal_subscribe(data_signal, fcn_dptr)
 
