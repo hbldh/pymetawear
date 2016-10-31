@@ -19,9 +19,10 @@ Python packages for Bluetooth Low Energy communication:
   `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_
 - `bluepy <https://github.com/IanHarvey/bluepy>`_ (not completely functional yet)
 
-PyMetaWear can be run with Python 2 or 3 with both backends,
-but only with the `pygatt` backend for Python 3.5. It builds and runs on Linux systems,
-and can be built on Windows, given that Visual Studio Community 2015 has been installed first,
+PyMetaWear can be run with Python 2 and 3.4 with both backends,
+but only with the `pygatt` backend for Python 3.5. 
+
+**It is a Linux-only package right now**! It can be built on Windows, given that Visual Studio Community 2015 has been installed first,
 but there is no working backend for Windows BLE yet.
 
 Installation
