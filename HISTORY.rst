@@ -1,3 +1,9 @@
+v0.6.0 (2016-10-31)
+===================
+- Using MetaWear-CppAPI version 0.6.0
+- Replaced print-logging with proper logging module usage.
+- Removed 64-bit special handling that was no longer needed.
+
 v0.5.2 (2016-10-13)
 ===================
 - Temperature Module

@@ -27,9 +27,9 @@ except ImportError:
 logging.getLogger(__name__).addHandler(NullHandler())
 
 # Version information.
-__version__ = '0.5.3.dev1'
+__version__ = '0.6.0'
 version = __version__  # backwards compatibility name
-version_info = (0, 5, 3, 'dev1')
+version_info = (0, 6, 0)
 
 # Find and import the built MetaWear-CPP shared library.
 if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
