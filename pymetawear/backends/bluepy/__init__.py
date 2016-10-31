@@ -17,14 +17,17 @@ import threading
 import uuid
 import warnings
 from ctypes import create_string_buffer
+import logging
 
 from bluepy.btle import Peripheral, ADDR_TYPE_RANDOM, BTLEException, DefaultDelegate, Characteristic
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.utils import range_, string_types, bytearray_to_str
+from pymetawear.compat import range_, string_types, bytearray_to_str
 from pymetawear.backends import BLECommunicationBackend
 
 __all__ = ["BluepyBackend"]
+
+log = logging.getLogger(__name__)
 
 
 class BluepyDelegate(DefaultDelegate):
@@ -47,6 +50,8 @@ class BluepyBackend(BLECommunicationBackend):
         self._primary_services = {}
         self._characteristics_cache = {}
         self._peripheral = None
+        if debug:
+            log.setLevel(logging.DEBUG)
 
         warnings.warn("Bluepy backend does not handle notifications properly yet.", RuntimeWarning)
 
@@ -86,13 +91,11 @@ class BluepyBackend(BLECommunicationBackend):
         """
 
         if self._peripheral is None:
-            if self._debug:
-                print("Creating new Peripheral...")
+            log.info("Creating new BluePy Peripheral...")
             self._peripheral = Peripheral()
 
         if not self._is_connected:
-            if self._debug:
-                print("Connecting Peripheral...")
+            log.debug("Connecting BluePy Peripheral...")
             self._peripheral.connect(
                 self._address, addrType=ADDR_TYPE_RANDOM,
                 iface=str(self._interface).replace('hci', ''))
@@ -122,10 +125,10 @@ class BluepyBackend(BLECommunicationBackend):
 
         while True:
             try:
-                print("Waiting for notification")
+                log.debug("Waiting for notification")
                 self.requester.waitForNotifications(1.0)
             except BTLEException as e:
-                print("Error waiting: {0}".format(e))
+                log.error("Error waiting: {0}".format(e))
                 pass
 
     # Read and Write methods

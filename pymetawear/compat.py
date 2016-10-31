@@ -13,11 +13,6 @@ from __future__ import print_function
 # from __future__ import unicode_literals
 from __future__ import absolute_import
 
-import platform
-
-
-IS_64_BIT = platform.architecture()[0] == '64bit'
-
 
 try:
     # Python 2
@@ -39,6 +34,3 @@ except NameError:
         else:
             # PyGatt
             return bytes([x for x in ba])
-
-
-

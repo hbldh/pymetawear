@@ -15,14 +15,17 @@ from __future__ import absolute_import
 import time
 import uuid
 from ctypes import create_string_buffer
+import logging
 
 from bluetooth.ble import GATTRequester, GATTResponse
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.utils import range_, string_types, bytearray_to_str
+from pymetawear.compat import range_, string_types, bytearray_to_str
 from pymetawear.backends import BLECommunicationBackend
 
 __all__ = ["PyBluezBackend"]
+
+log = logging.getLogger(__name__)
 
 
 class Requester(GATTRequester):
@@ -45,6 +48,8 @@ class PyBluezBackend(BLECommunicationBackend):
         self._primary_services = {}
         self._characteristics_cache = {}
         self._response = GATTResponse()
+        if debug:
+            log.setLevel(logging.DEBUG)
 
         super(PyBluezBackend, self).__init__(
             address, interface, async, 10.0 if timeout is None else timeout, debug)
@@ -65,14 +70,13 @@ class PyBluezBackend(BLECommunicationBackend):
         """
 
         if self._requester is None:
-            if self._debug:
-                print("Creating new GATTRequester...")
+
+            log.info("Creating new GATTRequester...")
             self._requester = Requester(self.handle_notify_char_output, self._address,
                                         False, self._interface)
 
         if not self._requester.is_connected():
-            if self._debug:
-                print("Connecting GATTRequester...")
+            log.info("Connecting GATTRequester...")
             self._requester.connect(wait=False, channel_type='random')
             # Using manual waiting since gattlib's `wait` keyword does not work.
             t = 0.0

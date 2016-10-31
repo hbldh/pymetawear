@@ -13,12 +13,15 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
+import logging
 from ctypes import byref
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.modules.base import PyMetaWearModule
 from pymetawear.mbientlab.metawear.peripheral import Led
+
+log = logging.getLogger(__name__)
 
 
 class LEDModule(PyMetaWearModule):
@@ -31,6 +34,9 @@ class LEDModule(PyMetaWearModule):
 
     def __init__(self, board, debug=False):
         super(LEDModule, self).__init__(board, debug)
+
+        if debug:
+            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "{0}".format(self.module_name)

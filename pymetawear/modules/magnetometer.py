@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import re
+import logging
 from functools import wraps
 from ctypes import cast, POINTER
 
@@ -22,6 +23,8 @@ from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear import sensor
 from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
 from pymetawear.modules.base import PyMetaWearModule, Modules
+
+log = logging.getLogger(__name__)
 
 
 def require_bmm150(f):
@@ -59,6 +62,9 @@ class MagnetometerModule(PyMetaWearModule):
                                   getattr(self.mag_class, k, None) for k in filter(
                 lambda x: x.startswith('POWER_PRESET_'), vars(self.mag_class))}
 
+        if debug:
+            log.setLevel(logging.DEBUG)
+
     def __str__(self):
         return "{0} {1}: Power presets: {2}".format(
             self.module_name, self.sensor_name,
@@ -81,8 +87,7 @@ class MagnetometerModule(PyMetaWearModule):
     @property
     @require_bmm150
     def data_signal(self):
-        return self._data_signal_preprocess(
-            libmetawear.mbl_mw_mag_bmm150_get_b_field_data_signal)
+        return libmetawear.mbl_mw_mag_bmm150_get_b_field_data_signal(self.board)
 
     def _get_power_preset(self, value):
         if value.lower() in self.power_presets:
@@ -118,7 +123,7 @@ class MagnetometerModule(PyMetaWearModule):
         """
         pp = self._get_power_preset(power_preset)
         if self._debug:
-            print("Setting Magnetometer power preset to {0}".format(pp))
+            log.debug("Setting Magnetometer power preset to {0}".format(pp))
         libmetawear.mbl_mw_mag_bmm150_set_power_preset(self.board, pp)
 
     @require_bmm150

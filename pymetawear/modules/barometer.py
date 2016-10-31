@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import re
+import logging
 from functools import wraps
 from ctypes import c_float, cast, POINTER
 
@@ -22,6 +23,8 @@ from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear import sensor
 from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
 from pymetawear.modules.base import PyMetaWearModule
+
+log = logging.getLogger(__name__)
 
 
 class BarometerModule(PyMetaWearModule):
@@ -43,9 +46,6 @@ class BarometerModule(PyMetaWearModule):
             0: sensor.BarometerBmp280,
             1: sensor.BarometerBme280,
         }
-        #for a in barometer_sensors:
-        #    if getattr(a, 'MODULE_TYPE', -1) == module_id:
-        #        self.barometer_class = a
         self.barometer_class = barometer_sensors.get(self.module_id, None)
 
         if self.barometer_class is not None:
@@ -72,9 +72,11 @@ class BarometerModule(PyMetaWearModule):
                                  k in filter(
                 lambda x: x.startswith('STANDBY_TIME'),
                 vars(self.barometer_class))}
-
         else:
             self.is_present = False
+
+        if debug:
+            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "{0} {1}".format(
@@ -102,11 +104,9 @@ class BarometerModule(PyMetaWearModule):
     @property
     def data_signal(self):
         if self._altitude_data:
-            return self._data_signal_preprocess(
-                libmetawear.mbl_mw_baro_bosch_get_altitude_data_signal)
+            return libmetawear.mbl_mw_baro_bosch_get_altitude_data_signal(self.board)
         else:
-            return self._data_signal_preprocess(
-                libmetawear.mbl_mw_baro_bosch_get_pressure_data_signal)
+            return libmetawear.mbl_mw_baro_bosch_get_pressure_data_signal(self.board)
 
     def _get_oversampling(self, value):
         if value.lower() in self.oversampling:
@@ -179,19 +179,19 @@ class BarometerModule(PyMetaWearModule):
         if oversampling is not None:
             oversampling = self._get_oversampling(oversampling)
             if self._debug:
-                print("Setting Barometer Oversampling to {0}".format(oversampling))
+                log.debug("Setting Barometer Oversampling to {0}".format(oversampling))
             libmetawear.mbl_mw_baro_bosch_set_oversampling(
                 self.board, oversampling)
         if iir_filter is not None:
             iir_filter = self._get_iir_filter(iir_filter)
             if self._debug:
-                print("Setting Barometer IIR filter to {0}".format(iir_filter))
+                log.debug("Setting Barometer IIR filter to {0}".format(iir_filter))
             libmetawear.mbl_mw_baro_bosch_set_iir_filter(
                 self.board, iir_filter)
         if standby_time is not None:
             standby_time = self._get_standby_time(standby_time)
             if self._debug:
-                print("Setting Barometer Standby Time to {0}".format(
+                log.debug("Setting Barometer Standby Time to {0}".format(
                     standby_time))
             libmetawear.mbl_mw_baro_bosch_set_standby_time(
                 self.board, standby_time)

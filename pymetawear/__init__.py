@@ -6,19 +6,32 @@
 # -----------------------------------------------------------------------------
 
 import os
+import sys
 import platform
 import glob
-from ctypes import cdll, c_longlong
+from ctypes import cdll
 
 from pymetawear.mbientlab.metawear.core import Fn_DataPtr, Fn_VoidPtr_Int
 from pymetawear.mbientlab.metawear.functions import setup_libmetawear
-from pymetawear.utils import IS_64_BIT
+
+# Logging solution inspired by Hitchhiker's Guide to Python and Requests
+# Set default logging handler to avoid "No handler found" warnings.
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+
+logging.getLogger(__name__).addHandler(NullHandler())
 
 # Version information.
-__version__ = '0.5.2'
+__version__ = '0.5.3.dev1'
 version = __version__  # backwards compatibility name
-version_info = (0, 5, 2)
+version_info = (0, 5, 3, 'dev1')
 
+# Find and import the built MetaWear-CPP shared library.
 if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
     libmetawear = cdll.LoadLibrary(os.environ["METAWEAR_LIB_SO_NAME"])
 else:
@@ -34,9 +47,17 @@ else:
 
 setup_libmetawear(libmetawear)
 
-# Alleviating Segfault causing pointer errors in 64-bit Python.
-if IS_64_BIT:
-    libmetawear.mbl_mw_datasignal_subscribe.argtypes = [c_longlong, Fn_DataPtr]
-    libmetawear.mbl_mw_datasignal_unsubscribe.argtypes = [c_longlong, ]
-    libmetawear.mbl_mw_datasignal_log.argtypes = [c_longlong, Fn_DataPtr]
-    libmetawear.mbl_mw_datasignal_read.argtypes = [c_longlong]
+
+def add_stream_logger(stream=sys.stdout, level=logging.DEBUG):
+    """
+    Helper for quickly adding a StreamHandler to the logger. Useful for
+    debugging.
+    Returns the handler after adding it.
+    """
+    logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler(stream=stream)
+    handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
+    logger.addHandler(handler)
+    logger.setLevel(level)
+    logger.debug('Added a {0} logging handler to logger: {1}'.format(stream.name, __name__))
+    return handler

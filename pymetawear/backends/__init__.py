@@ -15,13 +15,16 @@ import os
 import time
 from ctypes import byref
 import uuid
+import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import BtleConnection, Fn_VoidPtr_GattCharPtr, \
     Fn_VoidPtr_GattCharPtr_ByteArray, Fn_VoidPtr_Int
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
-from pymetawear.utils import string_types
+from pymetawear.compat import string_types
+
+log = logging.getLogger(__name__)
 
 
 class BLECommunicationBackend(object):
@@ -33,6 +36,9 @@ class BLECommunicationBackend(object):
         self._async = async
         self._debug = debug
         self._timeout = timeout
+
+        if debug:
+            log.setLevel(logging.DEBUG)
 
         self._initialization_status = -1
 
@@ -103,8 +109,7 @@ class BLECommunicationBackend(object):
 
     def subscribe(self, characteristic_uuid, callback):
         self._subscribe(characteristic_uuid, callback)
-        if self._debug:
-            self._print_debug_output("Subscribe", characteristic_uuid, [])
+        self._print_debug_output("Subscribe", characteristic_uuid, [])
 
     def mbl_mw_read_gatt_char(self, board, characteristic):
         """Read the desired data from the MetaWear board.
@@ -123,8 +128,7 @@ class BLECommunicationBackend(object):
         libmetawear.mbl_mw_metawearboard_char_read(
             self.board, characteristic, sb.raw, len(sb.raw))
 
-        if self._debug:
-            self._print_debug_output("Read", characteristic_uuid, response)
+        self._print_debug_output("Read", characteristic_uuid, response)
 
     def mbl_mw_write_gatt_char(self, board, characteristic, command, length):
         """Write the desired data to the MetaWear board.
@@ -157,13 +161,12 @@ class BLECommunicationBackend(object):
     # Callback methods
 
     def _initialized_fcn(self, board, status):
-        if self._debug:
-            print("{0} initialized with status {1}.".format(self, status))
+        log.debug("{0} initialized with status {1}.".format(self, status))
         self._initialization_status = status
 
     def handle_notify_char_output(self, handle, value):
-        if self._debug:
-            self._print_debug_output("Notify", handle, value)
+
+        self._print_debug_output("Notify", handle, value)
 
         if handle == self._notify_char_handle:
             sb = self.notify_response_to_str(value)
@@ -206,6 +209,9 @@ class BLECommunicationBackend(object):
                                characteristic.uuid_low))
 
     def _print_debug_output(self, action, handle_or_char, data):
+        if not self._debug:
+            return
+
         if data and isinstance(data[0], int):
             data_as_hex = " ".join(["{:02x}".format(b) for b in data])
         else:
@@ -218,7 +224,7 @@ class BLECommunicationBackend(object):
         else:
             handle = -1
 
-        print("{0:<6s} 0x{1:04x}: {2}".format(action, handle, data_as_hex))
+        log.debug("{0:<6s} 0x{1:04x}: {2}".format(action, handle, data_as_hex))
 
     def sleep(self, t):
         """Make backend sleep."""

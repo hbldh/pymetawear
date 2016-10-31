@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import re
+import logging
 from functools import wraps
 from ctypes import c_float, cast, POINTER
 
@@ -22,6 +23,8 @@ from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear import sensor
 from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
 from pymetawear.modules.base import PyMetaWearModule
+
+log = logging.getLogger(__name__)
 
 
 class AccelerometerModule(PyMetaWearModule):
@@ -66,6 +69,9 @@ class AccelerometerModule(PyMetaWearModule):
                             getattr(acc_class, k, None) for k in
                         filter(lambda x: x.startswith('FSR'), vars(acc_class))}
 
+        if debug:
+            log.setLevel(logging.DEBUG)
+
     def __str__(self):
         return "{0} {1}: Data rates (Hz): {2}, Data ranges (g): {3}".format(
             self.module_name, self.sensor_name,
@@ -87,11 +93,9 @@ class AccelerometerModule(PyMetaWearModule):
     @property
     def data_signal(self):
         if self.high_frequency_stream:
-            return self._data_signal_preprocess(
-                libmetawear.mbl_mw_acc_get_high_freq_acceleration_data_signal)
+            return libmetawear.mbl_mw_acc_get_high_freq_acceleration_data_signal(self.board)
         else:
-            return self._data_signal_preprocess(
-                libmetawear.mbl_mw_acc_get_acceleration_data_signal)
+            return libmetawear.mbl_mw_acc_get_acceleration_data_signal(self.board)
 
     def _get_odr(self, value):
         sorted_ord_keys = sorted(self.odr.keys(), key=lambda x:(float(x)))
@@ -148,15 +152,16 @@ class AccelerometerModule(PyMetaWearModule):
         :param float data_range: The measurement range in the unit ``g``.
 
         """
+
         if data_rate is not None:
             odr = self._get_odr(data_rate)
             if self._debug:
-                print("Setting Accelerometer ODR to {0}".format(odr))
+                log.debug("Setting Accelerometer ODR to {0}".format(odr))
             libmetawear.mbl_mw_acc_set_odr(self.board, c_float(odr))
         if data_range is not None:
             fsr = self._get_fsr(data_range)
             if self._debug:
-                print("Setting Accelerometer FSR to {0}".format(fsr))
+                log.debug("Setting Accelerometer FSR to {0}".format(fsr))
             libmetawear.mbl_mw_acc_set_range(self.board, c_float(fsr))
 
         if (data_rate is not None) or (data_range is not None):

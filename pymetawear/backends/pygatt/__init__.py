@@ -13,16 +13,19 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import uuid
+import logging
 
 from ctypes import create_string_buffer
 from pygatt import BLEAddressType
 from pygatt.backends.gatttool import gatttool
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.utils import range_
+from pymetawear.compat import range_
 from pymetawear.backends import BLECommunicationBackend
 
 __all__ = ["PyGattBackend"]
+
+log = logging.getLogger(__name__)
 
 
 class PyGattBackend(BLECommunicationBackend):
@@ -34,6 +37,9 @@ class PyGattBackend(BLECommunicationBackend):
     def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
 
         self._backend = None
+        if debug:
+            log.setLevel(logging.DEBUG)
+
         super(PyGattBackend, self).__init__(
             address, interface, async,
             gatttool.DEFAULT_CONNECT_TIMEOUT_S if timeout is None else timeout,
@@ -48,12 +54,11 @@ class PyGattBackend(BLECommunicationBackend):
 
         """
         if self._requester is None:
-            if self._debug:
-                print("Creating new GATTToolBackend and starting GATTtool process...")
+
+            log.info("Creating new GATTToolBackend and starting GATTtool process...")
             self._backend = gatttool.GATTToolBackend(hci_device=self._interface)
             self._backend.start(reset_on_start=False)
-            if self._debug:
-                print("Connecting GATTTool...")
+            log.info("Connecting GATTTool...")
             self._requester = self._backend.connect(
                 self._address, timeout=self._timeout, address_type=BLEAddressType.random)
 
