@@ -15,10 +15,10 @@ from __future__ import print_function
 
 import time
 
-from discover import scan_and_select_le_device
+from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
 
-address = scan_and_select_le_device()
+address = select_device()
 c = MetaWearClient(str(address), 'pybluez', debug=True)
 print("New client created: {0}".format(c))
 

@@ -13,21 +13,34 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-try:
-    from unittest import mock
-except:
-    import mock
-
 import pytest
 
 import pymetawear.client
-pymetawear.client.PyGattBackend = mock.Mock(pymetawear.client.PyGattBackend)
+from .mock_backend import MockBackend
+pymetawear.client.PyGattBackend = MockBackend
+pymetawear.client.PyBluezBackend = MockBackend
+pymetawear.client.BluepyBackend = MockBackend
 
 
-def test_dummy():
-    pymetawear.client.PyGattBackend = mock.Mock(pymetawear.client.PyGattBackend)
+@pytest.mark.parametrize("backend", ['pygatt', 'pybluez', 'bluepy'])
+@pytest.mark.parametrize("mw_board", range(7))
+def test_client_init(backend, mw_board):
+    MockBackend.boardType = mw_board
+    c = pymetawear.client.MetaWearClient('XX:XX:XX:XX:XX:XX', backend=backend, debug=False)
+    assert isinstance(c.backend, MockBackend)
+    assert c.backend.boardType == mw_board
+    assert c.backend.initialized
+    assert c.backend.initialization_status == 0
 
-    c = pymetawear.client.MetaWearClient('XX:XX:XX:XX:XX:XX', backend='pygatt')
-    assert c.backend
+    expected_cmds = [
+        [0x01, 0x80], [0x02, 0x80], [0x03, 0x80], [0x04, 0x80],
+        [0x05, 0x80], [0x06, 0x80], [0x07, 0x80], [0x08, 0x80],
+        [0x09, 0x80], [0x0a, 0x80], [0x0b, 0x80], [0x0c, 0x80],
+        [0x0d, 0x80], [0x0f, 0x80], [0x10, 0x80], [0x11, 0x80],
+        [0x12, 0x80], [0x13, 0x80], [0x14, 0x80], [0x15, 0x80],
+        [0x16, 0x80], [0x17, 0x80], [0x18, 0x80], [0x19, 0x80],
+        [0xfe, 0x80], [0x0b, 0x84]
+    ]
+    assert c.backend.full_history == expected_cmds
 
 

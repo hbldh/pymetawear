@@ -175,7 +175,7 @@ def build_solution():
             except:
                 pass
 
-with open('pymetawear/__init__.py', 'r') as fd:
+with open('pymetawear/version.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         fd.read(), re.MULTILINE).group(1)
 

@@ -12,7 +12,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from pymetawear.client import discover_devices
+from pymetawear.discover import discover_devices
 
 try:
     input_fcn = raw_input

@@ -11,7 +11,7 @@ import platform
 import glob
 from ctypes import cdll
 
-from pymetawear.mbientlab.metawear.core import Fn_DataPtr, Fn_VoidPtr_Int
+from pymetawear.version import __version__, version
 from pymetawear.mbientlab.metawear.functions import setup_libmetawear
 
 # Logging solution inspired by Hitchhiker's Guide to Python and Requests
@@ -26,10 +26,6 @@ except ImportError:
 
 logging.getLogger(__name__).addHandler(NullHandler())
 
-# Version information.
-__version__ = '0.6.0'
-version = __version__  # backwards compatibility name
-version_info = (0, 6, 0)
 
 # Find and import the built MetaWear-CPP shared library.
 if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
@@ -46,6 +42,7 @@ else:
 libmetawear = cdll.LoadLibrary(METAWEAR_LIB_SO_NAME)
 setup_libmetawear(libmetawear)
 
+
 def add_stream_logger(stream=sys.stdout, level=logging.DEBUG):
     """
     Helper for quickly adding a StreamHandler to the logger. Useful for
@@ -53,6 +50,9 @@ def add_stream_logger(stream=sys.stdout, level=logging.DEBUG):
     Returns the handler after adding it.
     """
     logger = logging.getLogger(__name__)
+    has_stream_handler = any([isinstance(hndl, logging.StreamHandler) for hndl in logger.handlers])
+    if has_stream_handler:
+        return logger.handlers[-1]
     handler = logging.StreamHandler(stream=stream)
     handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
     logger.addHandler(handler)

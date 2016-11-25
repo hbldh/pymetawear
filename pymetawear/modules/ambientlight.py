@@ -112,9 +112,9 @@ class AmbientLightModule(PyMetaWearModule):
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
         if min_diffs > 0.5:
-            raise ValueError("Requested gain ({0}) was not part of "
-                             "possible values: {1}".format(
-                value, [float(x) for x in sorted_ord_keys]))
+            raise ValueError(
+                "Requested gain ({0}) was not part of possible values: {1}".format(
+                    value, [float(x) for x in sorted_ord_keys]))
         k = int(sorted_ord_keys[diffs.index(min_diffs)])
         return self._gain.get(k)
 
@@ -124,9 +124,9 @@ class AmbientLightModule(PyMetaWearModule):
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
         if min_diffs > 0.5:
-            raise ValueError("Requested integration time ({0}) was not part of "
-                             "possible values: {1}".format(
-                value, [float(x) for x in sorted_ord_keys]))
+            raise ValueError(
+                "Requested integration time ({0}) was not part of possible values: {1}".format(
+                    value, [float(x) for x in sorted_ord_keys]))
         k = int(sorted_ord_keys[diffs.index(min_diffs)])
         return self._integration_time.get(k)
 
@@ -136,9 +136,9 @@ class AmbientLightModule(PyMetaWearModule):
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
         if min_diffs > 0.5:
-            raise ValueError("Requested measurement rate ({0}) was not part of "
-                             "possible values: {1}".format(
-                value, [float(x) for x in sorted_ord_keys]))
+            raise ValueError(
+                "Requested measurement rate ({0}) was not part of possible values: {1}".format(
+                    value, [float(x) for x in sorted_ord_keys]))
         k = int(sorted_ord_keys[diffs.index(min_diffs)])
         return self._measurement_rate.get(k)
 
@@ -236,29 +236,29 @@ class AmbientLightModule(PyMetaWearModule):
 def ambient_light_data(func):
     @wraps(func)
     def wrapper(data):
-        if (data.contents.type_id == DataTypeId.UINT32):
+        if data.contents.type_id == DataTypeId.UINT32:
             data_ptr = cast(data.contents.value, POINTER(c_uint))
             func(int(data_ptr.contents.value))
-        elif (data.contents.type_id == DataTypeId.FLOAT):
-            data_ptr = cast(data.contents.value, POINTER(c_float));
+        elif data.contents.type_id == DataTypeId.FLOAT:
+            data_ptr = cast(data.contents.value, POINTER(c_float))
             func(float(data_ptr.contents.value))
-        elif (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
+        elif data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
             data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
             func((data_ptr.contents.x,
                   data_ptr.contents.y,
                   data_ptr.contents.z))
-        elif (data.contents.type_id == DataTypeId.BATTERY_STATE):
+        elif data.contents.type_id == DataTypeId.BATTERY_STATE:
             data_ptr = cast(data.contents.value, POINTER(BatteryState))
             func((int(data_ptr.contents.voltage),
                   int(data_ptr.contents.charge)))
-        elif (data.contents.type_id == DataTypeId.BYTE_ARRAY):
+        elif data.contents.type_id == DataTypeId.BYTE_ARRAY:
             data_ptr = cast(data.contents.value,
                             POINTER(c_ubyte * data.contents.length))
             data_byte_array = []
             for i in range(0, data.contents.length):
                 data_byte_array.append(int(data_ptr.contents[i]))
             func(data_byte_array)
-        elif (data.contents.type_id == DataTypeId.TCS34725_ADC):
+        elif data.contents.type_id == DataTypeId.TCS34725_ADC:
             data_ptr = cast(data.contents.value, POINTER(Tcs34725ColorAdc))
             data_tcs34725_adc = copy.deepcopy(data_ptr.contents)
             func(data_tcs34725_adc)

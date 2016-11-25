@@ -18,7 +18,7 @@ Python packages for Bluetooth Low Energy communication:
 - `pygatt <https://github.com/peplin/pygatt>`_
 - `pybluez <https://github.com/karulis/pybluez>`_ with
   `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_
-- `bluepy <https://github.com/IanHarvey/bluepy>`_ (not completely functional yet)
+- `bluepy <https://github.com/IanHarvey/bluepy>`_ (lacks proper notifications handling)
 
 PyMetaWear can be run with Python 2 and 3.4 with both backends,
 but only with the `pygatt` backend for Python 3.5.

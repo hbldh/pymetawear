@@ -15,7 +15,7 @@ from __future__ import absolute_import
 import re
 import logging
 from functools import wraps
-from ctypes import c_float, cast, POINTER
+from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
@@ -32,6 +32,7 @@ def require_bmi160(f):
             raise PyMetaWearException("There is not Gyroscope "
                                       "module of your MetaWear board!")
         return f(*args, **kwargs)
+
     return wrapper
 
 
@@ -60,10 +61,10 @@ class GyroscopeModule(PyMetaWearModule):
         if self.gyro_class is not None:
             # Parse possible output data rates for this accelerometer.
             self.odr = {int(re.search('^ODR_([0-9]+)HZ', k).groups()[0]):
-                            getattr(self.gyro_class, k, None) for k in filter(
+                        getattr(self.gyro_class, k, None) for k in filter(
                 lambda x: x.startswith('ODR'), vars(self.gyro_class))}
             self.fsr = {int(re.search('^FSR_([0-9]+)DPS', k).groups()[0]):
-                            getattr(self.gyro_class, k, None) for k in
+                        getattr(self.gyro_class, k, None) for k in
                         filter(lambda x: x.startswith('FSR'),
                                vars(self.gyro_class))}
 
@@ -74,7 +75,7 @@ class GyroscopeModule(PyMetaWearModule):
         return "{0} {1}: Data rates (Hz): {2}, Data ranges (dps): {3}".format(
             self.module_name, self.sensor_name,
             [float(k) for k in sorted(self.odr.keys(),
-                                      key=lambda x:(float(x)))],
+                                      key=lambda x: (float(x)))],
             [k for k in sorted(self.fsr.keys())])
 
     def __repr__(self):
@@ -95,29 +96,31 @@ class GyroscopeModule(PyMetaWearModule):
     @require_bmi160
     def data_signal(self):
         if self.high_frequency_stream:
-            return libmetawear.mbl_mw_gyro_bmi160_get_high_freq_rotation_data_signal(self.board)
+            return libmetawear.mbl_mw_gyro_bmi160_get_high_freq_rotation_data_signal(
+                self.board)
         else:
-            return libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal(self.board)
+            return libmetawear.mbl_mw_gyro_bmi160_get_rotation_data_signal(
+                self.board)
 
     def _get_odr(self, value):
-        sorted_ord_keys = sorted(self.odr.keys(), key=lambda x:(float(x)))
+        sorted_ord_keys = sorted(self.odr.keys(), key=lambda x: (float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
         if min_diffs > 0.5:
-            raise ValueError("Requested ODR ({0}) was not part of "
-                             "possible values: {1}".format(
-                value, [float(x) for x in sorted_ord_keys]))
+            raise ValueError(
+                "Requested ODR ({0}) was not part of possible values: {1}".format(
+                    value, [float(x) for x in sorted_ord_keys]))
         k = int(sorted_ord_keys[diffs.index(min_diffs)])
         return self.odr.get(k)
 
     def _get_fsr(self, value):
-        sorted_ord_keys = sorted(self.fsr.keys(), key=lambda x:(float(x)))
+        sorted_ord_keys = sorted(self.fsr.keys(), key=lambda x: (float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
         if min_diffs > 0.1:
-            raise ValueError("Requested FSR ({0}) was not part of "
-                             "possible values: {1}".format(
-                value, [float(x) for x in sorted(self.fsr.keys())]))
+            raise ValueError(
+                "Requested FSR ({0}) was not part of possible values: {1}".format(
+                    value, [float(x) for x in sorted(self.fsr.keys())]))
         k = int(sorted_ord_keys[diffs.index(min_diffs)])
         return self.fsr.get(k)
 
@@ -129,7 +132,7 @@ class GyroscopeModule(PyMetaWearModule):
     def get_possible_settings(self):
         return {
             'data_rate': [float(x) for x in sorted(
-                self.odr.keys(), key=lambda x:(float(x)))],
+                self.odr.keys(), key=lambda x: (float(x)))],
             'data_range': [x for x in sorted(self.fsr.keys())]
         }
 
@@ -241,4 +244,5 @@ def sensor_data(func):
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))
+
     return wrapper

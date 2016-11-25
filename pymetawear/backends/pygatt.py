@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+PyGATT backend
+--------------
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-04-02
@@ -15,8 +17,12 @@ import uuid
 import logging
 
 from ctypes import create_string_buffer
-from pygatt import BLEAddressType
-from pygatt.backends.gatttool import gatttool
+try:
+    from pygatt import BLEAddressType
+    from pygatt.backends.gatttool import gatttool
+    _import_failure = None
+except ImportError as e:
+    _import_failure = e
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
 from pymetawear.compat import range_
@@ -34,7 +40,9 @@ class PyGattBackend(BLECommunicationBackend):
     """
 
     def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
-
+        if _import_failure is not None:
+            raise PyMetaWearException(
+                "pygatt[GATTTOOL] package error: {0}".format(_import_failure))
         self._backend = None
         if debug:
             log.setLevel(logging.DEBUG)
@@ -54,16 +62,16 @@ class PyGattBackend(BLECommunicationBackend):
         """
         if self._requester is None:
 
-            log.info("Creating new GATTToolBackend and starting GATTtool process...")
+            log.info("PyGattBackend: Creating new GATTToolBackend and starting GATTtool process...")
             self._backend = gatttool.GATTToolBackend(hci_device=self._interface)
             self._backend.start(reset_on_start=False)
-            log.info("Connecting GATTTool...")
+            log.info("PyGattBackend: Connecting GATTTool...")
             self._requester = self._backend.connect(
                 self._address, timeout=self._timeout, address_type=BLEAddressType.random)
 
             if not self.requester._connected:
                 raise PyMetaWearConnectionTimeout(
-                    "Could not establish a connection to {0}.".format(
+                    "PyGattBackend: Could not establish a connection to {0}.".format(
                         self._address))
 
         return self._requester
@@ -84,7 +92,7 @@ class PyGattBackend(BLECommunicationBackend):
     def _subscribe(self, characteristic_uuid, callback):
         return self.requester.subscribe(str(characteristic_uuid), callback)
 
-    def read_gatt_char_by_uuid(self, characteristic_uuid):
+    def read_gatt_char_by_uuid(self, characteristic):
         """Read the desired data from the MetaWear board using pygatt backend.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic
@@ -93,17 +101,19 @@ class PyGattBackend(BLECommunicationBackend):
         :rtype: str
 
         """
-        return self.requester.char_read(str(characteristic_uuid))
+        return self.requester.char_read(str(self.get_uuid(characteristic)))
 
-    def write_gatt_char_by_uuid(self, characteristic_uuid, data_to_send):
+    def write_gatt_char_by_uuid(self, characteristic, command, length):
         """Write the desired data to the MetaWear board using pygatt backend.
 
-        :param uuid.UUID characteristic_uuid: The UUID to the characteristic
+        :param uuid.UUID characteristic: The UUID to the characteristic
             to write to.
-        :param str data_to_send: Data to send.
+        :param POINTER(c_ubyte) command: Data to send.
+        :param int length: Number of characters in the command.
 
         """
-        self.requester.char_write(str(characteristic_uuid), data_to_send)
+        data_to_send = bytearray([command[i] for i in range_(length)])
+        self.requester.char_write(str(self.get_uuid(characteristic)), data_to_send)
 
     def get_handle(self, uuid, notify_handle=False):
         """Get handle from characteristic UUID.
@@ -116,14 +126,7 @@ class PyGattBackend(BLECommunicationBackend):
         """
         return self.requester.get_handle(uuid) + int(notify_handle)
 
-    @staticmethod
-    def mbl_mw_command_to_input(command, length):
-        return bytearray([command[i] for i in range_(length)])
-
-    @staticmethod
-    def read_response_to_str(response):
+    def _response_2_string_buffer(self, response):
         return create_string_buffer(bytes(response), len(response))
 
-    @staticmethod
-    def notify_response_to_str(response):
-        return create_string_buffer(bytes(response), len(response))
+
