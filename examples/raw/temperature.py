@@ -11,7 +11,6 @@ Created on 2016-04-02
 
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from ctypes import POINTER, c_float, cast, c_long, c_uint8

@@ -33,20 +33,18 @@ version_info = (0, 6, 0)
 
 # Find and import the built MetaWear-CPP shared library.
 if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
-    libmetawear = cdll.LoadLibrary(os.environ["METAWEAR_LIB_SO_NAME"])
+    METAWEAR_LIB_SO_NAME = os.environ["METAWEAR_LIB_SO_NAME"]
 else:
     if platform.uname()[0] == 'Windows':
         dll_files = list(glob.glob(os.path.join(os.path.abspath(
             os.path.dirname(__file__)), 'MetaWear.*.dll')))
-        shared_lib_file_name = dll_files[0]
+        METAWEAR_LIB_SO_NAME = dll_files[0]
     else:
-        shared_lib_file_name = 'libmetawear.so'
-    libmetawear = cdll.LoadLibrary(
-        os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                     shared_lib_file_name))
-
+        METAWEAR_LIB_SO_NAME = 'libmetawear.so'
+    METAWEAR_LIB_SO_NAME = os.path.join(os.path.abspath(
+        os.path.dirname(__file__)), METAWEAR_LIB_SO_NAME)
+libmetawear = cdll.LoadLibrary(METAWEAR_LIB_SO_NAME)
 setup_libmetawear(libmetawear)
-
 
 def add_stream_logger(stream=sys.stdout, level=logging.DEBUG):
     """

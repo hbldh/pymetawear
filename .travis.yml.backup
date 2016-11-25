@@ -1,0 +1,51 @@
+language: python
+sudo: required
+dist: trusty
+python:
+  - 2.7.11
+  - 3.4
+  - 3.5
+  - "nightly"
+matrix:
+  allow_failures:
+    - python: 3.4
+    - python: 3.5
+    - python: "nightly"
+branches:
+  only:
+    - master
+    - develop
+addons:
+  apt:
+    packages:
+    - cmake
+    - build-essential
+    - libglib2.0-dev
+    - bluez
+    - bluetooth
+    - python-dev
+    - python3-dev
+    - libbluetooth-dev
+    - libboost-python-dev
+    - libboost-thread-dev
+before_install:
+  - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
+install:
+  - "pip install pytest"
+  - "pip install pytest-cov"
+  - "pip install python-coveralls"
+  - "pip install Sphinx sphinx_rtd_theme"
+  - "pip install -e ."
+script: py.test tests/ --cov pymetawear --cov-report term-missing
+after_success:
+  - coveralls
+env:
+  global:
+    - GH_REF: github.com/hbldh/pymetawear.git
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: bash ./deploy_gh_pages.sh
+  on:
+    branch: master
+    python: 2.7.11

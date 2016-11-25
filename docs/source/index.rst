@@ -41,6 +41,7 @@ Contents
    exceptions
    backends/index
    modules/index
+   authors
 
 Installation
 ------------

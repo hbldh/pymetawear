@@ -11,22 +11,23 @@ Created on 2016-04-06
 
 from __future__ import division
 from __future__ import print_function
-#from __future__ import unicode_literals
 from __future__ import absolute_import
+
+try:
+    from unittest import mock
+except:
+    import mock
 
 import pytest
 
-from pymetawear.client import MetaWearClient
-from pymetawear.backends import BLECommunicationBackend
-from pymetawear.backends.pygatt import PyGattBackend
-
-#try:
-#    from unittest import mock
-#except:
-#    import mock
+import pymetawear.client
+pymetawear.client.PyGattBackend = mock.Mock(pymetawear.client.PyGattBackend)
 
 
 def test_dummy():
-    assert True
+    pymetawear.client.PyGattBackend = mock.Mock(pymetawear.client.PyGattBackend)
+
+    c = pymetawear.client.MetaWearClient('XX:XX:XX:XX:XX:XX', backend='pygatt')
+    assert c.backend
 
 

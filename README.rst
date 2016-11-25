@@ -1,3 +1,4 @@
+==========
 PyMetaWear
 ==========
 
@@ -20,7 +21,7 @@ Python packages for Bluetooth Low Energy communication:
 - `bluepy <https://github.com/IanHarvey/bluepy>`_ (not completely functional yet)
 
 PyMetaWear can be run with Python 2 and 3.4 with both backends,
-but only with the `pygatt` backend for Python 3.5. 
+but only with the `pygatt` backend for Python 3.5.
 
 **It is a Linux-only package right now**! It can be built on Windows, given that Visual Studio Community 2015 has been installed first,
 but there is no working backend for Windows BLE yet.
