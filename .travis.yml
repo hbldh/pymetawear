@@ -25,10 +25,6 @@ addons:
     - libboost-python-dev
     - libboost-thread-dev
 
-matrix:
-  allow_failures:
-    - env: TOXENV=py27
-
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -U tox python-coveralls
 

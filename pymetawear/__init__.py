@@ -11,7 +11,7 @@ import platform
 import glob
 from ctypes import cdll
 
-from pymetawear.version import __version__, version
+from pymetawear.version import __version__, version  # noqa: E401
 from pymetawear.mbientlab.metawear.functions import setup_libmetawear
 
 # Logging solution inspired by Hitchhiker's Guide to Python and Requests

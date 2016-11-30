@@ -238,7 +238,3 @@ class BLECommunicationBackend(object):
                 handle = -1
 
         log.debug("{0:<6s} 0x{1:04x}: {2}".format(action, handle, data_as_hex))
-
-
-
-

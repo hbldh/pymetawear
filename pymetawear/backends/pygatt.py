@@ -13,7 +13,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import uuid
 import logging
 
 from ctypes import create_string_buffer
@@ -115,18 +114,16 @@ class PyGattBackend(BLECommunicationBackend):
         data_to_send = bytearray([command[i] for i in range_(length)])
         self.requester.char_write(str(self.get_uuid(characteristic)), data_to_send)
 
-    def get_handle(self, uuid, notify_handle=False):
+    def get_handle(self, characteristic_uuid, notify_handle=False):
         """Get handle from characteristic UUID.
 
-        :param uuid.UUID uuid: The UUID to find handle to.
+        :param uuid.UUID characteristic_uuid: The UUID to find handle to.
         :param bool notify_handle:
         :return: Integer handle.
         :rtype: int
 
         """
-        return self.requester.get_handle(uuid) + int(notify_handle)
+        return self.requester.get_handle(characteristic_uuid) + int(notify_handle)
 
     def _response_2_string_buffer(self, response):
         return create_string_buffer(bytes(response), len(response))
-
-

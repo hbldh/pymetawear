@@ -24,3 +24,12 @@ from .led import LEDModule
 from .magnetometer import MagnetometerModule
 from .switch import SwitchModule
 from .temperature import TemperatureModule
+
+__all__ = [
+    "PyMetaWearModule", "Modules",
+    "AccelerometerModule", "AmbientLightModule",
+    "BarometerModule", "BatteryModule",
+    "GyroscopeModule", "HapticModule",
+    "LEDModule", "MagnetometerModule",
+    "SwitchModule", "TemperatureModule"
+]
