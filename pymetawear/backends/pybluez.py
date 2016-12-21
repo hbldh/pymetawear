@@ -50,10 +50,11 @@ class PyBluezBackend(BLECommunicationBackend):
     `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ for BLE communication.
     """
 
-    def __init__(self, address, interface=None, timeout=None, connect=True, debug=False):
+    def __init__(self, address, interface=None, timeout=None, debug=False):
         if _import_failure is not None:
             raise PyMetaWearException(
                 "pybluez[ble] package error: {0}".format(_import_failure))
+        self.name = 'pybluez/gattlib'
         self._primary_services = {}
         self._characteristics_cache = {}
         self._response = GATTResponse()
@@ -61,13 +62,19 @@ class PyBluezBackend(BLECommunicationBackend):
             log.setLevel(logging.DEBUG)
 
         super(PyBluezBackend, self).__init__(
-            address, interface, 10.0 if timeout is None else timeout, connect, debug)
+            address, interface, 10.0 if timeout is None else timeout, debug)
 
     def _build_handle_dict(self):
         self._primary_services = {uuid.UUID(x.get('uuid')): (x.get('start'), x.get('end'))
                                   for x in self.requester.discover_primary()}
         self._characteristics_cache = {uuid.UUID(x.get('uuid')): (x.get('value_handle'), x.get('value_handle') + 1)
                                        for x in self.requester.discover_characteristics()}
+
+    @property
+    def is_connected(self):
+        if self._requester is not None:
+            return self._requester.is_connected()
+        return False
 
     @property
     def requester(self):
@@ -80,13 +87,16 @@ class PyBluezBackend(BLECommunicationBackend):
         if self._requester is None:
             self.connect()
 
-        if not self._requester.is_connected():
+        if not self.is_connected:
             raise PyMetaWearConnectionTimeout(
                 "PyBluezBackend: Connection to {0} lost...".format(self._address))
 
         return self._requester
 
     def connect(self, clean_connect=False):
+        if self.is_connected:
+            return
+
         if clean_connect or self._requester is None:
             log.info("PyBluezBackend: Creating new GATTRequester...")
             self._requester = Requester(self.handle_notify_char_output,

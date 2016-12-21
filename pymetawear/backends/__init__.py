@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 
 
 class BLECommunicationBackend(object):
-    def __init__(self, address, interface=None, timeout=None, connect=True, debug=False):
+    def __init__(self, address, interface=None, timeout=None, debug=False):
         self._address = str(address)
         self._interface = str(interface)
         self._debug = debug
@@ -56,8 +56,8 @@ class BLECommunicationBackend(object):
                                Fn_VoidPtr_Int(self._initialized_fcn)),
         }
 
-        if connect:
-            self.connect()
+        self.board = None
+        self._notify_char_handle = None
 
     def __str__(self):
         return "{0}, {1}".format(self.__class__.__name__, self._address)
@@ -73,6 +73,10 @@ class BLECommunicationBackend(object):
         return self.initialization_status >= 0
 
     @property
+    def is_connected(self):
+        raise NotImplementedError("Use backend-specific classes instead!")
+
+    @property
     def requester(self):
         """The requester object for the backend used.
 
@@ -83,7 +87,7 @@ class BLECommunicationBackend(object):
         """
         raise NotImplementedError("Use backend-specific classes instead!")
 
-    def connect(self):
+    def connect(self, clean_connect=False):
         self._build_handle_dict()
 
         # Setup the notification characteristic subscription
@@ -94,6 +98,13 @@ class BLECommunicationBackend(object):
                        self.handle_notify_char_output)
 
         # Now create a libmetawear board object and initialize it.
+        # Free memory for any old board first.
+        if self.board is not None:
+            try:
+                libmetawear.mbl_mw_metawearboard_tear_down(self.board)
+            except:
+                pass
+            libmetawear.mbl_mw_metawearboard_free(self.board)
         self.board = libmetawear.mbl_mw_metawearboard_create(
             byref(self._btle_connection))
 
@@ -200,10 +211,6 @@ class BLECommunicationBackend(object):
         :rtype: int
 
         """
-        raise NotImplementedError("Use backend-specific classes instead!")
-
-    @staticmethod
-    def _cmd_2_backend_input(command, length):
         raise NotImplementedError("Use backend-specific classes instead!")
 
     def _response_2_string_buffer(self, response):

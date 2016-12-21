@@ -13,17 +13,12 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import absolute_import
 
-import unittest
 import uuid
-from ctypes import create_string_buffer, POINTER, c_ulonglong
+from ctypes import create_string_buffer
 
-
-from pymetawear import libmetawear
-from pymetawear.compat import range_
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR, \
     DEV_INFO_FIRMWARE_CHAR, DEV_INFO_MODEL_CHAR
 from pymetawear.backends import BLECommunicationBackend
-from pymetawear.mbientlab.metawear.core import GattCharacteristic
 
 
 UUID2HANDLES = {
@@ -46,7 +41,7 @@ class MockBackend(BLECommunicationBackend):
 
     boardType = 0
 
-    def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
+    def __init__(self, address, interface=None, timeout=None, debug=False):
         self.responses = []
         self.written_data = {}
         self.full_history = []
@@ -254,8 +249,25 @@ class MockBackend(BLECommunicationBackend):
         }
 
         self.firmware_revision = create_string_buffer(b'1.1.3', 5)
+        self._connected = False
 
-        super(MockBackend, self).__init__(address, interface, async, timeout, debug)
+        super(MockBackend, self).__init__(address, interface, timeout, debug)
+
+    @property
+    def is_connected(self):
+        return self._connected
+
+    def connect(self, clean_connect=False):
+        self._connected = True
+        super(MockBackend, self).connect(clean_connect)
+
+    def disconnect(self):
+        self._connected = False
+
+    @property
+    def requester(self):
+        """Not used in MockBackend"""
+        return None
 
     def read_gatt_char_by_uuid(self, characteristic):
         if isinstance(characteristic,  uuid.UUID):

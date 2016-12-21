@@ -21,6 +21,7 @@ from pymetawear.client import MetaWearClient
 address = select_device()
 c = MetaWearClient(str(address), 'pygatt', timeout=10, debug=True)
 print("New client created: {0}".format(c))
+c.connect()
 
 
 def temperature_callback(data):

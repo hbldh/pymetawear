@@ -38,10 +38,12 @@ class PyGattBackend(BLECommunicationBackend):
     for BLE communication.
     """
 
-    def __init__(self, address, interface=None, timeout=None, connect=True, debug=False):
+    def __init__(self, address, interface=None, timeout=None, debug=False):
         if _import_failure is not None:
             raise PyMetaWearException(
                 "pygatt[GATTTOOL] package error: {0}".format(_import_failure))
+
+        self.name = 'pygatt'
 
         log.info("PyGattBackend: Creating new GATTToolBackend and starting GATTtool process...")
         self._backend = None
@@ -51,8 +53,13 @@ class PyGattBackend(BLECommunicationBackend):
 
         super(PyGattBackend, self).__init__(
             address, interface,
-            gatttool.DEFAULT_CONNECT_TIMEOUT_S if timeout is None else timeout,
-            connect, debug)
+            gatttool.DEFAULT_CONNECT_TIMEOUT_S if timeout is None else timeout, debug)
+
+    @property
+    def is_connected(self):
+        if self._requester is not None:
+            return self._requester._connected
+        return False
 
     @property
     def requester(self):
@@ -65,24 +72,27 @@ class PyGattBackend(BLECommunicationBackend):
         if self._requester is None:
             self.connect()
 
-        if not self._requester._connected:
+        if not self.is_connected:
             raise PyMetaWearConnectionTimeout(
                 "PyGattBackend: Connection to {0} lost...".format(
                     self._address))
 
         return self._requester
 
-    def connect(self):
+    def connect(self, clean_connect=False):
         """Connect the GATTool process to the MetaWear board."""
+        if self.is_connected:
+            return
+
         self._backend = gatttool.GATTToolBackend(hci_device=self._interface)
-        self._backend.start(reset_on_start=False)
+        self._backend.start(reset_on_start=clean_connect)
 
         log.info("PyGattBackend: Connecting to {0} using GATTTool...".format(
             self._address))
         self._requester = self._backend.connect(
             self._address, timeout=self._timeout,
             address_type=BLEAddressType.random)
-        
+
         super(PyGattBackend, self).connect()
 
     def disconnect(self):

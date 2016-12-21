@@ -222,7 +222,6 @@ setup(
         'pexpect>=4.2.0'
     ],
     extras_require={
-        'bluepy': 'bluepy>=1.0.5',
         'pybluez': 'pybluez[ble]>=0.22'
     },
     ext_modules=[],
