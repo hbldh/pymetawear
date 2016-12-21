@@ -38,18 +38,21 @@ class PyGattBackend(BLECommunicationBackend):
     for BLE communication.
     """
 
-    def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
+    def __init__(self, address, interface=None, timeout=None, connect=True, debug=False):
         if _import_failure is not None:
             raise PyMetaWearException(
                 "pygatt[GATTTOOL] package error: {0}".format(_import_failure))
+
+        log.info("PyGattBackend: Creating new GATTToolBackend and starting GATTtool process...")
         self._backend = None
+
         if debug:
             log.setLevel(logging.DEBUG)
 
         super(PyGattBackend, self).__init__(
-            address, interface, async,
+            address, interface,
             gatttool.DEFAULT_CONNECT_TIMEOUT_S if timeout is None else timeout,
-            debug)
+            connect, debug)
 
     @property
     def requester(self):
@@ -60,20 +63,27 @@ class PyGattBackend(BLECommunicationBackend):
 
         """
         if self._requester is None:
+            self.connect()
 
-            log.info("PyGattBackend: Creating new GATTToolBackend and starting GATTtool process...")
-            self._backend = gatttool.GATTToolBackend(hci_device=self._interface)
-            self._backend.start(reset_on_start=False)
-            log.info("PyGattBackend: Connecting GATTTool...")
-            self._requester = self._backend.connect(
-                self._address, timeout=self._timeout, address_type=BLEAddressType.random)
-
-            if not self.requester._connected:
-                raise PyMetaWearConnectionTimeout(
-                    "PyGattBackend: Could not establish a connection to {0}.".format(
-                        self._address))
+        if not self._requester._connected:
+            raise PyMetaWearConnectionTimeout(
+                "PyGattBackend: Connection to {0} lost...".format(
+                    self._address))
 
         return self._requester
+
+    def connect(self):
+        """Connect the GATTool process to the MetaWear board."""
+        self._backend = gatttool.GATTToolBackend(hci_device=self._interface)
+        self._backend.start(reset_on_start=False)
+
+        log.info("PyGattBackend: Connecting to {0} using GATTTool...".format(
+            self._address))
+        self._requester = self._backend.connect(
+            self._address, timeout=self._timeout,
+            address_type=BLEAddressType.random)
+        
+        super(PyGattBackend, self).connect()
 
     def disconnect(self):
         """Disconnect via the GATTTool process and terminate the

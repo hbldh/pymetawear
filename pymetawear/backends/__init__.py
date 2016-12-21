@@ -28,11 +28,9 @@ log = logging.getLogger(__name__)
 
 
 class BLECommunicationBackend(object):
-    def __init__(self, address, interface=None,
-                 async=True, timeout=None, debug=False):
+    def __init__(self, address, interface=None, timeout=None, connect=True, debug=False):
         self._address = str(address)
         self._interface = str(interface)
-        self._async = async
         self._debug = debug
         self._timeout = timeout
 
@@ -42,8 +40,6 @@ class BLECommunicationBackend(object):
         self.initialization_status = -1
 
         self._requester = None
-
-        self._build_handle_dict()
 
         # Define read and write to characteristics methods to be used by
         # libmetawear. These methods in their turn use the backend read/write
@@ -60,23 +56,8 @@ class BLECommunicationBackend(object):
                                Fn_VoidPtr_Int(self._initialized_fcn)),
         }
 
-        # Setup the notification characteristic subscription
-        # required by MetaWear.
-        self._notify_char_handle = self.get_handle(
-            METAWEAR_SERVICE_NOTIFY_CHAR[1])
-        self.subscribe(METAWEAR_SERVICE_NOTIFY_CHAR[1],
-                       self.handle_notify_char_output)
-
-        # Now create a libmetawear board object and initialize it.
-        self.board = libmetawear.mbl_mw_metawearboard_create(
-            byref(self._btle_connection))
-
-        _response_time = os.environ.get('PYMETAWEAR_RESPONSE_TIME', 300)
-        libmetawear.mbl_mw_metawearboard_set_time_for_response(self.board, int(
-            _response_time))
-
-        libmetawear.mbl_mw_metawearboard_initialize(
-            self.board, self.callbacks.get('initialization')[1])
+        if connect:
+            self.connect()
 
     def __str__(self):
         return "{0}, {1}".format(self.__class__.__name__, self._address)
@@ -103,7 +84,25 @@ class BLECommunicationBackend(object):
         raise NotImplementedError("Use backend-specific classes instead!")
 
     def connect(self):
-        pass
+        self._build_handle_dict()
+
+        # Setup the notification characteristic subscription
+        # required by MetaWear.
+        self._notify_char_handle = self.get_handle(
+            METAWEAR_SERVICE_NOTIFY_CHAR[1])
+        self.subscribe(METAWEAR_SERVICE_NOTIFY_CHAR[1],
+                       self.handle_notify_char_output)
+
+        # Now create a libmetawear board object and initialize it.
+        self.board = libmetawear.mbl_mw_metawearboard_create(
+            byref(self._btle_connection))
+
+        _response_time = os.environ.get('PYMETAWEAR_RESPONSE_TIME', 300)
+        libmetawear.mbl_mw_metawearboard_set_time_for_response(self.board, int(
+            _response_time))
+
+        libmetawear.mbl_mw_metawearboard_initialize(
+            self.board, self.callbacks.get('initialization')[1])
 
     def disconnect(self):
         """Handle any required disconnecting in the backend,

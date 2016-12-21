@@ -52,8 +52,7 @@ class BluepyBackend(BLECommunicationBackend):
     for BLE communication.
     """
 
-    def __init__(self, address, interface=None, async=False, timeout=None,
-                 debug=False):
+    def __init__(self, address, interface=None, timeout=None, connect=True, debug=False):
         if _import_failure is not None:
             raise PyMetaWearException(
                 "bluepy package error: {0}".format(_import_failure))
@@ -68,8 +67,8 @@ class BluepyBackend(BLECommunicationBackend):
             RuntimeWarning)
 
         super(BluepyBackend, self).__init__(
-            address, interface, async, 10.0 if timeout is None else timeout,
-            debug)
+            address, interface, 10.0 if timeout is None else timeout,
+            connect, debug)
 
     def _build_handle_dict(self):
         self._primary_services = {
@@ -104,6 +103,22 @@ class BluepyBackend(BLECommunicationBackend):
         """
 
         if self._peripheral is None:
+            self.connect()
+
+        if not self._is_connected:
+            raise PyMetaWearConnectionTimeout(
+                "BluepyBackend: Connection to {0} lost...".format(
+                    self._address))
+
+        return self._peripheral
+
+    def connect(self, clean_connect=False):
+        """Connect the Bluepy backend to the MetaWear board.
+
+        :param bool clean_connect: Create new peripheral object.
+
+        """
+        if clean_connect or self._peripheral is None:
             log.info("BluepyBackend: Creating new BluePy Peripheral...")
             self._peripheral = Peripheral()
 
@@ -117,8 +132,8 @@ class BluepyBackend(BLECommunicationBackend):
                 raise PyMetaWearConnectionTimeout(
                     "BluepyBackend: Could not establish a connection to {0}.".format(
                         self._address))
-
-        return self._peripheral
+        else:
+            log.debug("BluepyBackend was already connected.")
 
     def disconnect(self):
         """Disconnect."""

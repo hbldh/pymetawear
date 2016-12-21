@@ -46,7 +46,7 @@ class MetaWearClient(object):
     """
 
     def __init__(self, address, backend='pygatt',
-                 interface='hci0', timeout=None, debug=False):
+                 interface='hci0', timeout=None, connect=True, debug=False):
         """Constructor."""
         self._address = address
         self._debug = debug
@@ -68,15 +68,15 @@ class MetaWearClient(object):
         if backend == 'pygatt':
             self._backend = PyGattBackend(
                 self._address, interface=interface,
-                timeout=timeout, debug=debug)
+                timeout=timeout, connect=connect, debug=debug)
         elif backend == 'pybluez':
             self._backend = PyBluezBackend(
                 self._address, interface=interface,
-                timeout=timeout, debug=debug)
+                timeout=timeout, connect=connect, debug=debug)
         elif backend == 'bluepy':
             self._backend = BluepyBackend(
                 self._address, interface=interface,
-                timeout=timeout, debug=debug)
+                timeout=timeout, connect=connect, debug=debug)
         else:
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
 
@@ -155,6 +155,9 @@ class MetaWearClient(object):
     @property
     def board(self):
         return self.backend.board
+
+    def connect(self, clean_connect=False):
+        pass
 
     def disconnect(self):
         """Disconnects this client from the MetaWear board."""

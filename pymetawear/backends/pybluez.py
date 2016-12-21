@@ -50,7 +50,7 @@ class PyBluezBackend(BLECommunicationBackend):
     `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ for BLE communication.
     """
 
-    def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
+    def __init__(self, address, interface=None, timeout=None, connect=True, debug=False):
         if _import_failure is not None:
             raise PyMetaWearException(
                 "pybluez[ble] package error: {0}".format(_import_failure))
@@ -61,7 +61,7 @@ class PyBluezBackend(BLECommunicationBackend):
             log.setLevel(logging.DEBUG)
 
         super(PyBluezBackend, self).__init__(
-            address, interface, async, 10.0 if timeout is None else timeout, debug)
+            address, interface, 10.0 if timeout is None else timeout, connect, debug)
 
     def _build_handle_dict(self):
         self._primary_services = {uuid.UUID(x.get('uuid')): (x.get('start'), x.get('end'))
@@ -78,26 +78,35 @@ class PyBluezBackend(BLECommunicationBackend):
 
         """
         if self._requester is None:
-
-            log.info("PyBluezBackend: Creating new GATTRequester...")
-            self._requester = Requester(self.handle_notify_char_output, self._address,
-                                        False, self._interface)
+            self.connect()
 
         if not self._requester.is_connected():
-            log.info("PyBluezBackend: Connecting GATTRequester...")
-            self._requester.connect(wait=False, channel_type='random')
-            # Using manual waiting since gattlib's `wait` keyword does not work.
-            t = 0.0
-            t_step = 0.25
-            while not self._requester.is_connected() and t < self._timeout:
-                t += t_step
-                time.sleep(t_step)
-
-            if not self._requester.is_connected():
-                raise PyMetaWearConnectionTimeout(
-                    "PyBluezBackend: Could not establish a connection to {0}.".format(self._address))
+            raise PyMetaWearConnectionTimeout(
+                "PyBluezBackend: Connection to {0} lost...".format(self._address))
 
         return self._requester
+
+    def connect(self, clean_connect=False):
+        if clean_connect or self._requester is None:
+            log.info("PyBluezBackend: Creating new GATTRequester...")
+            self._requester = Requester(self.handle_notify_char_output,
+                                        self._address,
+                                        False, self._interface)
+
+        log.info("PyBluezBackend: Connecting GATTRequester...")
+        self._requester.connect(wait=False, channel_type='random')
+        # Using manual waiting since gattlib's `wait` keyword does not work.
+        t = 0.0
+        t_step = 0.25
+        while not self._requester.is_connected() and t < self._timeout:
+            t += t_step
+            time.sleep(t_step)
+
+        if not self._requester.is_connected():
+            raise PyMetaWearConnectionTimeout(
+                "PyBluezBackend: Could not establish a connection to {0}.".format(self._address))
+
+        super(PyBluezBackend, self).connect()
 
     def disconnect(self):
         """Disconnect."""
