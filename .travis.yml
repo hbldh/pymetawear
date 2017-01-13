@@ -1,16 +1,20 @@
-# Config file for automatic testing at travis-ci.org
-# This file will be regenerated if you run travis_pypi_setup.py
-
 language: python
-python: 3.5
+sudo: required
 dist: trusty
-
-env:
-  - TOXENV=py35
-  - TOXENV=py34
-  - TOXENV=py27
-  - TOXENV=flake8
-
+python:
+  - 2.7
+  - 3.4
+  - 3.5
+  - "nightly"
+matrix:
+  allow_failures:
+    - python: 3.4
+    - python: 3.5
+    - python: "nightly"
+branches:
+  only:
+    - master
+    - develop
 addons:
   apt:
     packages:
@@ -24,25 +28,24 @@ addons:
     - libbluetooth-dev
     - libboost-python-dev
     - libboost-thread-dev
-
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox python-coveralls
-
-# command to run tests, e.g. python setup.py test
-script: tox -e ${TOXENV}
-
+before_install:
+  - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
+install:
+  - "pip install pytest"
+  - "pip install pytest-cov"
+  - "pip install python-coveralls"
+  - "pip install Sphinx sphinx_rtd_theme"
+  - "pip install -e ."
+script: py.test tests/ --cov pymetawear --cov-report term-missing
 after_success:
   - coveralls
-
-# After you create the Github repo and add it to Travis, run the
-# travis_pypi_setup.py script to finish PyPI deployment setup
+env:
+  global:
+    - GH_REF: github.com/hbldh/pymetawear.git
 deploy:
-  provider: pypi
-  distributions: sdist
-  user: hbldh
-  password:
-    secure: PLEASE_REPLACE_ME
+  provider: script
+  skip_cleanup: true
+  script: bash ./deploy_gh_pages.sh
   on:
-    tags: true
-    repo: hbldh/pymetawear
-    condition: $TOXENV == py27
+    branch: master
+    python: 2.7
