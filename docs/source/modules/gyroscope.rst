@@ -1,4 +1,4 @@
-.. _modules_accelerometer:
+.. _modules_gyroscope:
 
 Gyroscope module
 ====================

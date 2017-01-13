@@ -39,6 +39,7 @@ Contents
    exceptions
    backends/index
    modules/index
+   history
    authors
 
 Installation

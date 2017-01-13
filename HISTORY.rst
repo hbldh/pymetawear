@@ -2,6 +2,16 @@
 History
 =======
 
+v0.7.0 (2017-01-13)
+-------------------
+- Using MetaWear-CppAPI version 0.7.4
+- Removed bluepy backend due to it not being fully functional.
+- Refactored connection behaviour. Optional autoconnect via keyword.
+- Unit test work started with Mock backend.
+- Flake8 adaptations.
+- Fix for logging bug (#22)
+- New examples: Two client setup and complimentary filter sensor fusion (#23).
+
 v0.6.0 (2016-10-31)
 -------------------
 - Using MetaWear-CppAPI version 0.6.0

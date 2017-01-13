@@ -63,7 +63,7 @@ author = u'Henrik Blidh'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-with open('../../pymetawear/__init__.py', 'r') as fd:
+with open('../../pymetawear/version.py', 'r') as fd:
     data = fd.read()
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         data, re.MULTILINE).group(1)

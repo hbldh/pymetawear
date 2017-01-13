@@ -114,8 +114,7 @@ class PyGattBackend(BLECommunicationBackend):
     def read_gatt_char_by_uuid(self, characteristic):
         """Read the desired data from the MetaWear board using pygatt backend.
 
-        :param pymetawear.mbientlab.metawear.core.GattCharacteristic
-            characteristic: :class:`ctypes.POINTER` to a GattCharacteristic.
+        :param GattCharacteristic characteristic: :class:`ctypes.POINTER` to a GattCharacteristic.
         :return: The read data.
         :rtype: str
 
@@ -138,7 +137,7 @@ class PyGattBackend(BLECommunicationBackend):
         """Get handle from characteristic UUID.
 
         :param uuid.UUID characteristic_uuid: The UUID to find handle to.
-        :param bool notify_handle:
+        :param bool notify_handle: Set to true if subscription.
         :return: Integer handle.
         :rtype: int
 

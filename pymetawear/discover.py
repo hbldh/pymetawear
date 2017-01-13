@@ -31,17 +31,17 @@ def discover_devices(timeout=5):
     Using ``hcitool`` from Bluez in subprocess, which requires root privileges.
     However, ``hcitool`` can be allowed to do scan without elevated permission.
 
+    Install linux capabilities manipulation tools:
+
     .. code-block:: bash
 
         $ sudo apt-get install libcap2-bin
 
-    installs linux capabilities manipulation tools.
+    Sets the missing capabilities on the executable quite like the setuid bit:
 
     .. code-block:: bash
 
         $ sudo setcap 'cap_net_raw,cap_net_admin+eip' `which hcitool`
-
-    sets the missing capabilities on the executable quite like the setuid bit.
 
     **References:**
 
