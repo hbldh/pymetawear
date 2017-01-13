@@ -4,3 +4,13 @@ source = pymetawear
 include = */pymetawear/*
 omit =
     */setup.py
+    */MetaWear-CppAPI/*
+
+[report]
+exclude_lines =
+    except ImportError:
+    def add_stream_logger
+    if debug:
+    raise NotImplementedError
+    pass
+    def _log

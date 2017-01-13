@@ -11,7 +11,7 @@ import platform
 import glob
 from ctypes import cdll
 
-from pymetawear.mbientlab.metawear.core import Fn_DataPtr, Fn_VoidPtr_Int
+from pymetawear.version import __version__, version  # flake8: noqa
 from pymetawear.mbientlab.metawear.functions import setup_libmetawear
 
 # Logging solution inspired by Hitchhiker's Guide to Python and Requests
@@ -26,25 +26,20 @@ except ImportError:
 
 logging.getLogger(__name__).addHandler(NullHandler())
 
-# Version information.
-__version__ = '0.6.0'
-version = __version__  # backwards compatibility name
-version_info = (0, 6, 0)
 
 # Find and import the built MetaWear-CPP shared library.
 if os.environ.get('METAWEAR_LIB_SO_NAME') is not None:
-    libmetawear = cdll.LoadLibrary(os.environ["METAWEAR_LIB_SO_NAME"])
+    METAWEAR_LIB_SO_NAME = os.environ["METAWEAR_LIB_SO_NAME"]
 else:
     if platform.uname()[0] == 'Windows':
         dll_files = list(glob.glob(os.path.join(os.path.abspath(
             os.path.dirname(__file__)), 'MetaWear.*.dll')))
-        shared_lib_file_name = dll_files[0]
+        METAWEAR_LIB_SO_NAME = dll_files[0]
     else:
-        shared_lib_file_name = 'libmetawear.so'
-    libmetawear = cdll.LoadLibrary(
-        os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                     shared_lib_file_name))
-
+        METAWEAR_LIB_SO_NAME = 'libmetawear.so'
+    METAWEAR_LIB_SO_NAME = os.path.join(os.path.abspath(
+        os.path.dirname(__file__)), METAWEAR_LIB_SO_NAME)
+libmetawear = cdll.LoadLibrary(METAWEAR_LIB_SO_NAME)
 setup_libmetawear(libmetawear)
 
 
@@ -55,6 +50,9 @@ def add_stream_logger(stream=sys.stdout, level=logging.DEBUG):
     Returns the handler after adding it.
     """
     logger = logging.getLogger(__name__)
+    has_stream_handler = any([isinstance(hndl, logging.StreamHandler) for hndl in logger.handlers])
+    if has_stream_handler:
+        return logger.handlers[-1]
     handler = logging.StreamHandler(stream=stream)
     handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
     logger.addHandler(handler)

@@ -10,18 +10,16 @@ Created: 2016-04-14
 
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import warnings
 import logging
 from functools import wraps
-from ctypes import c_uint, cast, POINTER, c_long, c_float
+from ctypes import cast, POINTER, c_float
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.core import DataTypeId
-from pymetawear.mbientlab.metawear.sensor import MultiChannelTemperature
 from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)
@@ -69,7 +67,7 @@ class TemperatureModule(PyMetaWearModule):
             self._channel_source_mapping = _CHANNEL_ID_TO_SOURCE_NAME
 
         self._reverse_channel_source_mapping = {
-            v: k for k,v in self._channel_source_mapping.items()}
+            v: k for k, v in self._channel_source_mapping.items()}
 
         for i in range(self.n_channels):
             source_enum = libmetawear.mbl_mw_multi_chnl_temp_get_source(

@@ -1,3 +1,4 @@
+==========
 PyMetaWear
 ==========
 
@@ -11,18 +12,18 @@ Python package for connecting to and using
 
 PyMetawear is meant to be a thin wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
-providing a more Pythonic interface. It has support for several different
+providing a more Pythonic interface. It has support for two different
 Python packages for Bluetooth Low Energy communication:
 
 - `pygatt <https://github.com/peplin/pygatt>`_
 - `pybluez <https://github.com/karulis/pybluez>`_ with
   `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_
-- `bluepy <https://github.com/IanHarvey/bluepy>`_ (not completely functional yet)
 
 PyMetaWear can be run with Python 2 and 3.4 with both backends,
-but only with the `pygatt` backend for Python 3.5. 
+but only with the `pygatt` backend for Python 3.5.
 
-**It is a Linux-only package right now**! It can be built on Windows, given that Visual Studio Community 2015 has been installed first,
+**It is a Linux-only package right now**! It can be built on Windows, given that
+Visual Studio Community 2015 has been installed first,
 but there is no working backend for Windows BLE yet.
 
 Installation
@@ -33,17 +34,12 @@ Installation
     $ pip install pymetawear
 
 Currently, only the `pygatt <https://github.com/peplin/pygatt>`_ communication
-backend is installed by default. The other backends can be installed as extras:
+backend is installed by default. The other backend can be installed as extras:
 
 .. code-block:: bash
 
     $ pip install pymetawear[pybluez]
 
-or
-
-.. code-block:: bash
-
-    $ pip install pymetawear[bluepy]
 
 Debian requirements for ``pymetawear``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,10 +55,6 @@ Additional requirements for ``pybluez``
 * ``libbluetooth-dev``
 * ``libboost-python-dev``
 * ``libboost-thread-dev``
-
-Additional requirements for ``bluepy``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* ``libglib2.0-dev``
 
 
 Development
@@ -103,7 +95,7 @@ MetaWear board, is equal for both the two usage profiles:
 .. code-block:: python
 
     from pymetawear.client import MetaWearClient
-    backend = 'pygatt'  # Or 'pybluez' or 'bluepy'
+    backend = 'pygatt'  # Or 'pybluez'
     c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
 
 An example: blinking with the LED lights can be done like this with the

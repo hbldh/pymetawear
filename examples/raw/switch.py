@@ -11,36 +11,17 @@ Created on 2016-04-02
 
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 from __future__ import absolute_import
 
-from ctypes import POINTER, c_uint, cast, c_long
+from ctypes import POINTER, c_uint, cast
 import time
-import platform
 
 from pymetawear import libmetawear
-from pymetawear.client import discover_devices, MetaWearClient
+from pymetawear.client import MetaWearClient
+from pymetawear.discover import select_device
 from pymetawear.mbientlab.metawear.core import DataTypeId, Fn_DataPtr
 
-def scan_and_select_le_device(timeout=3):
-    print("Discovering nearby Bluetooth Low Energy devices...")
-    ble_devices = discover_devices(timeout=timeout)
-    if len(ble_devices) > 1:
-        for i, d in enumerate(ble_devices):
-            print("[{0}] - {1}: {2}".format(i+1, *d))
-        s = input("Which device do you want to connect to? ")
-        if int(s) <= (i + 1):
-            address = ble_devices[int(s) - 1][0]
-        else:
-            raise ValueError("Incorrect selection. Aborting...")
-    elif len(ble_devices) == 1:
-        address = ble_devices[0][0]
-    else:
-        raise ValueError("DId not detect any BLE devices.")
-    return address
-
-
-address = scan_and_select_le_device()
+address = select_device()
 c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 

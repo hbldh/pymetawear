@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+PyBlueZ backend
+---------------
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-04-02
@@ -9,7 +11,6 @@ Created on 2016-04-02
 
 from __future__ import division
 from __future__ import print_function
-#from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import time
@@ -17,7 +18,12 @@ import uuid
 from ctypes import create_string_buffer
 import logging
 
-from bluetooth.ble import GATTRequester, GATTResponse
+try:
+    from bluetooth.ble import GATTRequester, GATTResponse
+    _import_failure = None
+except ImportError as e:
+    GATTRequester = object
+    _import_failure = e
 
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
 from pymetawear.compat import range_, string_types, bytearray_to_str
@@ -44,7 +50,11 @@ class PyBluezBackend(BLECommunicationBackend):
     `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_ for BLE communication.
     """
 
-    def __init__(self, address, interface=None, async=True, timeout=None, debug=False):
+    def __init__(self, address, interface=None, timeout=None, debug=False):
+        if _import_failure is not None:
+            raise PyMetaWearException(
+                "pybluez[ble] package error: {0}".format(_import_failure))
+        self.name = 'pybluez/gattlib'
         self._primary_services = {}
         self._characteristics_cache = {}
         self._response = GATTResponse()
@@ -52,13 +62,19 @@ class PyBluezBackend(BLECommunicationBackend):
             log.setLevel(logging.DEBUG)
 
         super(PyBluezBackend, self).__init__(
-            address, interface, async, 10.0 if timeout is None else timeout, debug)
+            address, interface, 10.0 if timeout is None else timeout, debug)
 
     def _build_handle_dict(self):
         self._primary_services = {uuid.UUID(x.get('uuid')): (x.get('start'), x.get('end'))
                                   for x in self.requester.discover_primary()}
         self._characteristics_cache = {uuid.UUID(x.get('uuid')): (x.get('value_handle'), x.get('value_handle') + 1)
                                        for x in self.requester.discover_characteristics()}
+
+    @property
+    def is_connected(self):
+        if self._requester is not None:
+            return self._requester.is_connected()
+        return False
 
     @property
     def requester(self):
@@ -68,28 +84,39 @@ class PyBluezBackend(BLECommunicationBackend):
         :rtype: :class:`bluetooth.ble.GATTRequester`
 
         """
-
         if self._requester is None:
+            self.connect()
 
-            log.info("Creating new GATTRequester...")
-            self._requester = Requester(self.handle_notify_char_output, self._address,
-                                        False, self._interface)
-
-        if not self._requester.is_connected():
-            log.info("Connecting GATTRequester...")
-            self._requester.connect(wait=False, channel_type='random')
-            # Using manual waiting since gattlib's `wait` keyword does not work.
-            t = 0.0
-            t_step = 0.25
-            while not self._requester.is_connected() and t < self._timeout:
-                t += t_step
-                time.sleep(t_step)
-
-            if not self._requester.is_connected():
-                raise PyMetaWearConnectionTimeout(
-                    "Could not establish a connection to {0}.".format(self._address))
+        if not self.is_connected:
+            raise PyMetaWearConnectionTimeout(
+                "PyBluezBackend: Connection to {0} lost...".format(self._address))
 
         return self._requester
+
+    def connect(self, clean_connect=False):
+        if self.is_connected:
+            return
+
+        if clean_connect or self._requester is None:
+            log.info("PyBluezBackend: Creating new GATTRequester...")
+            self._requester = Requester(self.handle_notify_char_output,
+                                        self._address,
+                                        False, self._interface)
+
+        log.info("PyBluezBackend: Connecting GATTRequester...")
+        self._requester.connect(wait=False, channel_type='random')
+        # Using manual waiting since gattlib's `wait` keyword does not work.
+        t = 0.0
+        t_step = 0.25
+        while not self._requester.is_connected() and t < self._timeout:
+            t += t_step
+            time.sleep(t_step)
+
+        if not self._requester.is_connected():
+            raise PyMetaWearConnectionTimeout(
+                "PyBluezBackend: Could not establish a connection to {0}.".format(self._address))
+
+        super(PyBluezBackend, self).connect()
 
     def disconnect(self):
         """Disconnect."""
@@ -106,7 +133,7 @@ class PyBluezBackend(BLECommunicationBackend):
 
     # Read and Write methods
 
-    def read_gatt_char_by_uuid(self, characteristic_uuid):
+    def read_gatt_char_by_uuid(self, characteristic):
         """Read the desired data from the MetaWear board
         using pybluez/gattlib backend.
 
@@ -115,9 +142,10 @@ class PyBluezBackend(BLECommunicationBackend):
         :rtype: str
 
         """
+        characteristic_uuid = self.get_uuid(characteristic)
         return self.requester.read_by_uuid(str(characteristic_uuid))[0]
 
-    def write_gatt_char_by_uuid(self, characteristic_uuid, data_to_send):
+    def write_gatt_char_by_uuid(self, characteristic, command, length):
         """Write the desired data to the MetaWear board
         using pybluez/gattlib backend.
 
@@ -125,7 +153,9 @@ class PyBluezBackend(BLECommunicationBackend):
         :param str data_to_send: Data to send.
 
         """
+        characteristic_uuid = self.get_uuid(characteristic)
         handle = self.get_handle(characteristic_uuid)
+        data_to_send = bytes(bytearray([command[i] for i in range_(length)]))
         if not isinstance(data_to_send, string_types):
             data_to_send = data_to_send.decode('latin1')
         self.requester.write_by_handle_async(handle, data_to_send, self._response)
@@ -149,15 +179,5 @@ class PyBluezBackend(BLECommunicationBackend):
         else:
             return handle
 
-    @staticmethod
-    def mbl_mw_command_to_input(command, length):
-        return bytes(bytearray([command[i] for i in range_(length)]))
-
-    @staticmethod
-    def read_response_to_str(response):
+    def _response_2_string_buffer(self, response):
         return create_string_buffer(bytearray_to_str(response), len(response))
-
-    @staticmethod
-    def notify_response_to_str(response):
-        bs = bytearray_to_str(response)
-        return create_string_buffer(bs, len(bs))

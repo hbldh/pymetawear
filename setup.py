@@ -175,7 +175,7 @@ def build_solution():
             except:
                 pass
 
-with open('pymetawear/__init__.py', 'r') as fd:
+with open('pymetawear/version.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         fd.read(), re.MULTILINE).group(1)
 
@@ -222,7 +222,6 @@ setup(
         'pexpect>=4.2.0'
     ],
     extras_require={
-        'bluepy': 'bluepy>=1.0.5',
         'pybluez': 'pybluez[ble]>=0.22'
     },
     ext_modules=[],

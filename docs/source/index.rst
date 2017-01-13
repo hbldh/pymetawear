@@ -15,19 +15,17 @@ Python package for connecting to and using `MbientLab's MetaWear <https://mbient
 
 PyMetawear is meant to be a thin wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
-providing a more Pythonic interface. It has support for several different
+providing a more Pythonic interface. It has support for two different
 Python packages for Bluetooth Low Energy communication:
 
 - `pygatt <https://github.com/peplin/pygatt>`_
 - `pybluez <https://github.com/karulis/pybluez>`_ with
   `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_
-- `bluepy <https://github.com/IanHarvey/bluepy>`_ (not completely functional yet)
 
 PyMetaWear can be run with Python 2 or 3 with both backends,
 but only with the `pygatt` backend for Python 3.5. It builds and runs on Linux systems,
 and can be built on Windows, given that Visual Studio Community 2015 has been installed first,
 but there is no working backend for Windows BLE yet.
-
 
 
 Contents
@@ -41,6 +39,8 @@ Contents
    exceptions
    backends/index
    modules/index
+   history
+   authors
 
 Installation
 ------------
@@ -56,11 +56,6 @@ backend is installed by default. The other backends can be installed as extras:
 
     $ pip install pymetawear[pybluez]
 
-or
-
-.. code-block:: bash
-
-    $ pip install pymetawear[bluepy]
 
 Requirements for ``pymetawear``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,9 +72,6 @@ Additional requirements for ``pybluez``
 * ``libboost-python-dev``
 * ``libboost-thread-dev``
 
-Additional requirements for ``bluepy``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* ``libglib2.0-dev``
 
 Development
 ~~~~~~~~~~~

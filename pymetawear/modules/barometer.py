@@ -10,7 +10,6 @@ Created: 2016-08-16
 
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import re
@@ -21,7 +20,7 @@ from ctypes import c_float, cast, POINTER
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear import sensor
-from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
+from pymetawear.mbientlab.metawear.core import DataTypeId
 from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)
@@ -51,8 +50,7 @@ class BarometerModule(PyMetaWearModule):
         if self.barometer_class is not None:
             self.oversampling = {"".join(re.search(
                 '^OVERSAMPLING_([A-Z\_]*)', k).groups()).lower():
-                                     getattr(sensor.BarometerBosch, k, None) for
-                                 k in filter(
+                getattr(sensor.BarometerBosch, k, None) for k in filter(
                 lambda x: x.startswith('OVERSAMPLING'),
                 vars(sensor.BarometerBosch))}
             for k in self.oversampling:
@@ -61,15 +59,13 @@ class BarometerModule(PyMetaWearModule):
 
             self.iir_filter = {"".join(re.search(
                 '^IIR_FILTER_([0-9AVG\_OFF]+)', k).groups()).lower():
-                                   getattr(sensor.BarometerBosch, k, None) for
-                               k in filter(
+                getattr(sensor.BarometerBosch, k, None) for k in filter(
                 lambda x: x.startswith('IIR_FILTER'),
                 vars(sensor.BarometerBosch))}
 
             self.standby_time = {float(".".join(re.search(
                 '^STANDBY_TIME_([0-9]+)\_*([0-9]*)MS', k).groups())):
-                                     getattr(self.barometer_class, k, None) for
-                                 k in filter(
+                getattr(self.barometer_class, k, None) for k in filter(
                 lambda x: x.startswith('STANDBY_TIME'),
                 vars(self.barometer_class))}
         else:
@@ -104,34 +100,37 @@ class BarometerModule(PyMetaWearModule):
     @property
     def data_signal(self):
         if self._altitude_data:
-            return libmetawear.mbl_mw_baro_bosch_get_altitude_data_signal(self.board)
+            return libmetawear.mbl_mw_baro_bosch_get_altitude_data_signal(
+                self.board)
         else:
-            return libmetawear.mbl_mw_baro_bosch_get_pressure_data_signal(self.board)
+            return libmetawear.mbl_mw_baro_bosch_get_pressure_data_signal(
+                self.board)
 
     def _get_oversampling(self, value):
         if value.lower() in self.oversampling:
             return self.oversampling.get(value.lower())
         else:
-            raise ValueError("Requested oversampling ({0}) was not part of "
-                             "possible values: {1}".format(
-                value.lower(), self.oversampling.keys()))
+            raise ValueError(
+                "Requested oversampling ({0}) was not part of possible values: {1}".format(
+                    value.lower(), self.oversampling.keys()))
 
     def _get_iir_filter(self, value):
         if value.lower() in self.iir_filter:
             return self.iir_filter.get(value.lower())
         else:
-            raise ValueError("Requested IIR filter ({0}) was not part of "
-                             "possible values: {1}".format(
-                value.lower(), self.iir_filter.keys()))
+            raise ValueError(
+                "Requested IIR filter ({0}) was not part of possible values: {1}".format(
+                    value.lower(), self.iir_filter.keys()))
 
     def _get_standby_time(self, value):
-        sorted_ord_keys = sorted(self.standby_time.keys(), key=lambda x: (float(x)))
+        sorted_ord_keys = sorted(self.standby_time.keys(),
+                                 key=lambda x: (float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
         if min_diffs > 0.5:
-            raise ValueError("Requested standby time ({0}) was not part of "
-                             "possible values: {1}".format(
-                value, [float(x) for x in sorted_ord_keys]))
+            raise ValueError(
+                "Requested standby time ({0}) was not part of possible values: {1}".format(
+                    value, [float(x) for x in sorted_ord_keys]))
         return float(value)
 
     def get_current_settings(self):
@@ -140,14 +139,15 @@ class BarometerModule(PyMetaWearModule):
     def get_possible_settings(self):
         return {
             'oversampling': [x.lower() for x in sorted(
-                self.oversampling.keys(), key=lambda x:(x.lower()))],
+                self.oversampling.keys(), key=lambda x: (x.lower()))],
             'iir_filter': [x.lower() for x in sorted(
                 self.iir_filter.keys(), key=lambda x: (x.lower()))],
-            'standby_time': [float(x)for x in sorted(
+            'standby_time': [float(x) for x in sorted(
                 self.standby_time.keys(), key=lambda x: (float(x)))],
         }
 
-    def set_settings(self, oversampling=None, iir_filter=None, standby_time=None):
+    def set_settings(self, oversampling=None, iir_filter=None,
+                     standby_time=None):
         """Set barometer settings.
 
          Can be called with 1-3 setting:
@@ -179,13 +179,15 @@ class BarometerModule(PyMetaWearModule):
         if oversampling is not None:
             oversampling = self._get_oversampling(oversampling)
             if self._debug:
-                log.debug("Setting Barometer Oversampling to {0}".format(oversampling))
+                log.debug("Setting Barometer Oversampling to {0}".format(
+                    oversampling))
             libmetawear.mbl_mw_baro_bosch_set_oversampling(
                 self.board, oversampling)
         if iir_filter is not None:
             iir_filter = self._get_iir_filter(iir_filter)
             if self._debug:
-                log.debug("Setting Barometer IIR filter to {0}".format(iir_filter))
+                log.debug(
+                    "Setting Barometer IIR filter to {0}".format(iir_filter))
             libmetawear.mbl_mw_baro_bosch_set_iir_filter(
                 self.board, iir_filter)
         if standby_time is not None:
@@ -249,4 +251,5 @@ def sensor_data(func):
         else:
             raise PyMetaWearException('Incorrect data type id: {0}'.format(
                 data.contents.type_id))
+
     return wrapper

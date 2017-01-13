@@ -17,7 +17,11 @@ The :func:`~discover_devices` function uses the
 bluetooth application. See docstring below for more details about privileges
 using ``hcitool`` from Python.
 
+There is a convenience method named :func:`~select_device` as well, which
+displays a list of devices to choose from.
+
 API
 ---
 
-.. autofunction:: pymetawear.client.discover_devices
+.. automodule:: pymetawear.discover
+    :members:

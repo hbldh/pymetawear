@@ -10,7 +10,6 @@ Created: 2016-04-14
 
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import logging
@@ -19,7 +18,7 @@ from ctypes import c_uint, cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
+from pymetawear.mbientlab.metawear.core import DataTypeId
 from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)

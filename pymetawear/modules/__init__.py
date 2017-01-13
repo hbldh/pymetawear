@@ -11,7 +11,6 @@ Created on 2016-04-14
 
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from .base import PyMetaWearModule, Modules
@@ -25,3 +24,12 @@ from .led import LEDModule
 from .magnetometer import MagnetometerModule
 from .switch import SwitchModule
 from .temperature import TemperatureModule
+
+__all__ = [
+    "PyMetaWearModule", "Modules",
+    "AccelerometerModule", "AmbientLightModule",
+    "BarometerModule", "BatteryModule",
+    "GyroscopeModule", "HapticModule",
+    "LEDModule", "MagnetometerModule",
+    "SwitchModule", "TemperatureModule"
+]

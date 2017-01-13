@@ -1,0 +1,10 @@
+pip
+setuptools
+wheel
+bumpversion
+flake8
+pytest
+pytest-cov
+python-coveralls
+Sphinx
+sphinx_rtd_theme

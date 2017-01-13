@@ -10,7 +10,6 @@ Created: 2016-04-14
 
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import re
@@ -56,7 +55,7 @@ class AccelerometerModule(PyMetaWearModule):
             # Parse possible output data rates for this accelerometer.
             self.odr = {".".join(re.search(
                 '^ODR_([0-9]+)\_*([0-9]*)HZ', k).groups()):
-                            getattr(self.acc_class, k, None) for k in filter(
+                getattr(self.acc_class, k, None) for k in filter(
                 lambda x: x.startswith('ODR'), vars(self.acc_class))}
 
             # Parse possible output data ranges for this accelerometer.
@@ -66,7 +65,7 @@ class AccelerometerModule(PyMetaWearModule):
             else:
                 acc_class = self.acc_class
             self.fsr = {float(re.search('^FSR_([0-9]+)G', k).groups()[0]):
-                            getattr(acc_class, k, None) for k in
+                        getattr(acc_class, k, None) for k in
                         filter(lambda x: x.startswith('FSR'), vars(acc_class))}
 
         if debug:
@@ -98,23 +97,23 @@ class AccelerometerModule(PyMetaWearModule):
             return libmetawear.mbl_mw_acc_get_acceleration_data_signal(self.board)
 
     def _get_odr(self, value):
-        sorted_ord_keys = sorted(self.odr.keys(), key=lambda x:(float(x)))
+        sorted_ord_keys = sorted(self.odr.keys(), key=lambda x: (float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
         if min_diffs > 0.5:
-            raise ValueError("Requested ODR ({0}) was not part of "
-                             "possible values: {1}".format(
-                value, [float(x) for x in sorted_ord_keys]))
+            raise ValueError(
+                "Requested ODR ({0}) was not part of possible values: {1}".format(
+                    value, [float(x) for x in sorted_ord_keys]))
         return float(value)
 
     def _get_fsr(self, value):
-        sorted_ord_keys = sorted(self.fsr.keys(), key=lambda x:(float(x)))
+        sorted_ord_keys = sorted(self.fsr.keys(), key=lambda x: (float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
         if min_diffs > 0.1:
-            raise ValueError("Requested FSR ({0}) was not part of "
-                             "possible values: {1}".format(
-                value, [x for x in sorted(self.fsr.keys())]))
+            raise ValueError(
+                "Requested FSR ({0}) was not part of possible values: {1}".format(
+                    value, [x for x in sorted(self.fsr.keys())]))
         return float(value)
 
     def get_current_settings(self):

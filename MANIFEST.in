@@ -1,7 +1,7 @@
 include LICENSE
 include README.rst
 include HISTORY.rst
-include CONTRIBUTORS.md
+include AUTHORS.rst
 include requirements.txt
 
 recursive-include pymetawear/Metawear-CppAPI *
@@ -10,8 +10,14 @@ prune pymetawear/Metawear-CppAPI/build
 prune pymetawear/Metawear-CppAPI/dist
 
 recursive-include examples *.py
-recursive-include tests *.py
-recursive-include docs *
+recursive-include tests *
+recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
 prune docs/build
 
-global-exclude __pycache__/*
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+
+
+
+
