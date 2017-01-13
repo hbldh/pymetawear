@@ -16,18 +16,36 @@ from __future__ import absolute_import
 import time
 from math import atan2, pi
 
-import matplotlib.pylot as plt
+import matplotlib.pyplot as plt
 
 from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
 
 
 class ComplimentaryFilter(object):
+    """A simple, not very efficient Complimentary Filter example.
 
-    def __init__(self, k, f, ):
-        self.k = k
+    A ``tau``-value of 0.075 leads to a pretty good filtering.
+
+    Args:
+
+        tau (float): Response coefficientS. Higher value leads to more
+            gyro-driven filtering.
+        f (int): Frequency of sensor sampling.
+
+    References:
+
+    http://www.pieter-jan.com/node/11
+    http://robottini.altervista.org/tag/complementary-filter
+
+    """
+
+    def __init__(self, tau, f):
+        """Constructor"""
+
         self.frequency = f
         self._dt = 1.0 / self.frequency
+        self.k = tau / (self._dt + tau)
 
         self._acc_data_added = False
         self._gyro_data_added = False
@@ -73,21 +91,37 @@ class ComplimentaryFilter(object):
                 self.raw_acc_data[-1][1], self.raw_gyro_data[-1][1]))
             self.filtered_data_timestamps.append(self.raw_gyro_data[-1][0])
 
+    def plot(self):
+        ax = plt.subplot(211)
+        ax.set_title("Pitch")
+        timestamps = [ts - self.filtered_data_timestamps[0] for ts in self.filtered_data_timestamps]
+
+        ax.plot(timestamps, [x[0] for x in self.filtered_data[1:]])
+        ax.plot(timestamps, [x[0] for x in self.unfiltered_data], 'r--')
+
+        ax = plt.subplot(212)
+        ax.set_title("Roll")
+        ax.plot(timestamps, [x[1] for x in self.filtered_data[1:]])
+        ax.plot(timestamps, [x[1] for x in self.unfiltered_data], 'r--')
+
+        plt.show()
+
 
 def run():
+    """Example of how to run the Complimentary filter."""
     address = select_device()
     c = MetaWearClient(str(address), 'pygatt', timeout=10, debug=False)
     print("New client created: {0}".format(c))
-    f = ComplimentaryFilter(0.90, 50)
+    f = ComplimentaryFilter(0.075, 50.0)
 
     print("Write accelerometer settings...")
     c.accelerometer.set_settings(data_rate=50.0, data_range=4.0)
-    c.gyroscope.set_settings(data_rate=50.0, data_range=500.0)
+    c.gyroscope.set_settings(data_rate=50.0, data_range=250.0)
     print("Subscribing to accelerometer signal notifications...")
     c.accelerometer.high_frequency_stream = False
     c.accelerometer.notifications(f.add_accelerometer_data)
     c.gyroscope.notifications(f.add_gyroscope_data)
-    time.sleep(20.0)
+    time.sleep(10.0)
 
     print("Unsubscribe to notification...")
     c.accelerometer.notifications(None)
@@ -95,11 +129,9 @@ def run():
 
     c.disconnect()
 
-    ax = plt.subplot(211)
-    ax.plot(f.filtered_data_timestamps, [x[0] for x in f.filtered_data])
-    ax.plot(f.filtered_data_timestamps, [x[0] for x in f.unfiltered_data])
-
     return f
 
 
-#c.disconnect()
+if __name__ == '__main__':
+    f = run()
+    f.plot()
