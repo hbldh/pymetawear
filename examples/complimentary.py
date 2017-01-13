@@ -92,17 +92,19 @@ class ComplimentaryFilter(object):
             self.filtered_data_timestamps.append(self.raw_gyro_data[-1][0])
 
     def plot(self):
-        ax = plt.subplot(211)
-        ax.set_title("Pitch")
         timestamps = [ts - self.filtered_data_timestamps[0] for ts in self.filtered_data_timestamps]
 
+        ax = plt.subplot(211)
+        ax.set_title("Pitch")
         ax.plot(timestamps, [x[0] for x in self.filtered_data[1:]])
         ax.plot(timestamps, [x[0] for x in self.unfiltered_data], 'r--')
+        ax.legend(['Filtered pitch', 'Raw pitch'])
 
         ax = plt.subplot(212)
         ax.set_title("Roll")
         ax.plot(timestamps, [x[1] for x in self.filtered_data[1:]])
         ax.plot(timestamps, [x[1] for x in self.unfiltered_data], 'r--')
+        ax.legend(['Filtered roll', 'Raw roll'])
 
         plt.show()
 
