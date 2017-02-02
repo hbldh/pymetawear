@@ -12,22 +12,23 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import re
+import time
 import logging
 from functools import wraps
-from ctypes import cast, POINTER
+from ctypes import cast, POINTER, c_uint32
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear import sensor
+from pymetawear.mbientlab.metawear import sensor, processor
 from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
     Quaternion, CorrectedCartesianFloat, EulerAngle
-from pymetawear.mbientlab.metawear.core import Fn_DataPtr
+from pymetawear.mbientlab.metawear.core import Fn_DataPtr, Fn_VoidPtr
 
 from pymetawear.modules.base import PyMetaWearModule, Modules
 
 log = logging.getLogger(__name__)
-
+current_processor = None
+waiting_for_processor = False
 
 def require_fusion_module(f):
     def wrapper(*args, **kwargs):
@@ -71,7 +72,19 @@ class SensorFusionModule(PyMetaWearModule):
             sensor.SensorFusion.DATA_GRAVITY_VECTOR: False,
             sensor.SensorFusion.DATA_LINEAR_ACC: False,
         }
+
+        self._data_source_signals = {
+            sensor.SensorFusion.DATA_CORRECTED_ACC: None,
+            sensor.SensorFusion.DATA_CORRECTED_GYRO: None,
+            sensor.SensorFusion.DATA_CORRECTED_MAG: None,
+            sensor.SensorFusion.DATA_QUATERION: None,
+            sensor.SensorFusion.DATA_EULER_ANGLE: None,
+            sensor.SensorFusion.DATA_GRAVITY_VECTOR: None,
+            sensor.SensorFusion.DATA_LINEAR_ACC: None,
+        }
+
         self._callbacks = {}
+        self._waiting_for_processor = False
 
         if debug:
             log.setLevel(logging.DEBUG)
@@ -81,6 +94,64 @@ class SensorFusionModule(PyMetaWearModule):
 
     def __repr__(self):
         return str(self)
+
+    @require_fusion_module
+    def set_sample_delay(self, data_source, delay=None, differential=False):
+        """
+        Change the delay between samples using the onboard time processor
+        module to change the effective sampling rate of a specific data source.
+
+        :param data_source: A data source from sensor.SensorFusion
+        :param delay: The delay in ms between samples,
+            or None to reset to default
+        :param differential: Set Time Preprocessor mode to differential,
+            instead of the default, absolute
+        """
+
+        global current_processor
+        global waiting_for_processor
+
+        if self._data_source_signals[data_source] is None:
+            log.debug("Getting data signal for data source {0}".format(
+                data_source
+            ))
+            self._data_source_signals[data_source] = \
+                libmetawear.mbl_mw_sensor_fusion_get_data_signal(
+                    self.board, data_source
+                )
+
+        if delay is not None:
+            mode = processor.Time.MODE_DIFFERENTIAL if differential else \
+                processor.Time.MODE_ABSOLUTE
+            waiting_for_processor = True
+            log.debug("Creating time dataprocessor for signal {0}".format(
+                self._data_source_signals[data_source]
+            ))
+            libmetawear.mbl_mw_dataprocessor_time_create(
+                self._data_source_signals[data_source],
+                mode,
+                delay,
+                Fn_VoidPtr(processor_set))
+            while waiting_for_processor:
+                time.sleep(0.1)
+            if current_processor is not None:
+                self._data_source_signals[data_source] = current_processor
+                current_processor = None
+            else:
+                raise PyMetaWearException("Can't set data processor!")
+
+        else:
+            data_signal = libmetawear.mbl_mw_sensor_fusion_get_data_signal(
+                    self.board, data_source)
+            if self._data_source_signals[data_source] != data_signal:
+                libmetawear.mbl_mw_dataprocessor_remove(
+                    self._data_source_signals[data_source]
+                )
+                self._data_source_signals[data_source] = data_signal
+
+    def _delay_set(self, processor):
+        self._current_processor = processor
+        self._waiting_for_processor = False
 
     @require_fusion_module
     def set_mode(self, mode):
@@ -102,8 +173,12 @@ class SensorFusionModule(PyMetaWearModule):
 
     @require_fusion_module
     def get_data_signal(self, data_source):
-        return libmetawear.mbl_mw_sensor_fusion_get_data_signal(
-            self.board, data_source)
+        if self._data_source_signals[data_source] is None:
+            self._data_source_signals[data_source] = \
+                libmetawear.mbl_mw_sensor_fusion_get_data_signal(
+                    self.board, data_source
+                )
+        return self._data_source_signals[data_source]
 
     @property
     def data_signal(self):
@@ -263,6 +338,18 @@ class SensorFusionModule(PyMetaWearModule):
         else:
             libmetawear.mbl_mw_sensor_fusion_clear_enabled_mask(
                 self.board)
+
+def processor_set(processor):
+    """
+    Set global variables as the libmetawear callback can't handle the self
+    parameter of instance methods.
+
+    :param processor: The processor thas was created
+    """
+    global current_processor
+    global waiting_for_processor
+    current_processor = processor
+    waiting_for_processor = False
 
 def sensor_data(func):
     @wraps(func)
