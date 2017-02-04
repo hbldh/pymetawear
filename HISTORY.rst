@@ -2,6 +2,13 @@
 History
 =======
 
+v0.7.1 (2017-02-04)
+-------------------
+- Using MetaWear-CppAPI version 0.7.10
+- Sensor fusion module contributed from user m-georgi (#26).
+- Fix to magnetometer power preset setting due to
+  change in MetaWear-CppAPI (#25).
+
 v0.7.0 (2017-01-13)
 -------------------
 - Using MetaWear-CppAPI version 0.7.4

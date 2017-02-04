@@ -57,9 +57,9 @@ class MagnetometerModule(PyMetaWearModule):
             self.mag_class = sensor.MagnetometerBmm150
 
         if self.mag_class is not None:
-            self.power_presets = {re.search('^POWER_PRESET_([A-Z\_]*)', k).groups()[0].lower():
+            self.power_presets = {re.search('^PRESET_([A-Z\_]*)', k).groups()[0].lower():
                                   getattr(self.mag_class, k, None) for k in filter(
-                lambda x: x.startswith('POWER_PRESET_'), vars(self.mag_class))}
+                lambda x: x.startswith('PRESET_'), vars(self.mag_class))}
 
         if debug:
             log.setLevel(logging.DEBUG)
@@ -123,7 +123,7 @@ class MagnetometerModule(PyMetaWearModule):
         pp = self._get_power_preset(power_preset)
         if self._debug:
             log.debug("Setting Magnetometer power preset to {0}".format(pp))
-        libmetawear.mbl_mw_mag_bmm150_set_power_preset(self.board, pp)
+        libmetawear.mbl_mw_mag_bmm150_set_preset(self.board, pp)
 
     @require_bmm150
     def notifications(self, callback=None):
