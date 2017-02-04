@@ -30,6 +30,7 @@ log = logging.getLogger(__name__)
 current_processor = None
 waiting_for_processor = False
 
+
 def require_fusion_module(f):
     def wrapper(*args, **kwargs):
         if getattr(args[0], 'available', False) is False:
@@ -38,6 +39,7 @@ def require_fusion_module(f):
         return f(*args, **kwargs)
 
     return wrapper
+
 
 class SensorFusionModule(PyMetaWearModule):
     """MetaWear accelerometer module implementation.
@@ -292,7 +294,6 @@ class SensorFusionModule(PyMetaWearModule):
             self.toggle_sampling(True)
             self.start()
 
-
     def check_and_change_callback(self, data_signal, callback):
         if callback is not None:
             if self._debug:
@@ -339,6 +340,7 @@ class SensorFusionModule(PyMetaWearModule):
             libmetawear.mbl_mw_sensor_fusion_clear_enabled_mask(
                 self.board)
 
+
 def processor_set(processor):
     """
     Set global variables as the libmetawear callback can't handle the self
@@ -350,6 +352,7 @@ def processor_set(processor):
     global waiting_for_processor
     current_processor = processor
     waiting_for_processor = False
+
 
 def sensor_data(func):
     @wraps(func)
