@@ -89,6 +89,7 @@ class MetaWearClient(object):
         self.temperature = None
         self.haptic = None
         self.led = None
+        self.sensorfusion = None
 
         if connect:
             self.connect()
@@ -211,3 +212,8 @@ class MetaWearClient(object):
             self.board, debug=self._debug)
         self.haptic = modules.HapticModule(self.board, debug=self._debug)
         self.led = modules.LEDModule(self.board, debug=self._debug)
+        self.sensorfusion = modules.SensorFusionModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_SENSOR_FUSION),
+            debug=self._debug)
