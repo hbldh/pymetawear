@@ -15,7 +15,7 @@ from __future__ import absolute_import
 import time
 import logging
 from functools import wraps
-from ctypes import cast, POINTER, c_uint32
+from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
@@ -29,6 +29,7 @@ from pymetawear.modules.base import PyMetaWearModule, Modules
 log = logging.getLogger(__name__)
 current_processor = None
 waiting_for_processor = False
+max_processor_wait_time = 5
 
 
 def require_fusion_module(f):
@@ -134,8 +135,12 @@ class SensorFusionModule(PyMetaWearModule):
                 mode,
                 delay,
                 Fn_VoidPtr(processor_set))
-            while waiting_for_processor:
-                time.sleep(0.1)
+
+            wait_time = 0
+            while waiting_for_processor and wait_time < max_processor_wait_time:
+                sleeptime = 0.1
+                time.sleep(sleeptime)
+                wait_time += sleeptime
             if current_processor is not None:
                 self._data_source_signals[data_source] = current_processor
                 current_processor = None
@@ -306,7 +311,7 @@ class SensorFusionModule(PyMetaWearModule):
             libmetawear.mbl_mw_datasignal_subscribe(
                 data_signal, self._callbacks[data_signal][1])
         else:
-            if not data_signal in self._callbacks :
+            if data_signal not in self._callbacks:
                 return
             if self._debug:
                 log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
