@@ -42,7 +42,7 @@ def build_solution():
     basedir = os.path.abspath(os.path.dirname(__file__))
     pkg_dir = os.path.join(basedir, 'pymetawear')
     path_to_metawear_python_wrappers = os.path.join(
-        pkg_dir, 'Metawear-CppAPI', 'wrapper', 'python')
+        pkg_dir, 'MetaWear-SDK-Cpp', 'wrapper', 'python')
 
     if os.path.exists(os.path.join(basedir, '.git')):
         # The package was cloned from Github and the submodule can
@@ -59,7 +59,7 @@ def build_solution():
         p.communicate()
     else:
         # The package was downloaded as zip or tar.gz from PyPI. It should
-        # have the MetaWear-CppAPI folder bundled and the building can be done immediately.
+        # have the MetaWear-SDK-Cpp folder bundled and the building can be done immediately.
         pass
 
     if platform.uname()[0] == 'Linux':
@@ -71,20 +71,20 @@ def build_solution():
         else:
             dist_dir = 'x86'
 
-        # Run make file for MetaWear-CppAPI
+        # Run make file for MetaWear-SDK-Cpp
         p = subprocess.Popen(
             ['make', 'clean'],
-            cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
+            cwd=os.path.join(pkg_dir, 'MetaWear-SDK-Cpp'),
             stdout=sys.stdout, stderr=sys.stderr)
         p.communicate()
         p = subprocess.Popen(
             ['make', 'build'],
-            cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
+            cwd=os.path.join(pkg_dir, 'MetaWear-SDK-Cpp'),
             stdout=sys.stdout, stderr=sys.stderr)
         p.communicate()
 
         path_to_dist_dir = os.path.join(
-            pkg_dir, 'Metawear-CppAPI', 'dist', 'release', 'lib', dist_dir)
+            pkg_dir, 'MetaWear-SDK-Cpp', 'dist', 'release', 'lib', dist_dir)
 
         for f in [s for s in os.listdir(pkg_dir) if s.startswith('libmetawear')]:
             os.remove(os.path.join(pkg_dir, f))
@@ -125,7 +125,7 @@ def build_solution():
         vsvars_file = glob.glob('c:\\Progr*/**/**/Too*/vsvars32.bat')[0]
         p = subprocess.Popen('"{0}" & MSBuild.exe {1} {2}'.format(
             vsvars_file, msbuild_file, build_options),
-            cwd=os.path.join(pkg_dir, 'Metawear-CppAPI'),
+            cwd=os.path.join(pkg_dir, 'MetaWear-SDK-Cpp'),
             stdout=sys.stdout, stderr=sys.stderr)
         p.communicate()
 
@@ -133,7 +133,7 @@ def build_solution():
             os.remove(os.path.join(pkg_dir, f))
 
         path_to_dist_dir = os.path.join(
-            pkg_dir, 'Metawear-CppAPI', 'dist', 'Release', 'lib', dist_dir)
+            pkg_dir, 'MetaWear-SDK-Cpp', 'dist', 'Release', 'lib', dist_dir)
 
         # Copy the built shared library to pymetawear folder.
         for dist_file in glob.glob(path_to_dist_dir + "/MetaWear.*.dll"):
