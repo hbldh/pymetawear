@@ -78,7 +78,7 @@ or like this using the raw ``libmetawear`` shared library:
 
     from ctypes import byref
     from pymetawear import libmetawear
-    from pymetawear.mbientlab.metawear.bindings import LedColor, LedPreset
+    from pymetawear.mbientlab.metawear.cbindings import LedColor, LedPreset
 
     pattern = Led.Pattern(repeat_count=10)
     libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), LedPreset.BLINK)

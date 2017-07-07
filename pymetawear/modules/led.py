@@ -18,7 +18,7 @@ from ctypes import byref
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.modules.base import PyMetaWearModule
-from pymetawear.mbientlab.metawear.bindings import *
+from pymetawear.mbientlab.metawear.cbindings import *
 
 log = logging.getLogger(__name__)
 

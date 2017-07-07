@@ -19,11 +19,7 @@ from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-#from pymetawear.mbientlab.metawear import sensor, processor
-#from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
-#    Quaternion, CorrectedCartesianFloat, EulerAngle
-#from pymetawear.mbientlab.metawear.core import Fn_DataPtr, Fn_VoidPtr
-from pymetawear.mbientlab.metawear.bindings import * 
+from pymetawear.mbientlab.metawear.cbindings import * 
 from pymetawear.modules.base import PyMetaWearModule, Modules
 
 log = logging.getLogger(__name__)

@@ -12,7 +12,7 @@ import glob
 from ctypes import cdll
 
 from pymetawear.version import __version__, version  # flake8: noqa
-from pymetawear.mbientlab.metawear.bindings import init_libmetawear
+from pymetawear.mbientlab.metawear.cbindings import init_libmetawear
 
 # Logging solution inspired by Hitchhiker's Guide to Python and Requests
 # Set default logging handler to avoid "No handler found" warnings.

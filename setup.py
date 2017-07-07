@@ -42,7 +42,7 @@ def build_solution():
     basedir = os.path.abspath(os.path.dirname(__file__))
     pkg_dir = os.path.join(basedir, 'pymetawear')
     path_to_metawear_python_wrappers = os.path.join(
-        pkg_dir, 'MetaWear-SDK-Cpp', 'wrapper', 'python')
+        pkg_dir, 'MetaWear-SDK-Cpp', 'bindings', 'python')
 
     if os.path.exists(os.path.join(basedir, '.git')):
         # The package was cloned from Github and the submodule can
@@ -113,7 +113,7 @@ def build_solution():
             msbuild_file = 'MetaWear.Win32.vcxproj'
             build_options = '/p:Configuration=Release;Platform=Win32'
         elif 'arm' in arch:
-            dist_dir = 'ARM'
+            dist_dir = 'arm'
             msbuild_file = 'MetaWear.WinRT.vcxproj'
             build_options = '/p:Configuration=Release;Platform=ARM'
         else:
@@ -133,7 +133,7 @@ def build_solution():
             os.remove(os.path.join(pkg_dir, f))
 
         path_to_dist_dir = os.path.join(
-            pkg_dir, 'MetaWear-SDK-Cpp', 'dist', 'Release', 'lib', dist_dir)
+            pkg_dir, 'MetaWear-SDK-Cpp', 'dist', 'release', 'lib', dist_dir)
 
         # Copy the built shared library to pymetawear folder.
         for dist_file in glob.glob(path_to_dist_dir + "/MetaWear.*.dll"):

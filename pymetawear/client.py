@@ -19,7 +19,7 @@ from pymetawear import libmetawear, specs, add_stream_logger
 from pymetawear import modules
 from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.mbientlab.metawear.bindings import Const
+from pymetawear.mbientlab.metawear.cbindings import Const
 
 log = logging.getLogger(__name__)
 

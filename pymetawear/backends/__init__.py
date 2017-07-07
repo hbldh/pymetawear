@@ -19,7 +19,7 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.bindings import BtleConnection, \
+from pymetawear.mbientlab.metawear.cbindings import BtleConnection, \
     FnVoid_VoidP_GattCharP, \
     FnVoid_VoidP_GattCharWriteType_GattCharP_UByteP_UByte, FnVoid_VoidP_Int
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR

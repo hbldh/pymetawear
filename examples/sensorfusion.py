@@ -17,7 +17,7 @@ import time
 
 from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
-from pymetawear.mbientlab.metawear.bindings import SensorFusionData, SensorFusionGyroRange, SensorFusionAccRange, SensorFusionMode
+from pymetawear.mbientlab.metawear.cbindings import SensorFusionData, SensorFusionGyroRange, SensorFusionAccRange, SensorFusionMode
 
 address = select_device()
 c = MetaWearClient(str(address), 'pygatt', debug=True)
