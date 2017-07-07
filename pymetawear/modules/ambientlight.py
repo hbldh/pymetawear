@@ -20,17 +20,16 @@ from ctypes import c_uint, cast, POINTER, c_float, c_ubyte
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, BatteryState, Tcs34725ColorAdc
+from pymetawear.mbientlab.metawear.bindings import *
 from pymetawear.modules.base import PyMetaWearModule, Modules
-from pymetawear.mbientlab.metawear.sensor import AmbientLightLtr329
 
 log = logging.getLogger(__name__)
 
 
 def require_ltr329(f):
     def wrapper(*args, **kwargs):
-        if getattr(args[0], 'ambient_light_class', None) is None:
-            raise PyMetaWearException("There is not Ambient Light "
+        if getattr(args[0], 'ambient_light_gain_class', None) is None:
+            raise PyMetaWearException("There is no Ambient Light "
                                       "module on your MetaWear board!")
         return f(*args, **kwargs)
     return wrapper
@@ -47,32 +46,39 @@ class AmbientLightModule(PyMetaWearModule):
     def __init__(self, board, module_id, debug=False):
         super(AmbientLightModule, self).__init__(board, debug)
         self.module_id = module_id
+        self.gain = {}
+        self.integration_time = {}
+        self.measurement_rate = {}
 
         if self.module_id == Modules.MBL_MW_MODULE_NA:
             # No ambient light sensor present!
-            self.ambient_light_class = None
+            self.ambient_light_gain_class = None
+            self.ambient_light_time_class = None
+            self.ambient_light_rate_class = None
             self.is_present = False
         else:
-            self.ambient_light_class = AmbientLightLtr329
+            self.ambient_light_gain_class = AlsLtr329Gain
+            self.ambient_light_time_class = AlsLtr329IntegrationTime
+            self.ambient_light_rate_class = AlsLtr329MeasurementRate
 
-        if self.ambient_light_class is not None:
-            # Parse possible output data rates for this accelerometer.
-            self._gain = {
-                int(re.search('^GAIN_([0-9]+)X', k).groups()[0]):
-                    getattr(self.ambient_light_class, k, None) for k in
-                filter(lambda x: x.startswith('GAIN'),
-                       vars(self.ambient_light_class))}
-            self._integration_time = {
-                int(re.search('^INTEGRATION_TIME_([0-9]+)MS', k).groups()[0]):
-                    getattr(self.ambient_light_class, k, None) for k in
-                filter(lambda x: x.startswith('INTEGRATION_TIME'),
-                       vars(self.ambient_light_class))}
-            self._measurement_rate = {
-                int(re.search('^MEASUREMENT_RATE_([0-9]+)MS', k).groups()[0]):
-                    getattr(self.ambient_light_class, k, None) for k in
-                filter(lambda x: x.startswith('MEASUREMENT_RATE'),
-                       vars(self.ambient_light_class))}
+        if self.ambient_light_gain_class is not None:
+            # Parse possible gain rates for this light sensor.
+            for key, value in vars(self.ambient_light_gain_class).items():
+                if re.search('^_([0-9]+)X', key):
+                    self.gain.update({key[1:-1]:value})
 
+        if self.ambient_light_time_class is not None:
+            # Parse possible integration time rates for this light sensor.
+            for key, value in vars(self.ambient_light_time_class).items():
+                if re.search('^_([0-9]+)ms', key):
+                    self.integration_time.update({key[1:-2]:value})
+
+        if self.ambient_light_rate_class is not None:
+            # Parse possible measurement time rates for this light sensor.
+            for key, value in vars(self.ambient_light_rate_class).items():
+                if re.search('^_([0-9]+)ms', key):
+                    self.measurement_rate.update({key[1:-2]:value})
+           
         if debug:
             log.setLevel(logging.DEBUG)
 
@@ -99,15 +105,15 @@ class AmbientLightModule(PyMetaWearModule):
     @require_ltr329
     def get_possible_settings(self):
         return {
-            'gain': [x for x in sorted(self._gain.keys())],
+            'gain': [x for x in sorted(self.gain.keys())],
             'integration_time': [x for x in sorted(
-                self._integration_time.keys())],
+                self.integration_time.keys())],
             'measurement_rate': [x for x in sorted(
-                self._measurement_rate.keys())]
+                self.measurement_rate.keys())]
         }
 
     def _get_gain(self, value):
-        sorted_ord_keys = sorted(self._gain.keys(),
+        sorted_ord_keys = sorted(self.gain.keys(),
                                  key=lambda x: (float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
@@ -115,11 +121,12 @@ class AmbientLightModule(PyMetaWearModule):
             raise ValueError(
                 "Requested gain ({0}) was not part of possible values: {1}".format(
                     value, [float(x) for x in sorted_ord_keys]))
-        k = int(sorted_ord_keys[diffs.index(min_diffs)])
-        return self._gain.get(k)
+        #k = int(sorted_ord_keys[diffs.index(min_diffs)])
+        k = sorted_ord_keys[diffs.index(min_diffs)]
+        return self.gain.get(k)
 
     def _get_integration_time(self, value):
-        sorted_ord_keys = sorted(self._integration_time.keys(),
+        sorted_ord_keys = sorted(self.integration_time.keys(),
                                  key=lambda x: (float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
@@ -127,11 +134,12 @@ class AmbientLightModule(PyMetaWearModule):
             raise ValueError(
                 "Requested integration time ({0}) was not part of possible values: {1}".format(
                     value, [float(x) for x in sorted_ord_keys]))
-        k = int(sorted_ord_keys[diffs.index(min_diffs)])
-        return self._integration_time.get(k)
+        #k = int(sorted_ord_keys[diffs.index(min_diffs)])
+        k = sorted_ord_keys[diffs.index(min_diffs)]
+        return self.integration_time.get(k)
 
     def _get_measurement_rate(self, value):
-        sorted_ord_keys = sorted(self._measurement_rate.keys(),
+        sorted_ord_keys = sorted(self.measurement_rate.keys(),
                                  key=lambda x: (float(x)))
         diffs = [abs(value - float(k)) for k in sorted_ord_keys]
         min_diffs = min(diffs)
@@ -139,8 +147,9 @@ class AmbientLightModule(PyMetaWearModule):
             raise ValueError(
                 "Requested measurement rate ({0}) was not part of possible values: {1}".format(
                     value, [float(x) for x in sorted_ord_keys]))
-        k = int(sorted_ord_keys[diffs.index(min_diffs)])
-        return self._measurement_rate.get(k)
+        #k = int(sorted_ord_keys[diffs.index(min_diffs)])
+        k = sorted_ord_keys[diffs.index(min_diffs)]
+        return self.measurement_rate.get(k)
 
     @require_ltr329
     def set_settings(self, gain=None, integration_time=None,

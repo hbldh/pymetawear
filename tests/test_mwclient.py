@@ -18,10 +18,8 @@ import pytest
 import pymetawear.client
 from .mock_backend import MockBackend
 pymetawear.client.PyGattBackend = MockBackend
-pymetawear.client.PyBluezBackend = MockBackend
 
-
-@pytest.mark.parametrize("backend", ['pygatt', 'pybluez'])
+@pytest.mark.parametrize("backend", 'pygatt')
 @pytest.mark.parametrize("mw_board", range(7))
 def test_client_init(backend, mw_board):
     MockBackend.boardType = mw_board
@@ -43,7 +41,7 @@ def test_client_init(backend, mw_board):
     assert c.backend.full_history == expected_cmds
 
 
-@pytest.mark.parametrize("backend", ['pygatt', 'pybluez'])
+@pytest.mark.parametrize("backend", 'pygatt')
 @pytest.mark.parametrize("mw_board", range(7))
 def test_client_init_delayed_connect(backend, mw_board):
     MockBackend.boardType = mw_board

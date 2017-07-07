@@ -19,7 +19,7 @@ from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
 
 address = select_device()
-c = MetaWearClient(str(address), 'pybluez', debug=True)
+c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 
@@ -28,10 +28,21 @@ def baro_callback(data):
     print("Epoch time: [{0}] - Altitude: {1}".format(data[0], data[1]))
 
 
+print("Get possible barometer settings...")
+settings = c.barometer.get_possible_settings()
+print(settings)
+
 print("Write barometer settings...")
-c.barometer.set_settings(oversampling='high',
-                         iir_filter='avg_8',
+c.barometer.set_settings(oversampling='HIGH',
+                         iir_filter='AVG_8',
                          standby_time=250.0)
+
+print("Get current barometer settings...")
+settings = c.barometer.get_current_settings()
+print(settings)
+
+time.sleep(5.0)
+
 print("Subscribing to barometer signal notifications...")
 c.barometer.notifications(baro_callback)
 

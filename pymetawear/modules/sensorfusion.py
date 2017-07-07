@@ -19,11 +19,11 @@ from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear import sensor, processor
-from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
-    Quaternion, CorrectedCartesianFloat, EulerAngle
-from pymetawear.mbientlab.metawear.core import Fn_DataPtr, Fn_VoidPtr
-
+#from pymetawear.mbientlab.metawear import sensor, processor
+#from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat, \
+#    Quaternion, CorrectedCartesianFloat, EulerAngle
+#from pymetawear.mbientlab.metawear.core import Fn_DataPtr, Fn_VoidPtr
+from pymetawear.mbientlab.metawear.bindings import * 
 from pymetawear.modules.base import PyMetaWearModule, Modules
 
 log = logging.getLogger(__name__)
@@ -67,23 +67,23 @@ class SensorFusionModule(PyMetaWearModule):
         self.current_active_signal = None
 
         self._streams_to_enable = {
-            sensor.SensorFusion.DATA_CORRECTED_ACC: False,
-            sensor.SensorFusion.DATA_CORRECTED_GYRO: False,
-            sensor.SensorFusion.DATA_CORRECTED_MAG: False,
-            sensor.SensorFusion.DATA_QUATERION: False,
-            sensor.SensorFusion.DATA_EULER_ANGLE: False,
-            sensor.SensorFusion.DATA_GRAVITY_VECTOR: False,
-            sensor.SensorFusion.DATA_LINEAR_ACC: False,
+            SensorFusionData.CORRECTED_ACC: False,
+            SensorFusionData.CORRECTED_GYRO: False,
+            SensorFusionData.CORRECTED_MAG: False,
+            SensorFusionData.QUATERION: False,
+            SensorFusionData.EULER_ANGLE: False,
+            SensorFusionData.GRAVITY_VECTOR: False,
+            SensorFusionData.LINEAR_ACC: False,
         }
 
         self._data_source_signals = {
-            sensor.SensorFusion.DATA_CORRECTED_ACC: None,
-            sensor.SensorFusion.DATA_CORRECTED_GYRO: None,
-            sensor.SensorFusion.DATA_CORRECTED_MAG: None,
-            sensor.SensorFusion.DATA_QUATERION: None,
-            sensor.SensorFusion.DATA_EULER_ANGLE: None,
-            sensor.SensorFusion.DATA_GRAVITY_VECTOR: None,
-            sensor.SensorFusion.DATA_LINEAR_ACC: None,
+            SensorFusionData.CORRECTED_ACC: None,
+            SensorFusionData.CORRECTED_GYRO: None,
+            SensorFusionData.CORRECTED_MAG: None,
+            SensorFusionData.QUATERION: None,
+            SensorFusionData.EULER_ANGLE: None,
+            SensorFusionData.GRAVITY_VECTOR: None,
+            SensorFusionData.LINEAR_ACC: None,
         }
 
         self._callbacks = {}
@@ -124,8 +124,8 @@ class SensorFusionModule(PyMetaWearModule):
                 )
 
         if delay is not None:
-            mode = processor.Time.MODE_DIFFERENTIAL if differential else \
-                processor.Time.MODE_ABSOLUTE
+            mode = TimeMode.DIFFERENTIAL if differential else \
+                TimeMode.ABSOLUTE
             waiting_for_processor = True
             log.debug("Creating time dataprocessor for signal {0}".format(
                 self._data_source_signals[data_source]
@@ -134,7 +134,7 @@ class SensorFusionModule(PyMetaWearModule):
                 self._data_source_signals[data_source],
                 mode,
                 delay,
-                Fn_VoidPtr(processor_set))
+                FnVoid_VoidP(processor_set))
 
             wait_time = 0
             while waiting_for_processor and wait_time < max_processor_wait_time:
@@ -259,13 +259,13 @@ class SensorFusionModule(PyMetaWearModule):
 
         """
         callback_data_source_map = {
-            sensor.SensorFusion.DATA_CORRECTED_ACC: corrected_acc_callback,
-            sensor.SensorFusion.DATA_CORRECTED_GYRO: corrected_gyro_callback,
-            sensor.SensorFusion.DATA_CORRECTED_MAG: corrected_mag_callback,
-            sensor.SensorFusion.DATA_QUATERION: quaternion_callback,
-            sensor.SensorFusion.DATA_EULER_ANGLE: euler_angle_callback,
-            sensor.SensorFusion.DATA_GRAVITY_VECTOR: gravity_callback,
-            sensor.SensorFusion.DATA_LINEAR_ACC: linear_acc_callback
+            SensorFusionData.CORRECTED_ACC: corrected_acc_callback,
+            SensorFusionData.CORRECTED_GYRO: corrected_gyro_callback,
+            SensorFusionData.CORRECTED_MAG: corrected_mag_callback,
+            SensorFusionData.QUATERION: quaternion_callback,
+            SensorFusionData.EULER_ANGLE: euler_angle_callback,
+            SensorFusionData.GRAVITY_VECTOR: gravity_callback,
+            SensorFusionData.LINEAR_ACC: linear_acc_callback
         }
 
         for data_source in callback_data_source_map:
@@ -307,7 +307,7 @@ class SensorFusionModule(PyMetaWearModule):
             if data_signal in self._callbacks:
                 raise PyMetaWearException(
                     "Subscription to {0} signal already in place!")
-            self._callbacks[data_signal] = (callback, Fn_DataPtr(callback))
+            self._callbacks[data_signal] = (callback, FnVoid_DataP(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
                 data_signal, self._callbacks[data_signal][1])
         else:
@@ -383,9 +383,9 @@ def sensor_data(func):
                           data_ptr.contents.y,
                           data_ptr.contents.z,
                           data_ptr.contents.accuracy)))
-        elif data.contents.type_id == DataTypeId.EULER_ANGLES:
+        elif data.contents.type_id == DataTypeId.EULER_ANGLE:
             epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(EulerAngle))
+            data_ptr = cast(data.contents.value, POINTER(EulerAngles))
             func((epoch, (data_ptr.contents.heading,
                           data_ptr.contents.pitch,
                           data_ptr.contents.roll,

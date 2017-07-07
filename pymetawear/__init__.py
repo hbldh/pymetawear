@@ -12,7 +12,7 @@ import glob
 from ctypes import cdll
 
 from pymetawear.version import __version__, version  # flake8: noqa
-from pymetawear.mbientlab.metawear.functions import setup_libmetawear
+from pymetawear.mbientlab.metawear.bindings import init_libmetawear
 
 # Logging solution inspired by Hitchhiker's Guide to Python and Requests
 # Set default logging handler to avoid "No handler found" warnings.
@@ -40,7 +40,7 @@ else:
     METAWEAR_LIB_SO_NAME = os.path.join(os.path.abspath(
         os.path.dirname(__file__)), METAWEAR_LIB_SO_NAME)
 libmetawear = cdll.LoadLibrary(METAWEAR_LIB_SO_NAME)
-setup_libmetawear(libmetawear)
+init_libmetawear(libmetawear)
 
 
 def add_stream_logger(stream=sys.stdout, level=logging.DEBUG):

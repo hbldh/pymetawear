@@ -2,11 +2,6 @@
 PyMetaWear
 ==========
 
-.. image:: https://travis-ci.org/hbldh/pymetawear.svg?branch=master
-    :target: https://travis-ci.org/hbldh/pymetawear
-.. image:: https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master
-    :target: https://coveralls.io/github/hbldh/pymetawear?branch=master
-
 Python package for connecting to and using
 `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
@@ -16,50 +11,26 @@ providing a more Pythonic interface. It has support for two different
 Python packages for Bluetooth Low Energy communication:
 
 - `pygatt <https://github.com/peplin/pygatt>`_
-- `pybluez <https://github.com/karulis/pybluez>`_ with
-  `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_
 
 PyMetaWear can be run with Python 2 and 3.4 with both backends,
 but only with the `pygatt` backend for Python 3.5.
 
-**It is a Linux-only package right now**! It can be built on Windows, given that
-Visual Studio Community 2015 has been installed first,
-but there is no working backend for Windows BLE yet.
+**It is a Linux-only package right now**! 
+Please use the other APIs for other platforms including Android, Windows, and Apple OS.
 
 Installation
 ------------
 
-.. code-block:: bash
-
-    $ pip install pymetawear
-
 Currently, only the `pygatt <https://github.com/peplin/pygatt>`_ communication
-backend is installed by default. The other backend can be installed as extras:
-
-.. code-block:: bash
-
-    $ pip install pymetawear[pybluez]
-
+backend is installed by default.
 
 Debian requirements for ``pymetawear``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 * ``build-essential``
 * ``python-dev``
 
-Additional requirements for ``pybluez``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* ``libglib2.0-dev``
-* ``bluetooth``
-* ``libbluetooth-dev``
-* ``libboost-python-dev``
-* ``libboost-thread-dev``
-
-
 Development
 ~~~~~~~~~~~
-
 Clone this repository and run
 
 .. code-block:: bash
@@ -67,20 +38,14 @@ Clone this repository and run
     $ python setup.py build
 
 to pull in the `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_ submodule,
-build it and copy the Python wrappers from it to the PyMetaWear folder. This can also be achieved by
-running
-
-.. code-block:: bash
-
-    $ pip install -e .
-
-in the cloned repository's root folder.
+build it and copy the Python wrappers from it to the PyMetaWear folder.
 
 Documentation
 -------------
 
 Available in the `Github pages <https://hbldh.github.io/pymetawear/>`_
 of this repository.
+New documentation coming soon.
 
 Basic Usage
 -----------
@@ -95,7 +60,7 @@ MetaWear board, is equal for both the two usage profiles:
 .. code-block:: python
 
     from pymetawear.client import MetaWearClient
-    backend = 'pygatt'  # Or 'pybluez'
+    backend = 'pygatt'
     c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
 
 An example: blinking with the LED lights can be done like this with the
@@ -113,13 +78,12 @@ or like this using the raw ``libmetawear`` shared library:
 
     from ctypes import byref
     from pymetawear import libmetawear
-    from pymetawear.mbientlab.metawear.peripheral import Led
+    from pymetawear.mbientlab.metawear.bindings import LedColor, LedPreset
 
     pattern = Led.Pattern(repeat_count=10)
-    libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), Led.PRESET_BLINK)
-    libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), Led.COLOR_GREEN)
+    libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), LedPreset.BLINK)
+    libmetawear.mbl_mw_led_write_pattern(c.board, byref(pattern), LedColor.GREEN)
     libmetawear.mbl_mw_led_play(c.board)
-
 
 Actual addresses to your MetaWear board can be found by scanning, either
 directly with ``hcitool lescan`` or with the included ``discover_devices`` method:
@@ -136,7 +100,6 @@ library with this client.
 
 Modules
 ~~~~~~~
-
 All functionality of the MetaWear C++ API is able to be used using the
 PyMetaWear client, and some of the modules have had convenience methods
 added to simplify the use of them. Below are two list, one of modules which
@@ -146,13 +109,13 @@ awaiting such focus.
 ================= =============== =====================
 Completed Modules Partial Modules Unimplemented Modules
 ================= =============== =====================
-Accelerometer     Settings        Proximity
+Accelerometer     Settings        NeoPixel
 Gyroscope                         Color Detector
 Haptic                            Humidity
 Switch                            GPIO
 LED                               I2C
 Barometer                         iBeacon
-Magnetometer                      NeoPixel
+Magnetometer                      
 Temperature
 Ambient Light
 ================= =============== =====================

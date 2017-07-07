@@ -5,10 +5,13 @@ Credits
 Development Lead
 ----------------
 
-* Henrik Blidh <henrik.blidh@nedomkull.com>
+* MBIENTLAB INC <hello@mbientlab.com>
 
 Contributors (sorted alphabetically)
 ------------------------------------
+
+* `Henrik Blidh <henrik.blidh@nedomkull.com>`_
+    - All of the base work for modules 
 
 * `Jonas Böer <https://github.com/morgil>`_ (Kinemic GmbH)
     - Magnetometer module
@@ -19,5 +22,5 @@ Contributors (sorted alphabetically)
 * `m-georgi <https://github.com/m-georgi>`_
     - Sensor fusion module
 
-* `Eric Tsai <https://github.com/scaryghost>`_ (mbientlab)
+* `Eric Tsai <https://github.com/scaryghost>`_ (Mbientlab)
     - 64-bit datasignal address handling and typecasting

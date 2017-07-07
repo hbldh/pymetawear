@@ -19,8 +19,7 @@ from ctypes import c_float, cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear import sensor
-from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
+from pymetawear.mbientlab.metawear.bindings import * 
 from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)
@@ -39,35 +38,50 @@ class AccelerometerModule(PyMetaWearModule):
     def __init__(self, board, module_id, debug=False):
         super(AccelerometerModule, self).__init__(board, debug)
         self.module_id = module_id
+        
+        self.current_odr = 0
+        self.current_fsr = 0
+
+        self.odr = {}
+        self.fsr = {}
+        acc_odr_class = None
+        acc_fsr_class = None
 
         self.high_frequency_stream = False
 
         acc_sensors = [
-            sensor.AccelerometerBmi160,
-            sensor.AccelerometerBma255,
-            sensor.AccelerometerMma8452q
+            Const.MODULE_ACC_TYPE_BMA255,  #3
+            Const.MODULE_ACC_TYPE_BMI160,  #1
+            Const.MODULE_ACC_TYPE_MMA8452Q #0
         ]
-        for a in acc_sensors:
-            if getattr(a, 'MODULE_TYPE', -1) == module_id:
-                self.acc_class = a
+        acc_sensor_odr = [
+            AccBma255Odr,
+            AccBmi160Odr,
+            AccMma8452qOdr
+        ]
+        acc_sensor_fsr = [
+            AccMma8452qRange,
+            AccBoschRange,
+            AccBoschRange
+        ]
+        
+        for count, a in enumerate(acc_sensors):
+            if module_id == a:
+                acc_odr_class = acc_sensor_odr[count]
+                acc_fsr_class = acc_sensor_fsr[count]
 
-        if self.acc_class is not None:
+        if acc_odr_class is not None:
             # Parse possible output data rates for this accelerometer.
-            self.odr = {".".join(re.search(
-                '^ODR_([0-9]+)\_*([0-9]*)HZ', k).groups()):
-                getattr(self.acc_class, k, None) for k in filter(
-                lambda x: x.startswith('ODR'), vars(self.acc_class))}
+            for key, value in vars(acc_odr_class).items():
+                if re.search('^_([0-9]+)\_*([0-9]*)Hz', key) and key is not None:
+                    self.odr.update({key[1:-2].replace("_","."):value})
 
+        if acc_fsr_class is not None:
             # Parse possible output data ranges for this accelerometer.
-            if len(list(filter(lambda x: x.startswith('FSR'),
-                               vars(self.acc_class)))) == 0:
-                acc_class = sensor.AccelerometerBosch
-            else:
-                acc_class = self.acc_class
-            self.fsr = {float(re.search('^FSR_([0-9]+)G', k).groups()[0]):
-                        getattr(acc_class, k, None) for k in
-                        filter(lambda x: x.startswith('FSR'), vars(acc_class))}
-
+            for key, value in vars(acc_fsr_class).items():
+                if re.search('^_([0-9]+)G', key) and key is not None:
+                    self.fsr.update({key[1:-1]:value})
+            
         if debug:
             log.setLevel(logging.DEBUG)
 
@@ -117,13 +131,13 @@ class AccelerometerModule(PyMetaWearModule):
         return float(value)
 
     def get_current_settings(self):
-        raise NotImplementedError()
+        return "data_rate in Hz: {} data_range in Gs: {}".format(self.current_odr, self.current_fsr)
 
     def get_possible_settings(self):
         return {
-            'data_rate': [float(x) for x in sorted(
+            'data_rate in Hz': [float(x) for x in sorted(
                 self.odr.keys(), key=lambda x:(float(x)))],
-            'data_range': [x for x in sorted(self.fsr.keys())]
+            'data_range in Gs': [x for x in sorted(self.fsr.keys())]
         }
 
     def set_settings(self, data_rate=None, data_range=None):
@@ -153,17 +167,22 @@ class AccelerometerModule(PyMetaWearModule):
         """
 
         if data_rate is not None:
+            self.current_odr = data_rate
             odr = self._get_odr(data_rate)
             if self._debug:
                 log.debug("Setting Accelerometer ODR to {0}".format(odr))
             libmetawear.mbl_mw_acc_set_odr(self.board, c_float(odr))
+       
         if data_range is not None:
+            self.current_fsr = data_range
             fsr = self._get_fsr(data_range)
             if self._debug:
                 log.debug("Setting Accelerometer FSR to {0}".format(fsr))
             libmetawear.mbl_mw_acc_set_range(self.board, c_float(fsr))
 
         if (data_rate is not None) or (data_range is not None):
+            self.current_odr = data_rate
+            self.current_fsr = data_range
             libmetawear.mbl_mw_acc_write_acceleration_config(self.board)
 
     def notifications(self, callback=None):

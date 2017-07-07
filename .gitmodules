@@ -1,3 +1,3 @@
 [submodule "pymetawear/Metawear-CppAPI"]
-	path = pymetawear/Metawear-CppAPI
-	url = https://github.com/mbientlab/Metawear-CppAPI
+	path = pymetawear/Metawear-SDK-Cpp
+	url = https://github.com/mbientlab/Metawear-SDK-Cpp

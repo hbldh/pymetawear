@@ -25,11 +25,6 @@ from codecs import open
 from setuptools import setup, find_packages
 from setuptools.command import build_py, develop
 
-if sys.argv[-1] == 'publish':
-    os.system('python setup.py sdist upload')
-    sys.exit()
-
-
 class PyMetaWearDeveloper(develop.develop):
     def run(self):
         build_solution()
@@ -187,9 +182,9 @@ def read(f):
 setup(
     name='pymetawear',
     version=version,
-    author='Henrik Blidh',
-    author_email='henrik.blidh@nedomkull.com',
-    url='https://github.com/hbldh/pymetawear',
+    author='MBIENTLAB INC',
+    author_email='hello@mbientlab.com',
+    url='https://github.com/mbientlab/pymetawear',
     description="Python client for connecting to MbientLab's MetaWear boards",
     long_description=read('README.rst') + '\n\n' + read('HISTORY.rst'),
     license='MIT',
@@ -221,9 +216,6 @@ setup(
         'pygatt[GATTTOOL]>=3.0.0',
         'pexpect>=4.2.0'
     ],
-    extras_require={
-        'pybluez': 'pybluez[ble]>=0.22'
-    },
     ext_modules=[],
     entry_points={
     }

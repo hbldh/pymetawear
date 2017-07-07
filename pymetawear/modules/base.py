@@ -16,7 +16,7 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.core import Fn_DataPtr
+from pymetawear.mbientlab.metawear.bindings import FnVoid_DataP
 
 log = logging.getLogger(__name__)
 
@@ -133,7 +133,7 @@ class PyMetaWearModule(object):
             if self.callback is not None:
                 raise PyMetaWearException(
                     "Subscription to {0} signal already in place!")
-            self.callback = (callback, Fn_DataPtr(callback))
+            self.callback = (callback, FnVoid_DataP(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
                 data_signal, self.callback[1])
         else:

@@ -18,7 +18,7 @@ from ctypes import c_uint, cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.core import DataTypeId
+from pymetawear.mbientlab.metawear.bindings import DataTypeId
 from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)

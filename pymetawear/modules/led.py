@@ -18,7 +18,7 @@ from ctypes import byref
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.modules.base import PyMetaWearModule
-from pymetawear.mbientlab.metawear.peripheral import Led
+from pymetawear.mbientlab.metawear.bindings import *
 
 log = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class LEDModule(PyMetaWearModule):
 
         """
         preset = self._get_preset(preset_name.lower())
-        pattern = Led.Pattern(**kwargs)
+        pattern = LedPattern(**kwargs)
         libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), preset)
         return pattern
 
@@ -106,14 +106,14 @@ class LEDModule(PyMetaWearModule):
 
     def _get_color(self, s):
         return {
-            'g': Led.COLOR_GREEN,
-            'r': Led.COLOR_RED,
-            'b': Led.COLOR_BLUE
-        }.get(s, Led.COLOR_GREEN)
+            'g': LedColor.GREEN,
+            'r': LedColor.RED,
+            'b': LedColor.BLUE
+        }.get(s, LedColor.GREEN)
 
     def _get_preset(self, s):
         return {
-            'blink': Led.PRESET_BLINK,
-            'pulse': Led.PRESET_PULSE,
-            'solid': Led.PRESET_SOLID
-        }.get(s, Led.PRESET_BLINK)
+            'blink': LedPreset.BLINK,
+            'pulse': LedPreset.PULSE,
+            'solid': LedPreset.SOLID
+        }.get(s, LedPreset.BLINK)

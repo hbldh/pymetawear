@@ -12,15 +12,16 @@ from __future__ import absolute_import
 
 import os
 import time
+import ctypes
 from ctypes import byref
 import uuid
 import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.core import BtleConnection, \
-    Fn_VoidPtr_GattCharPtr, \
-    Fn_VoidPtr_GattCharPtr_ByteArray, Fn_VoidPtr_Int
+from pymetawear.mbientlab.metawear.bindings import BtleConnection, \
+    FnVoid_VoidP_GattCharP, \
+    FnVoid_VoidP_GattCharWriteType_GattCharP_UByteP_UByte, FnVoid_VoidP_Int
 from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR
 from pymetawear.compat import string_types, range_
 
@@ -45,15 +46,15 @@ class BLECommunicationBackend(object):
         # libmetawear. These methods in their turn use the backend read/write
         # methods implemented in the specific backends.
         self._btle_connection = BtleConnection(
-            write_gatt_char=Fn_VoidPtr_GattCharPtr_ByteArray(
+            write_gatt_char=FnVoid_VoidP_GattCharWriteType_GattCharP_UByteP_UByte(
                 self.mbl_mw_write_gatt_char),
-            read_gatt_char=Fn_VoidPtr_GattCharPtr(self.mbl_mw_read_gatt_char))
+            read_gatt_char=FnVoid_VoidP_GattCharP(self.mbl_mw_read_gatt_char))
 
         # Dictionary of callbacks for subscriptions set up through the
         # libmetawear library.
         self.callbacks = {
             'initialization': (self._initialized_fcn,
-                               Fn_VoidPtr_Int(self._initialized_fcn)),
+                               FnVoid_VoidP_Int(self._initialized_fcn)),
         }
 
         self.board = None
@@ -133,13 +134,14 @@ class BLECommunicationBackend(object):
 
         """
         response = self.read_gatt_char_by_uuid(characteristic)
-        sb = self._response_2_string_buffer(response)
+        sb_temp = self._response_2_string_buffer(response)
+        sb = (ctypes.c_ubyte * len(sb_temp)).from_buffer_copy(sb_temp)
         libmetawear.mbl_mw_metawearboard_char_read(
-            self.board, characteristic, sb.raw, len(sb.raw))
+            self.board, characteristic, sb, len(sb))
 
         self._log("Read", characteristic, response, len(response))
 
-    def mbl_mw_write_gatt_char(self, board, characteristic, command, length):
+    def mbl_mw_write_gatt_char(self, board, wtype, characteristic, command, length):
         """Write the desired data to the MetaWear board.
 
         :param pymetawear.mbientlab.metawear.core.GattCharacteristic
@@ -184,9 +186,10 @@ class BLECommunicationBackend(object):
         self._log("Notify", handle, value, 0)
 
         if handle == self._notify_char_handle:
-            sb = self._response_2_string_buffer(value)
+            sb_temp = self._response_2_string_buffer(value)
+            sb = (ctypes.c_ubyte * len(sb_temp)).from_buffer_copy(sb_temp)
             libmetawear.mbl_mw_metawearboard_notify_char_changed(
-                self.board, sb.raw, len(sb.raw))
+                self.board, sb, len(sb))
         else:
             raise PyMetaWearException(
                 "Notification on unexpected handle: {0}".format(handle))

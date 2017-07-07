@@ -2,6 +2,11 @@
 History
 =======
 
+v0.8.0 (2017-07-04)
+-------------------
+- Using MetaWear-CppAPI version 0.8.0
+- New ownership
+
 v0.7.1 (2017-02-04)
 -------------------
 - Using MetaWear-CppAPI version 0.7.10

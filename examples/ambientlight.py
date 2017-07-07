@@ -23,13 +23,20 @@ c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 if c.ambient_light.is_present:
+
     def callback(data):
         """Handle ambient light notification callback."""
         print("Ambient Light: {0}".format(data))
 
 
+    settings = c.ambient_light.get_possible_settings()
+    print(settings)
+
+    time.sleep(5.0)
+
     print("Write ambient light settings...")
     c.ambient_light.set_settings(gain=4, integration_time=200, measurement_rate=200)
+
     print("Subscribing to ambient light signal notifications...")
     c.ambient_light.notifications(callback)
 
@@ -39,6 +46,7 @@ if c.ambient_light.is_present:
     c.ambient_light.notifications(None)
 
     time.sleep(5.0)
+
 else:
     print("Ambient light sensor is not present on this board.")
 

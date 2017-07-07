@@ -17,7 +17,7 @@ import time
 
 from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
-from pymetawear.mbientlab.metawear.sensor import SensorFusion
+from pymetawear.mbientlab.metawear.bindings import SensorFusionData, SensorFusionGyroRange, SensorFusionAccRange, SensorFusionMode
 
 address = select_device()
 c = MetaWearClient(str(address), 'pygatt', debug=True)
@@ -43,7 +43,6 @@ def handle_gyro(data):
     xyzaccu = data[1]
     print("GYRO [{0}] X: {1}, Y: {2}, Z: {3}".format(epoch, *xyzaccu[:-1]))
 
-
 def handle_euler(data):
     # Handle a (epoch_time, (heading,pitch,roll,yaw)) euler angle tuple.¬
     epoch = data[0]
@@ -53,20 +52,24 @@ def handle_euler(data):
 
 
 print("Write Sensor Fusion settings...")
-c.sensorfusion.set_mode(SensorFusion.MODE_NDOF)
-c.sensorfusion.set_acc_range(SensorFusion.ACC_RANGE_8G)
-c.sensorfusion.set_gyro_range(SensorFusion.GYRO_RANGE_1000DPS)
+c.sensorfusion.set_mode(SensorFusionMode.NDOF)
+c.sensorfusion.set_acc_range(SensorFusionAccRange._8G)
+c.sensorfusion.set_gyro_range(SensorFusionGyroRange._1000DPS)
+
 print("Set Time Processor to limit data rate to 50Hz for each channel")
-c.sensorfusion.set_sample_delay(SensorFusion.DATA_CORRECTED_ACC, 20)
-c.sensorfusion.set_sample_delay(SensorFusion.DATA_CORRECTED_GYRO, 20)
-c.sensorfusion.set_sample_delay(SensorFusion.DATA_QUATERION, 20)
+#c.sensorfusion.set_sample_delay(SensorFusionData.EULER_ANGLE, 20)
+c.sensorfusion.set_sample_delay(SensorFusionData.QUATERION, 20)
+#c.sensorfusion.set_sample_delay(SensorFusionData.CORRECTED_ACC, 20)
+#c.sensorfusion.set_sample_delay(SensorFusionData.CORRECTED_GYRO, 20)
+
 print("Subscribing to Sensor Fusion Quaternion signal notifications...")
 #c.sensorfusion.notifications(euler_angle_callback=handle_euler)
-c.sensorfusion.notifications(corrected_acc_callback=handle_notification,
-                             quaternion_callback=handle_quat,
-                             corrected_gyro_callback=handle_gyro)
+c.sensorfusion.notifications(quaternion_callback=handle_quat)
+#c.sensorfusion.notifications(corrected_acc_callback=handle_notification,
+#                             quaternion_callback=handle_quat,
+#                             corrected_gyro_callback=handle_gyro)
 
-time.sleep(20.0)
+time.sleep(10.0)
 
 print("Unsubscribe to notification...")
 c.sensorfusion.notifications()

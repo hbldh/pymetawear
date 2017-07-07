@@ -29,7 +29,16 @@ def gyro_callback(data):
 
 
 print("Write gyroscope settings...")
-c.gyroscope.set_settings(data_rate=200.0, data_range=1000.0)
+settings = c.gyroscope.get_possible_settings()
+print(settings)
+
+time.sleep(5.0)
+
+print("Write gyroscope settings...")
+c.gyroscope.set_settings(data_rate=50.0, data_range=1000.0)
+
+time.sleep(5.0)
+
 print("Subscribing to gyroscope signal notifications...")
 c.gyroscope.notifications(gyro_callback)
 

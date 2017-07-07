@@ -19,7 +19,7 @@ from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.core import DataTypeId, BatteryState
+from pymetawear.mbientlab.metawear.bindings import DataTypeId, BatteryState
 from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)

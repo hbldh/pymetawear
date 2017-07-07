@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`accelerometer`
+:mod:`magnetometer`
 ==================
 
 Created by hbldh <henrik.blidh@nedomkull.com>
@@ -23,34 +23,33 @@ c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 
-def acc_callback(data):
-    """Handle a (epoch, (x,y,z)) accelerometer tuple."""
+def mag_callback(data):
+    """Handle a (epoch, (x,y,z)) magnetometer tuple."""
     print("Epoch time: [{0}] - X: {1}, Y: {2}, Z: {3}".format(data[0], *data[1]))
 
 
-print("Get possible accelerometer settings...")
-settings = c.accelerometer.get_possible_settings()
+print("Get possible magnetometer settings...")
+settings = c.magnetometer.get_possible_settings()
 print(settings)
 
 time.sleep(1.0)
 
 print("Write accelerometer settings...")
-c.accelerometer.set_settings(data_rate=3.125, data_range=4.0)
+c.magnetometer.set_settings(power_preset='REGULAR')
 
 time.sleep(1.0)
 
-print("Check accelerometer settings...")
-settings = c.accelerometer.get_current_settings()
-print(settings)
+#print("Check accelerometer settings...")
+#settings = c.accelerometer.get_current_settings()
+#print(settings)
 
-print("Subscribing to accelerometer signal notifications...")
-c.accelerometer.high_frequency_stream = False
-c.accelerometer.notifications(acc_callback)
+print("Subscribing to magnetometer signal notifications...")
+c.magnetometer.notifications(mag_callback)
 
 time.sleep(10.0)
 
 print("Unsubscribe to notification...")
-c.accelerometer.notifications(None)
+c.magnetometer.notifications(None)
 
 time.sleep(5.0)
 

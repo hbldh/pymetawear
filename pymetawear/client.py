@@ -17,10 +17,9 @@ import os
 
 from pymetawear import libmetawear, specs, add_stream_logger
 from pymetawear import modules
-from pymetawear.backends.pybluez import PyBluezBackend
 from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.mbientlab.metawear.core import Status
+from pymetawear.mbientlab.metawear.bindings import Const
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +34,7 @@ class MetaWearClient(object):
     development and testing.
 
     :param str address: A Bluetooth MAC address to a MetaWear board.
-    :param str backend: Either ``pygatt`` or ``pybluez``, designating which
+    :param str backend: `pygatt`, designating which
         BLE communication backend that should be used.
     :param float timeout: Timeout for connecting to the MetaWear board. If
         ``None`` timeout defaults to the backend default.
@@ -70,13 +69,10 @@ class MetaWearClient(object):
             self._backend = PyGattBackend(
                 self._address, interface=interface,
                 timeout=timeout, debug=debug)
-        elif backend == 'pybluez':
-            self._backend = PyBluezBackend(
-                self._address, interface=interface,
-                timeout=timeout, debug=debug)
         else:
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
 
+        log.info("Backend starter with {0} for device address {1} with timeout {2}...".format(backend, address, timeout))
         self.firmware_version = None
         self.model_version = None
         self.accelerometer = None
@@ -134,8 +130,8 @@ class MetaWearClient(object):
             self.backend.sleep(0.1)
 
         # Check if initialization has been completed successfully.
-        if self.backend.initialization_status != Status.OK:
-            if self.backend.initialization_status == Status.ERROR_TIMEOUT:
+        if self.backend.initialization_status != Const.STATUS_OK:
+            if self.backend.initialization_status == Const.STATUS_ERROR_TIMEOUT:
                 raise PyMetaWearConnectionTimeout("libmetawear initialization status 16: Timeout")
             else:
                 raise PyMetaWearException("libmetawear initialization status {0}".format(

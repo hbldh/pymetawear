@@ -1,0 +1,13 @@
+#!/bin/bash
+echo "Clean up Pygatt"
+sudo systemctl restart bluetooth
+sudo systemctl restart bluetooth.target
+sudo hciconfig hci0 up
+sudo hciconfig hci0 reset
+sudo systemctl restart bluetooth
+sudo systemctl restart bluetooth.target
+sudo hciconfig hci0 up
+sudo hciconfig hci0 reset
+sudo hciconfig
+echo "DONE"
+
