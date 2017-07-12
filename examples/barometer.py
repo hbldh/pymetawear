@@ -4,6 +4,7 @@
 :mod:`accelerometer`
 ==================
 
+Updated by lkasso <hello@mbientlab.com>
 Created by hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-04-10
 
@@ -32,10 +33,14 @@ print("Get possible barometer settings...")
 settings = c.barometer.get_possible_settings()
 print(settings)
 
+time.sleep(1.0)
+
 print("Write barometer settings...")
 c.barometer.set_settings(oversampling='HIGH',
                          iir_filter='AVG_8',
                          standby_time=250.0)
+
+time.sleep(1.0)
 
 print("Get current barometer settings...")
 settings = c.barometer.get_current_settings()

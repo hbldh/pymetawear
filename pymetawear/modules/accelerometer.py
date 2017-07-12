@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+.. moduleauthor:: lkasso <hello@mbientlab.com>
+.. modulecreator:: hbldh <henrik.blidh@nedomkull.com>
 
 Created: 2016-04-14
 
@@ -44,6 +45,7 @@ class AccelerometerModule(PyMetaWearModule):
 
         self.odr = {}
         self.fsr = {}
+        
         acc_odr_class = None
         acc_fsr_class = None
 

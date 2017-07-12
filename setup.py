@@ -216,6 +216,9 @@ setup(
         'pygatt[GATTTOOL]>=3.0.0',
         'pexpect>=4.2.0'
     ],
+    extras_requires={
+        'pybluez': 'pybluez[ble]>=0.22'
+    },
     ext_modules=[],
     entry_points={
     }

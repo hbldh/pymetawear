@@ -4,6 +4,7 @@
 :mod:`gyroscope`
 ==================
 
+Updated by lkasso <hello@mbientlab.com>
 Created by hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-04-26
 
@@ -29,14 +30,17 @@ if c.ambient_light.is_present:
         print("Ambient Light: {0}".format(data))
 
 
+    print("Get ambient light settings...")
     settings = c.ambient_light.get_possible_settings()
     print(settings)
 
-    time.sleep(5.0)
+    time.sleep(1.0)
 
     print("Write ambient light settings...")
     c.ambient_light.set_settings(gain=4, integration_time=200, measurement_rate=200)
 
+    time.sleep(1.0)
+    
     print("Subscribing to ambient light signal notifications...")
     c.ambient_light.notifications(callback)
 

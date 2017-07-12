@@ -17,6 +17,7 @@ import os
 
 from pymetawear import libmetawear, specs, add_stream_logger
 from pymetawear import modules
+from pymetawear.backends.pybluez import PyBluezBackend
 from pymetawear.backends.pygatt import PyGattBackend
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
 from pymetawear.mbientlab.metawear.cbindings import Const
@@ -69,6 +70,10 @@ class MetaWearClient(object):
             self._backend = PyGattBackend(
                 self._address, interface=interface,
                 timeout=timeout, debug=debug)
+        elif backend == 'pybluez':
+            self._backend = PyBluezBackend(
+                self._address, interface=interface,
+                timeout=timeout, debug=debug)
         else:
             raise PyMetaWearException("Unknown backend: {0}".format(backend))
 
@@ -76,6 +81,7 @@ class MetaWearClient(object):
         self.firmware_version = None
         self.model_version = None
         self.accelerometer = None
+        self.gpio = None
         self.gyroscope = None
         self.magnetometer = None
         self.barometer = None
@@ -177,6 +183,11 @@ class MetaWearClient(object):
         libmetawear.mbl_mw_debug_reset(self.board)
 
     def _initialize_modules(self):
+        self.gpio = modules.GpioModule(
+            self.board,
+            libmetawear.mbl_mw_metawearboard_lookup_module(
+                self.board, modules.Modules.MBL_MW_MODULE_GPIO),
+            debug=self._debug)
         self.accelerometer = modules.AccelerometerModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(

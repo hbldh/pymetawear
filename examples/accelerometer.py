@@ -4,6 +4,7 @@
 :mod:`accelerometer`
 ==================
 
+Updated by lkasso <hello@mbientlab.com>
 Created by hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-04-10
 

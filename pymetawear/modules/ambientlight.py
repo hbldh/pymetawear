@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 
+.. modulecreator:: lkasso <hello@mbientlab.com>
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
 
 Created: 2016-04-28

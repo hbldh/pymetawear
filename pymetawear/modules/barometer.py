@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
+.. moduleauthor:: lkasso <hello@mbientlab.com>
+.. modulecreator:: hbldh <henrik.blidh@nedomkull.com>
 
 Created: 2016-08-16
 
