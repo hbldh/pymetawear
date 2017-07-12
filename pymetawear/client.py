@@ -81,7 +81,7 @@ class MetaWearClient(object):
         self.firmware_version = None
         self.model_version = None
         self.accelerometer = None
-        self.gpio = None
+        #self.gpio = None
         self.gyroscope = None
         self.magnetometer = None
         self.barometer = None
@@ -183,11 +183,11 @@ class MetaWearClient(object):
         libmetawear.mbl_mw_debug_reset(self.board)
 
     def _initialize_modules(self):
-        self.gpio = modules.GpioModule(
-            self.board,
-            libmetawear.mbl_mw_metawearboard_lookup_module(
-                self.board, modules.Modules.MBL_MW_MODULE_GPIO),
-            debug=self._debug)
+        #self.gpio = modules.GpioModule(
+        #    self.board,
+        #    libmetawear.mbl_mw_metawearboard_lookup_module(
+        #        self.board, modules.Modules.MBL_MW_MODULE_GPIO),
+        #    debug=self._debug)
         self.accelerometer = modules.AccelerometerModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
