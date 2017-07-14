@@ -73,9 +73,6 @@ class GyroscopeModule(PyMetaWearModule):
                 if re.search('_([0-9]+)dps', key) and key is not None:
                     self.fsr.update({key[1:-3]:value})
             
-        print(self.gyro_r_class)
-        print(self.gyro_o_class)
-
         if debug:
             log.setLevel(logging.DEBUG)
 

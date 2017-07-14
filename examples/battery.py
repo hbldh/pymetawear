@@ -32,17 +32,17 @@ def battery_callback(data):
 
 
 print("Subscribe to battery notifications...")
-c.battery.notifications(battery_callback)
+c.settings.notifications(battery_callback)
 
 time.sleep(1.0)
 
 print("Trigger battery state notification...")
-c.battery.read_battery_state()
+c.settings.read_battery_state()
 
-time.sleep(1.0)
+time.sleep(2.0)
 
 print("Unsubscribe to battery notifications...")
-c.battery.notifications(None)
+c.settings.notifications(None)
 
 time.sleep(1.0)
 

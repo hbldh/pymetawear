@@ -87,7 +87,7 @@ class MetaWearClient(object):
         self.barometer = None
         self.ambient_light = None
         self.switch = None
-        self.battery = None
+        self.settings = None
         self.temperature = None
         self.haptic = None
         self.led = None
@@ -214,7 +214,7 @@ class MetaWearClient(object):
                 self.board, modules.Modules.MBL_MW_MODULE_AMBIENT_LIGHT),
             debug=self._debug)
         self.switch = modules.SwitchModule(self.board, debug=self._debug)
-        self.battery = modules.BatteryModule(self.board, debug=self._debug)
+        self.settings = modules.SettingsModule(self.board, debug=self._debug)
         self.temperature = modules.TemperatureModule(
             self.board, debug=self._debug)
         self.haptic = modules.HapticModule(self.board, debug=self._debug)
