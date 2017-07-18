@@ -12,6 +12,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from ctypes import byref, cast, c_ubyte, c_uint, POINTER
+import errno
 import logging
 import os
 
@@ -117,6 +119,41 @@ class MetaWearClient(object):
     @property
     def board(self):
         return self.backend.board
+
+    @staticmethod
+    def _lookup_path(path):
+        return path if path is not None else ".metawear"
+
+    @staticmethod
+    def _lookup_name(name, address):
+        return name if name is not None else address.replace(':','')
+
+    def serialize(self, path=None, name=None):
+        realpath = MetaWearClient._lookup_path(path)
+        try:
+            os.makedirs(realpath)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise
+        finally:
+            size = c_uint(0)
+            state = cast(libmetawear.mbl_mw_metawearboard_serialize(self.board, byref(size)), POINTER(c_ubyte * size.value))
+            python_array= []
+            for i in range(0, size.value):
+                python_array.append(state.contents[i])
+
+            realfile = MetaWearClient._lookup_name(name, self._address)
+            with open(os.path.join(os.getcwd(), realpath, realfile), "wb") as file:
+                file.write(state.contents)
+            libmetawear.mbl_mw_memory_free(state)
+
+    def deserialize(self, path=None, name=None):
+        state_path = os.path.join(os.getcwd(), MetaWearClient._lookup_path(path), MetaWearClient._lookup_name(name, self._address)) 
+        if os.path.isfile(state_path):
+            with(open(state_path, "rb")) as f:
+                content = f.read()
+                raw = (c_ubyte * len(content)).from_buffer_copy(content)
+                libmetawear.mbl_mw_metawearboard_deserialize(self.board, raw, len(content))
 
     def connect(self, clean_connect=False):
         """Connect this client to the MetaWear device.
