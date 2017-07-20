@@ -57,7 +57,13 @@ class BLECommunicationBackend(object):
                                FnVoid_VoidP_Int(self._initialized_fcn)),
         }
 
-        self.board = None
+        self.board = libmetawear.mbl_mw_metawearboard_create(
+            byref(self._btle_connection))
+
+        _response_time = os.environ.get('PYMETAWEAR_RESPONSE_TIME', 300)
+        libmetawear.mbl_mw_metawearboard_set_time_for_response(self.board, int(
+            _response_time))
+
         self._notify_char_handle = None
 
     def __str__(self):
@@ -97,21 +103,6 @@ class BLECommunicationBackend(object):
             METAWEAR_SERVICE_NOTIFY_CHAR[1])
         self.subscribe(METAWEAR_SERVICE_NOTIFY_CHAR[1],
                        self.handle_notify_char_output)
-
-        # Now create a libmetawear board object and initialize it.
-        # Free memory for any old board first.
-        if self.board is not None:
-            try:
-                libmetawear.mbl_mw_metawearboard_tear_down(self.board)
-            except:
-                pass
-            libmetawear.mbl_mw_metawearboard_free(self.board)
-        self.board = libmetawear.mbl_mw_metawearboard_create(
-            byref(self._btle_connection))
-
-        _response_time = os.environ.get('PYMETAWEAR_RESPONSE_TIME', 300)
-        libmetawear.mbl_mw_metawearboard_set_time_for_response(self.board, int(
-            _response_time))
 
         libmetawear.mbl_mw_metawearboard_initialize(
             self.board, self.callbacks.get('initialization')[1])

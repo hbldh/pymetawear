@@ -189,10 +189,14 @@ class MetaWearClient(object):
 
         self._initialize_modules()
 
-    def disconnect(self):
-        """Disconnects this client from the MetaWear device."""
-        libmetawear.mbl_mw_metawearboard_tear_down(self.board)
+    def free(self):
+        """Frees unmanaged memory used by thie object"""
         libmetawear.mbl_mw_metawearboard_free(self.board)
+
+    def disconnect(self, tear_down=True):
+        """Disconnects this client from the MetaWear device."""
+        if tear_down:
+            libmetawear.mbl_mw_metawearboard_tear_down(self.board)
         self.backend.disconnect()
 
     def get_handle(self, uuid, notify_handle=False):
