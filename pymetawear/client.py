@@ -26,7 +26,20 @@ from pymetawear.mbientlab.metawear.cbindings import Const
 
 log = logging.getLogger(__name__)
 
-
+_model_names = [
+    "Unknown",
+    "MetaWear R",
+    "MetaWear RG",
+    "MetaWear RPro",
+    "MetaWear C",
+    "MetaWear CPro",
+    "MetaEnvironment",
+    "MetaDetector",
+    "MetaHealth",
+    "MetaTracker",
+    "MetaMotion R",
+    "MetaMotion C"
+]
 class MetaWearClient(object):
     """A MetaWear communication client.
 
@@ -181,11 +194,11 @@ class MetaWearClient(object):
                     self.backend.initialization_status))
 
         # Read out firmware and model version.
-        self.firmware_version = tuple(
-            [int(x) for x in self.backend.read_gatt_char_by_uuid(
-                specs.DEV_INFO_FIRMWARE_CHAR[1]).decode().split('.')])
+        self.firmware_version_str = self.backend.read_gatt_char_by_uuid(specs.DEV_INFO_FIRMWARE_CHAR[1]).decode()
+        self.firmware_version = tuple([int(x) for x in self.firmware_version_str.split('.')])
         self.model_version = int(self.backend.read_gatt_char_by_uuid(
             specs.DEV_INFO_MODEL_CHAR[1]).decode())
+        self.model_name = _model_names[libmetawear.mbl_mw_metawearboard_get_model(self.board) + 1]
 
         self._initialize_modules()
 
