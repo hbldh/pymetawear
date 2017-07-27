@@ -22,17 +22,8 @@ address = select_device()
 c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
-
-def switch_callback(data):
-    """Handle a (epoch, status) switch tuple."""
-    epoch = data[0]
-    status = data[1]
-    print("[{0}] Switch {1}!".format(
-        epoch, 'pressed' if status else 'released'))
-
-
 # Create subscription
-c.switch.notifications(switch_callback)
+c.switch.notifications(lambda data: print(data))
 
 time.sleep(10.0)
 

@@ -24,12 +24,6 @@ c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
 if c.ambient_light.is_present:
-
-    def callback(data):
-        """Handle ambient light notification callback."""
-        print("Ambient Light: {0}".format(data))
-
-
     print("Get ambient light settings...")
     settings = c.ambient_light.get_possible_settings()
     print(settings)
@@ -42,7 +36,7 @@ if c.ambient_light.is_present:
     time.sleep(1.0)
     
     print("Subscribing to ambient light signal notifications...")
-    c.ambient_light.notifications(callback)
+    c.ambient_light.notifications(lambda data: print(data))
 
     time.sleep(20.0)
 

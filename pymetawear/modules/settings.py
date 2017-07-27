@@ -14,13 +14,12 @@ from __future__ import absolute_import
 
 import logging
 import warnings
-from functools import wraps
-from ctypes import byref, cast, c_ubyte, create_string_buffer, cast, POINTER
+from ctypes import cast, c_ubyte, create_string_buffer, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.cbindings import DataTypeId, BatteryState
-from pymetawear.modules.base import PyMetaWearModule
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -155,7 +154,7 @@ class SettingsModule(PyMetaWearModule):
 
         """
         super(SettingsModule, self).notifications(
-            battery_data(callback) if callback is not None else None)
+            data_handler(callback) if callback is not None else None)
 
     def read_battery_state(self):
         """Triggers a battery state notification.
@@ -177,16 +176,3 @@ class SettingsModule(PyMetaWearModule):
         """
         event = libmetawear.mbl_mw_settings_get_disconnect_event(self.board)
         return event
-
-def battery_data(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.BATTERY_STATE:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(BatteryState))
-            func((epoch, (int(data_ptr.contents.voltage),
-                          int(data_ptr.contents.charge))))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-    return wrapper

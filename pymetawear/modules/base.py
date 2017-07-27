@@ -13,10 +13,12 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import logging
+from ctypes import c_float, cast, POINTER
+from functools import wraps
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import FnVoid_DataP
+from pymetawear.mbientlab.metawear.cbindings import * 
 
 log = logging.getLogger(__name__)
 
@@ -144,3 +146,37 @@ class PyMetaWearModule(object):
                 return
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
             self.callback = None
+
+def data_handler(func):
+    @wraps(func)
+    def wrapper(data):
+        pydata = { 'epoch': int(data.contents.epoch), 'value': None }
+        if (data.contents.type_id == DataTypeId.UINT32):
+            pydata["value"] = cast(data.contents.value, POINTER(c_uint)).contents.value
+        elif (data.contents.type_id == DataTypeId.INT32):
+            pydata["value"] = cast(data.contents.value, POINTER(c_int)).contents.value
+        elif (data.contents.type_id == DataTypeId.FLOAT):
+            pydata["value"] = cast(data.contents.value, POINTER(c_float)).contents.value
+        elif (data.contents.type_id == DataTypeId.CARTESIAN_FLOAT):
+            pydata["value"] = cast(data.contents.value, POINTER(CartesianFloat)).contents
+        elif (data.contents.type_id == DataTypeId.BATTERY_STATE):
+            pydata["value"] = cast(data.contents.value, POINTER(BatteryState)).contents
+        elif (data.contents.type_id == DataTypeId.BYTE_ARRAY):
+            ptr= cast(data.contents.value, POINTER(c_ubyte * data.contents.length))
+            pydata["value"] = []
+            for i in range(0, data.contents.length):
+                pydata["value"].append(data_ptr.contents[i].value)
+        elif (data.contents.type_id == DataTypeId.TCS34725_ADC):
+            pydata["value"] = cast(data.contents.value, POINTER(Tcs34725ColorAdc)).contents
+        elif (data.contents.type_id == DataTypeId.EULER_ANGLE):
+            pydata["value"] = cast(data.contents.value, POINTER(EulerAngles)).contents
+        elif (data.contents.type_id == DataTypeId.QUATERNION):
+            pydata["value"] = cast(data.contents.value, POINTER(Quaternion)).contents
+        elif (data.contents.type_id == DataTypeId.CORRECTED_CARTESIAN_FLOAT):
+            pydata["value"] = cast(data.contents.value, POINTER(CorrectedCartesianFloat)).contents 
+        else:
+            raise RuntimeError('Unrecognized data type id: ' + str(data.contents.type_id))
+
+        func(pydata)
+
+    return wrapper

@@ -14,13 +14,11 @@ from __future__ import absolute_import
 
 import warnings
 import logging
-from functools import wraps
-from ctypes import cast, POINTER, c_float
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.cbindings import DataTypeId
-from pymetawear.modules.base import PyMetaWearModule
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -169,9 +167,10 @@ class TemperatureModule(PyMetaWearModule):
         .. code-block:: python
 
             def temperature_callback(data):
-                epoch = data[0]
-                temp = data[1]
-                print("[{0}] Temperature {1}".format(epoch, temp))
+                # Handle dictionary with [epoch, value] keys.
+                epoch = data["epoch"]
+                xyz = data["value"]
+                print(str(data))
 
             mwclient.temperature_func.notifications(temperature_callback)
 
@@ -180,17 +179,4 @@ class TemperatureModule(PyMetaWearModule):
 
         """
         super(TemperatureModule, self).notifications(
-            temperature_func(callback) if callback is not None else None)
-
-
-def temperature_func(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(c_float))
-            func((epoch, data_ptr.contents.value))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-    return wrapper
+            data_handler(callback) if callback is not None else None)

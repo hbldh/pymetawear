@@ -15,13 +15,11 @@ from __future__ import absolute_import
 
 import re
 import logging
-from functools import wraps
-from ctypes import c_float, cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.cbindings import *
-from pymetawear.modules.base import PyMetaWearModule
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -224,10 +222,10 @@ class BarometerModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_barometer_notification(data)
-                # Handle a (epoch_time, value) barometer tuple.
-                epoch = data[0]
-                value = data[1]
-                print("[{0}] Altitude: {1}".format(epoch, value))
+                # Handle dictionary with [epoch, value] keys.
+                epoch = data["epoch"]
+                value = data["value"]
+                print(data)
 
             mwclient.barometer.notifications(handle_barometer_notification)
 
@@ -240,8 +238,7 @@ class BarometerModule(PyMetaWearModule):
             self.stop()
             super(BarometerModule, self).notifications(None)
         else:
-            super(BarometerModule, self).notifications(
-                sensor_data(callback))
+            super(BarometerModule, self).notifications(data_handler(callback))
             self.start()
 
     def start(self):
@@ -251,17 +248,3 @@ class BarometerModule(PyMetaWearModule):
     def stop(self):
         """Switches the barometer to standby mode."""
         libmetawear.mbl_mw_baro_bosch_stop(self.board)
-
-
-def sensor_data(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(c_float))
-            func((epoch, data_ptr.contents.value))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-
-    return wrapper

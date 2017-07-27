@@ -14,13 +14,11 @@ from __future__ import absolute_import
 
 import re
 import logging
-from functools import wraps
-from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.cbindings import *
-from pymetawear.modules.base import PyMetaWearModule, Modules
+from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -193,10 +191,10 @@ class GyroscopeModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_notification(data):
-                # Handle a (epoch_time, (x,y,z)) gyroscope tuple.
-                epoch = data[0]
-                xyz = data[1]
-                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(epoch, *xyz))
+                # Handle dictionary with [epoch, value] keys.
+                epoch = data["epoch"]
+                xyz = data["value"]
+                print(str(data))
 
             mwclient.gyroscope.notifications(handle_notification)
 
@@ -209,8 +207,7 @@ class GyroscopeModule(PyMetaWearModule):
             self.toggle_sampling(False)
             super(GyroscopeModule, self).notifications(None)
         else:
-            super(GyroscopeModule, self).notifications(
-                sensor_data(callback))
+            super(GyroscopeModule, self).notifications(data_handler(callback))
             self.toggle_sampling(True)
             self.start()
 
@@ -235,19 +232,3 @@ class GyroscopeModule(PyMetaWearModule):
             libmetawear.mbl_mw_gyro_bmi160_enable_rotation_sampling(self.board)
         else:
             libmetawear.mbl_mw_gyro_bmi160_disable_rotation_sampling(self.board)
-
-
-def sensor_data(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            func((epoch, (data_ptr.contents.x,
-                          data_ptr.contents.y,
-                          data_ptr.contents.z)))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-
-    return wrapper

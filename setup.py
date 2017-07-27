@@ -78,7 +78,7 @@ def build_solution():
             stdout=sys.stdout, stderr=sys.stderr)
         p.communicate()
         p = subprocess.Popen(
-            ['make', 'build'],
+            ['make', 'CXX=clang++', '-j8', 'build'],
             cwd=os.path.join(pkg_dir, 'MetaWear-SDK-Cpp'),
             stdout=sys.stdout, stderr=sys.stderr)
         p.communicate()
@@ -216,7 +216,7 @@ setup(
         'pygatt[GATTTOOL]>=3.0.0',
         'pexpect>=4.2.0'
     ],
-    extras_requires={
+    extras_require={
         'pybluez': 'pybluez[ble]>=0.22'
     },
     ext_modules=[],

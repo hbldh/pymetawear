@@ -23,12 +23,6 @@ address = select_device()
 c = MetaWearClient(str(address), 'pygatt', debug=True)
 print("New client created: {0}".format(c))
 
-
-def baro_callback(data):
-    """Handle a (epoch, value) barometer tuple."""
-    print("Epoch time: [{0}] - Altitude: {1}".format(data[0], data[1]))
-
-
 print("Get possible barometer settings...")
 settings = c.barometer.get_possible_settings()
 print(settings)
@@ -49,7 +43,7 @@ print(settings)
 time.sleep(5.0)
 
 print("Subscribing to barometer signal notifications...")
-c.barometer.notifications(baro_callback)
+c.barometer.notifications(lambda data: print(data))
 
 time.sleep(20.0)
 

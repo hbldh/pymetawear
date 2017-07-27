@@ -14,13 +14,11 @@ from __future__ import absolute_import
 
 import time
 import logging
-from functools import wraps
-from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.mbientlab.metawear.cbindings import * 
-from pymetawear.modules.base import PyMetaWearModule, Modules
+from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 current_processor = None
@@ -218,11 +216,10 @@ class SensorFusionModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_notification(data):
-                # Handle a (epoch_time, (x,y,z,accuracy)) corrected acc tuple.
-                epoch = data[0]
-                xyzaccu = data[1]
-                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(
-                    epoch, *xyzaccu[:-1]))
+                # Handle dictionary with [epoch, value] keys.
+                epoch = data["epoch"]
+                xyz = data["value"]
+                print(str(data))
 
             mwclient.sensorfusion.notifications(
                 corrected_acc_callback=handle_notification)
@@ -283,7 +280,7 @@ class SensorFusionModule(PyMetaWearModule):
             if callback is not None:
                 self.check_and_change_callback(
                     self.get_data_signal(data_source),
-                    sensor_data(callback)
+                    data_handler(callback)
                 )
             else:
                 self.check_and_change_callback(
@@ -353,41 +350,3 @@ def processor_set(processor):
     global waiting_for_processor
     current_processor = processor
     waiting_for_processor = False
-
-
-def sensor_data(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            func((epoch, (data_ptr.contents.x,
-                          data_ptr.contents.y,
-                          data_ptr.contents.z)))
-        elif data.contents.type_id == DataTypeId.QUATERNION:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(Quaternion))
-            func((epoch, (data_ptr.contents.w,
-                          data_ptr.contents.x,
-                          data_ptr.contents.y,
-                          data_ptr.contents.z)))
-        elif data.contents.type_id == DataTypeId.CORRECTED_CARTESIAN_FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value,
-                            POINTER(CorrectedCartesianFloat))
-            func((epoch, (data_ptr.contents.x,
-                          data_ptr.contents.y,
-                          data_ptr.contents.z,
-                          data_ptr.contents.accuracy)))
-        elif data.contents.type_id == DataTypeId.EULER_ANGLE:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(EulerAngles))
-            func((epoch, (data_ptr.contents.heading,
-                          data_ptr.contents.pitch,
-                          data_ptr.contents.roll,
-                          data_ptr.contents.yaw)))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-
-    return wrapper
