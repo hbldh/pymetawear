@@ -1,3 +1,7 @@
+**PyMetaWear is a community developed Python SDK started by** `Henrik Blidh <https://github.com/hbldh>`_ **.**  
+
+**MbientLab does not provide support for this SDK and recommends that developers use the official Python SDK (https://github.com/mbientlab/MetaWear-SDK-Python) to receive up-to-date feature support for your MetaSensors.**  
+
 ==========
 PyMetaWear
 ==========
