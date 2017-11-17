@@ -21,7 +21,9 @@ from ctypes import c_uint, cast, POINTER, c_float, c_ubyte
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import *
+from mbientlab.metawear.cbindings import AlsLtr329Gain, \
+    AlsLtr329IntegrationTime, AlsLtr329MeasurementRate, \
+    DataTypeId, CartesianFloat, BatteryState, Tcs34725ColorAdc
 from pymetawear.modules.base import PyMetaWearModule, Modules
 
 log = logging.getLogger(__name__)

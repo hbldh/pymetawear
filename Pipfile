@@ -1,0 +1,21 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+"gattlib-0.20171002" = {git = "https://github.com/mbientlab/pygattlib.git", ref = "master"}
+metawear = "*"
+
+
+[dev-packages]
+
+pytest = "*"
+
+
+[requires]
+
+python_version = "2.7"

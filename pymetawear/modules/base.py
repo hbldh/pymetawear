@@ -16,7 +16,7 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import FnVoid_DataP
+from mbientlab.metawear.cbindings import FnVoid_DataP
 
 log = logging.getLogger(__name__)
 

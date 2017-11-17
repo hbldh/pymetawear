@@ -19,7 +19,7 @@ from ctypes import cast, POINTER, c_float
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import DataTypeId
+from mbientlab.metawear.cbindings import DataTypeId
 from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)

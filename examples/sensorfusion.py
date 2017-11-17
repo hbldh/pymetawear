@@ -17,10 +17,10 @@ import time
 
 from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
-from pymetawear.mbientlab.metawear.cbindings import SensorFusionData, SensorFusionGyroRange, SensorFusionAccRange, SensorFusionMode
+from mbientlab.metawear.cbindings import SensorFusionData, SensorFusionGyroRange, SensorFusionAccRange, SensorFusionMode
 
 address = select_device()
-c = MetaWearClient(str(address), 'pygatt', debug=True)
+c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
 def handle_quat(data):

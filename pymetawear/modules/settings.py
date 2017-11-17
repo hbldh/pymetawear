@@ -15,11 +15,11 @@ from __future__ import absolute_import
 import logging
 import warnings
 from functools import wraps
-from ctypes import byref, cast, c_ubyte, create_string_buffer, cast, POINTER
+from ctypes import c_ubyte, create_string_buffer, cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import DataTypeId, BatteryState
+from mbientlab.metawear.cbindings import DataTypeId, BatteryState
 from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)

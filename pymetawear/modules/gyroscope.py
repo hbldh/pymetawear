@@ -19,7 +19,8 @@ from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import *
+from mbientlab.metawear.cbindings import GyroBmi160Odr, GyroBmi160Range, \
+    DataTypeId, CartesianFloat
 from pymetawear.modules.base import PyMetaWearModule, Modules
 
 log = logging.getLogger(__name__)

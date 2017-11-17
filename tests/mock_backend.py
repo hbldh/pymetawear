@@ -16,20 +16,8 @@ from __future__ import absolute_import
 import uuid
 from ctypes import create_string_buffer
 
-from pymetawear.specs import METAWEAR_SERVICE_NOTIFY_CHAR, \
-    DEV_INFO_FIRMWARE_CHAR, DEV_INFO_MODEL_CHAR
-from pymetawear.backends import BLECommunicationBackend
 
-
-UUID2HANDLES = {
-    uuid.UUID("326a9001-85cb-9195-d9dd-464cfbbae75a"): 0x001d,
-    METAWEAR_SERVICE_NOTIFY_CHAR[1]: 0x001d,
-    DEV_INFO_FIRMWARE_CHAR[1]: 0x0014,
-    DEV_INFO_MODEL_CHAR[1]: 0x001a
-}
-
-
-class MockBackend(BLECommunicationBackend):
+class MockBackend(object):
 
     METAWEAR_R_BOARD = 0
     METAWEAR_RG_BOARD = 1

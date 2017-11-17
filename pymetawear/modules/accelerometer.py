@@ -20,7 +20,9 @@ from ctypes import c_float, cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import * 
+from mbientlab.metawear.cbindings import AccBma255Odr, AccBmi160Odr, \
+    AccBmi160StepCounterMode, AccBoschOrientationMode, AccBoschRange, \
+    AccMma8452qOdr, AccMma8452qRange, Const, DataTypeId, CartesianFloat
 from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)

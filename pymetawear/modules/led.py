@@ -18,7 +18,7 @@ from ctypes import byref
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from pymetawear.modules.base import PyMetaWearModule
-from pymetawear.mbientlab.metawear.cbindings import *
+from mbientlab.metawear.cbindings import LedColor, LedPattern, LedPreset
 
 log = logging.getLogger(__name__)
 

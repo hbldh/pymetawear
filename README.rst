@@ -1,6 +1,6 @@
 **PyMetaWear is a community developed Python SDK started by** `Henrik Blidh <https://github.com/hbldh>`_ **.**  
 
-**MbientLab does not provide support for this SDK and recommends that developers use the official Python SDK (https://github.com/mbientlab/MetaWear-SDK-Python) to receive up-to-date feature support for your MetaSensors.**  
+**MbientLab does not provide support for this SDK and recommends that developers use the official Python SDK (https://github.com/mbientlab/MetaWear-SDK-Python) in case that is desired.**
 
 ==========
 PyMetaWear
@@ -9,17 +9,13 @@ PyMetaWear
 Python package for connecting to and using
 `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
-PyMetawear is meant to be a thin wrapper around the
+PyMetawear was previously a wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
-providing a more Pythonic interface. It has support for two different
-Python packages for Bluetooth Low Energy communication:
-
-- `pygatt <https://github.com/peplin/pygatt>`_
-- `pybluez <https://github.com/karulis/pybluez>`_ with
-  `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_
-
-PyMetaWear can be run with Python 2 and 3.4 with both backends,
-but only with the `pygatt` backend for Python 3.5.
+providing a more Pythonic interface. In version 0.9.0 it instead becomes
+a wrapper around `MetaWear's official Python SDK <https://github.com/mbientlab/MetaWear-SDK-Python>`_,
+doing the very same thing. The official SDK handles the actual board
+connections and communication while PyMetaWear aims to remove the low level
+feeling of interacting with the MetaWear board.
 
 **PyMetaWear is Linux-only**! 
 Please use the other APIs for other platforms including Android, Windows, and Apple OS.
@@ -27,41 +23,23 @@ Please use the other APIs for other platforms including Android, Windows, and Ap
 Installation
 ------------
 
-Currently, the `pygatt <https://github.com/peplin/pygatt>`_ communication
-backend is used by default.
-
-Debian requirements for ``pygatt and pymetawear`` 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* ``build-essential``
-* ``python-dev``
+Due to a dependency on ``gattlib``, a Python BLE package that is
+poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`
+and ships a patched version with its Python SDK. This makes installation of
+PyMetaWear a bit messier:
 
 .. code-block:: bash
 
-    $ pip install pygatt 
+    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib-0.20171002
+    $ pip install pymetawear
 
-Additional requirements for ``pybluez``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please ensure that the `dependencies <https://bitbucket.org/OscarAcena/pygattlib/src/a858e8626a93cb9b4ad56f3fb980a6517a0702c6/DEPENDS?at=default&fileviewer=file-view-default>`_ for ``gattlib`` are fulfilled before installing.
 
-* ``libglib2.0-dev``
-* ``bluetooth``
-* ``libbluetooth-dev``
-* ``libboost-python-dev``
-* ``libboost-thread-dev``
-
-.. code-block:: bash
-
-    $ pip install pybluez[ble]
 
 Development
 ~~~~~~~~~~~
-Clone this repository and run
 
-.. code-block:: bash
-
-    $ python setup.py build
-
-to pull in the `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_ submodule,
-build it and copy the Python wrappers from it to the PyMetaWear folder.
+TBW.
 
 Documentation
 -------------
@@ -81,8 +59,7 @@ MetaWear board, is equal for both the two usage profiles:
 .. code-block:: python
 
     from pymetawear.client import MetaWearClient
-    backend = 'pygatt' # Or 'pybluez'
-    c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
+    c = MetaWearClient('DD:3A:7D:4D:56:F0')
 
 An example: blinking with the LED lights can be done like this with the
 convenience methods:
@@ -99,7 +76,7 @@ or like this using the raw ``libmetawear`` shared library:
 
     from ctypes import byref
     from pymetawear import libmetawear
-    from pymetawear.mbientlab.metawear.cbindings import LedColor, LedPreset
+    from mbientlab.metawear.cbindings import LedColor, LedPreset
 
     pattern = Led.Pattern(repeat_count=10)
     libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), LedPreset.BLINK)
