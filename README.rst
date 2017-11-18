@@ -1,10 +1,15 @@
-**PyMetaWear is a community developed Python SDK started by** `Henrik Blidh <https://github.com/hbldh>`_ **.**  
-
-**MbientLab does not provide support for this SDK and recommends that developers use the official Python SDK (https://github.com/mbientlab/MetaWear-SDK-Python) in case that is desired.**
-
 ==========
 PyMetaWear
 ==========
+
+.. image:: https://travis-ci.org/hbldh/pymetawear.svg?branch=master
+    :target: https://travis-ci.org/hbldh/pymetawear
+
+.. image:: https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master
+    :target: https://coveralls.io/github/hbldh/pymetawear?branch=master
+
+**PyMetaWear is a community developed Python SDK started by**
+`Henrik Blidh <https://github.com/hbldh>`_ **. MbientLab does not provide support for this SDK.**
 
 Python package for connecting to and using
 `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
@@ -17,8 +22,11 @@ doing the very same thing. The official SDK handles the actual board
 connections and communication while PyMetaWear aims to remove the low level
 feeling of interacting with the MetaWear board.
 
-**PyMetaWear is Linux-only**! 
-Please use the other APIs for other platforms including Android, Windows, and Apple OS.
+Capabilities and Limitations
+----------------------------
+
+TBW.
+
 
 Installation
 ------------
