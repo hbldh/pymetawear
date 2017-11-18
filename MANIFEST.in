@@ -4,11 +4,6 @@ include HISTORY.rst
 include AUTHORS.rst
 include requirements.txt
 
-recursive-include pymetawear/Metawear-CppAPI *
-prune pymetawear/Metawear-CppAPI/.git
-prune pymetawear/Metawear-CppAPI/build
-prune pymetawear/Metawear-CppAPI/dist
-
 recursive-include examples *.py
 recursive-include tests *
 recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif

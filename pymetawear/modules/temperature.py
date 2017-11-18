@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Temperature module
+------------------
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-04-14
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-14
 
 """
 
@@ -17,8 +17,8 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import DataTypeId
-from pymetawear.modules.base import PyMetaWearModule, data_handler
+from mbientlab.metawear.cbindings import DataTypeId
+from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)
 

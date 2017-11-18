@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Gyroscope module
+----------------
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-
-Created on 2016-04-26
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-26
 
 """
 
@@ -17,8 +17,9 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import *
-from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
+from mbientlab.metawear.cbindings import GyroBmi160Odr, GyroBmi160Range, \
+    DataTypeId, CartesianFloat
+from pymetawear.modules.base import PyMetaWearModule, Modules
 
 log = logging.getLogger(__name__)
 

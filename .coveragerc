@@ -2,9 +2,6 @@
 branch = True
 source = pymetawear
 include = */pymetawear/*
-omit =
-    */setup.py
-    */MetaWear-CppAPI/*
 
 [report]
 exclude_lines =

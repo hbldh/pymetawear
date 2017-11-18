@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Sensor Fusion module
+--------------------
 
-.. moduleauthor:: mgeorgi <marcus.georgi@kinemic.de>
-
-Created: 2016-02-01
+Created by mgeorgi <marcus.georgi@kinemic.de> on 2017-02-01
 
 """
 
@@ -17,8 +17,11 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import * 
-from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
+from mbientlab.metawear.cbindings import SensorFusionAccRange, \
+    SensorFusionData, SensorFusionGyroRange, SensorFusionMode, \
+    SensorOrientation, DataTypeId, CartesianFloat, CorrectedCartesianFloat, \
+    Quaternion, EulerAngles, FnVoid_VoidP, FnVoid_DataP, TimeMode
+from pymetawear.modules.base import PyMetaWearModule, Modules
 
 log = logging.getLogger(__name__)
 current_processor = None

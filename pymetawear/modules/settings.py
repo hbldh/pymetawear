@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Settings module
+---------------
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-04-14
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-14
 
 """
 
@@ -14,12 +14,13 @@ from __future__ import absolute_import
 
 import logging
 import warnings
-from ctypes import cast, c_ubyte, create_string_buffer, POINTER
+from functools import wraps
+from ctypes import c_ubyte, create_string_buffer, cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import DataTypeId, BatteryState
-from pymetawear.modules.base import PyMetaWearModule, data_handler
+from mbientlab.metawear.cbindings import DataTypeId, BatteryState
+from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)
 

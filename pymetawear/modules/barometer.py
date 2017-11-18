@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Barometer module
+----------------
 
-.. moduleauthor:: lkasso <hello@mbientlab.com>
-.. modulecreator:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-08-16
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-08-16
+Modified by lkasso <hello@mbientlab.com>
 
 """
 
@@ -18,8 +18,10 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import *
-from pymetawear.modules.base import PyMetaWearModule, data_handler
+from mbientlab.metawear.cbindings import BaroBme280StandbyTime, \
+    BaroBmp280StandbyTime, BaroBoschIirFilter, \
+    BaroBoschOversampling, DataTypeId
+from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)
 

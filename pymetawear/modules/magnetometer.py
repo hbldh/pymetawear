@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Magnetometer module
+-------------------
 
-.. moduleauthor:: jboeer <jonas.boeer@kinemic.de>
-
-Created: 2016-04-14
+Created by jboeer <jonas.boeer@kinemic.de> on 2016-09-07
 
 """
 
@@ -17,8 +17,9 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import *
-from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
+from mbientlab.metawear.cbindings import MagBmm150Odr, MagBmm150Preset, \
+    DataTypeId, CartesianFloat
+from pymetawear.modules.base import PyMetaWearModule, Modules
 
 log = logging.getLogger(__name__)
 

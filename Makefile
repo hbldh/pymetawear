@@ -28,7 +28,6 @@ help:
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
-
 clean-build: ## remove build artifacts
 	rm -fr pymetawear.egg-info/
 	rm -fr build/
@@ -46,7 +45,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 
 lint: ## check style with flake8
-	flake8 pymetawear --exclude=Metawear-SDK-Cpp,mbientlab --ignore=E501
+	flake8 pymetawear --ignore=E501
 
 test: ## run tests quickly with the default Python
 	py.test tests/
@@ -55,5 +54,3 @@ coverage: ## check code coverage quickly with the default Python
 	py.test tests/ --cov pymetawear --cov-report term-missing
 	coverage html
 	$(BROWSER) htmlcov/index.html
-
-	python setup.py bdist_wheel upload

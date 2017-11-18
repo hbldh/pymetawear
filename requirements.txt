@@ -1,2 +1,1 @@
-pygatt[GATTTOOL]>=3.0.0
-pexpect>=4.2.0
+metawear==0.3.0

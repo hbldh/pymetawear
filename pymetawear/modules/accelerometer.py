@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Accelerometer module
+--------------------
 
-.. moduleauthor:: lkasso <hello@mbientlab.com>
-.. modulecreator:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-04-14
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-14
+Modified by lkasso <hello@mbientlab.com>
 
 """
 
@@ -18,8 +18,10 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import * 
-from pymetawear.modules.base import PyMetaWearModule, data_handler
+from mbientlab.metawear.cbindings import AccBma255Odr, AccBmi160Odr, \
+    AccBmi160StepCounterMode, AccBoschOrientationMode, AccBoschRange, \
+    AccMma8452qOdr, AccMma8452qRange, Const, DataTypeId, CartesianFloat
+from pymetawear.modules.base import PyMetaWearModule
 
 log = logging.getLogger(__name__)
 

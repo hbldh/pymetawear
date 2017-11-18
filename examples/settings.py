@@ -21,7 +21,7 @@ from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
 
 address = select_device()
-c = MetaWearClient(str(address), 'pybluez', debug=True)
+c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
 
