@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Ambient Light module
+--------------------
 
-.. modulecreator:: lkasso <hello@mbientlab.com>
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-04-28
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-28
+Modified by lkasso <hello@mbientlab.com>
 
 """
 

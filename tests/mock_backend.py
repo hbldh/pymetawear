@@ -29,7 +29,7 @@ class MockBackend(object):
 
     boardType = 0
 
-    def __init__(self, address, interface=None, timeout=None, debug=False):
+    def __init__(self, address, **kwargs):
         self.responses = []
         self.written_data = {}
         self.full_history = []
@@ -208,6 +208,7 @@ class MockBackend(object):
             0x19: create_string_buffer(b'\x19\x80', 2),
             0xfe: create_string_buffer(b'\xfe\x80\x00\x00', 4),
         }
+
         self.metawear_motion_r_services = {
             0x01: create_string_buffer(b'\x01\x80\x00\x00', 4),
             0x02: create_string_buffer(b'\x02\x80\x00\x00', 4),
@@ -239,7 +240,7 @@ class MockBackend(object):
         self.firmware_revision = create_string_buffer(b'1.1.3', 5)
         self._connected = False
 
-        super(MockBackend, self).__init__(address, interface, timeout, debug)
+        #super(MockBackend, self).__init__(address, interface, timeout, debug)
 
     @property
     def is_connected(self):

@@ -36,12 +36,9 @@ with io.open(os.path.join(here, 'HISTORY.rst'), encoding='utf-8') as f:
 
 about = {}
 with io.open('pymetawear/version.py', 'r', encoding='utf-8') as fd:
-    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-                        fd.read(), re.MULTILINE).group(1)
-
-
-with open(os.path.join(here, NAME, '__version__.py')) as f:
-    exec(f.read(), about)
+    about['__version__'] = re.search(
+        r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+        fd.read(), re.MULTILINE).group(1)
 
 
 class UploadCommand(Command):

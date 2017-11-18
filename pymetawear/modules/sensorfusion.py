@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Sensor Fusion module
+--------------------
 
-.. moduleauthor:: mgeorgi <marcus.georgi@kinemic.de>
-
-Created: 2016-02-01
+Created by mgeorgi <marcus.georgi@kinemic.de> on 2017-02-01
 
 """
 

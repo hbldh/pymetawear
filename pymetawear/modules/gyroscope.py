@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Gyroscope module
+----------------
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-
-Created on 2016-04-26
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-26
 
 """
 

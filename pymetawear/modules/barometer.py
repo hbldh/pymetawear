@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Barometer module
+----------------
 
-.. moduleauthor:: lkasso <hello@mbientlab.com>
-.. modulecreator:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-08-16
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-08-16
+Modified by lkasso <hello@mbientlab.com>
 
 """
 

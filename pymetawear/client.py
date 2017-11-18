@@ -33,7 +33,7 @@ class MetaWearClient(object):
     development and testing.
 
     :param str address: A Bluetooth MAC address to a MetaWear board.
-    :param str backend: `pygatt`, designating which
+    :param str mw: `pygatt`, designating which
         BLE communication backend that should be used.
     :param float timeout: Timeout for connecting to the MetaWear board. If
         ``None`` timeout defaults to the backend default.
@@ -54,7 +54,7 @@ class MetaWearClient(object):
             add_stream_logger()
             log.info("Creating MetaWearClient for {0}...".format(address))
 
-        self.backend = MetaWear(self._address, device=device)
+        self.mw = MetaWear(self._address, device=device)
 
         log.info("Client started for BLE device {0} on {1}...".format(
             self._address, device))
@@ -77,31 +77,31 @@ class MetaWearClient(object):
 
     @property
     def board(self):
-        return self.backend.board
+        return self.mw.board
 
     @property
     def firmware_version(self):
-        return self.backend.info['firmware']
+        return self.mw.info['firmware']
 
     @property
     def hardware_version(self):
-        return self.backend.info['hardware']
+        return self.mw.info['hardware']
 
     @property
     def manufacturer(self):
-        return self.backend.info['manufacturer']
+        return self.mw.info['manufacturer']
 
     @property
     def serial(self):
-        return self.backend.info['serial']
+        return self.mw.info['serial']
 
     @property
     def model(self):
-        return self.backend.info['model']
+        return self.mw.info['model']
 
     def __str__(self):
         return "MetaWearClient, {0}: {1}".format(
-            self._address, self.backend.info)
+            self._address, self.mw.info)
 
     def __repr__(self):
         return "<MetaWearClient, {0}>".format(self._address)
@@ -113,12 +113,12 @@ class MetaWearClient(object):
             Default is ``False``.
 
         """
-        self.backend.connect()
+        self.mw.connect()
         self._initialize_modules()
 
     def disconnect(self):
         """Disconnects this client from the MetaWear device."""
-        self.backend.disconnect()
+        self.mw.disconnect()
 
     def _initialize_modules(self):
         #self.gpio = modules.GpioModule(

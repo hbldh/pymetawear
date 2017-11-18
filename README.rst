@@ -9,7 +9,7 @@ PyMetaWear
 Python package for connecting to and using
 `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
-PyMetawear was previously a wrapper around the
+PyMetaWear was previously a wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
 providing a more Pythonic interface. In version 0.9.0 it instead becomes
 a wrapper around `MetaWear's official Python SDK <https://github.com/mbientlab/MetaWear-SDK-Python>`_,
@@ -44,7 +44,7 @@ TBW.
 Documentation
 -------------
 
-New documentation coming soon.
+Available in the `Github pages <https://hbldh.github.io/pymetawear/>`_ of this repository.
 
 Basic Usage
 -----------

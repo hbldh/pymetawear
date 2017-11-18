@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Base module
+-----------
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-04-14
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-14
+Modified by lkasso <hello@mbientlab.com>
 
 """
 

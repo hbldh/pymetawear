@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Magnetometer module
+-------------------
 
-.. moduleauthor:: jboeer <jonas.boeer@kinemic.de>
-
-Created: 2016-04-14
+Created by jboeer <jonas.boeer@kinemic.de> on 2016-09-07
 
 """
 

@@ -24,10 +24,10 @@ pymetawear.client.MetaWear = MockBackend
 def test_client_init(mw_board):
     MockBackend.boardType = mw_board
     c = pymetawear.client.MetaWearClient('XX:XX:XX:XX:XX:XX', debug=False)
-    assert isinstance(c.backend, MockBackend)
-    assert c.backend.boardType == mw_board
-    assert c.backend.initialized
-    assert c.backend.initialization_status == 0
+    assert isinstance(c.mw, MockBackend)
+    assert c.mw.boardType == mw_board
+    assert c.mw.initialized
+    assert c.mw.initialization_status == 0
 
     expected_cmds = [
         [0x01, 0x80], [0x02, 0x80], [0x03, 0x80], [0x04, 0x80],
@@ -38,7 +38,7 @@ def test_client_init(mw_board):
         [0x16, 0x80], [0x17, 0x80], [0x18, 0x80], [0x19, 0x80],
         [0xfe, 0x80], [0x0b, 0x84]
     ]
-    assert c.backend.full_history == expected_cmds
+    assert c.mw.full_history == expected_cmds
 
 
 @pytest.mark.parametrize("mw_board", range(7))
@@ -46,12 +46,12 @@ def test_client_init(mw_board):
 def test_client_init_delayed_connect(mw_board):
     MockBackend.boardType = mw_board
     c = pymetawear.client.MetaWearClient('XX:XX:XX:XX:XX:XX', connect=False, debug=False)
-    assert isinstance(c.backend, MockBackend)
-    assert not c.backend.initialized
+    assert isinstance(c.mw, MockBackend)
+    assert not c.mw.initialized
     c.connect()
-    assert c.backend.boardType == mw_board
-    assert c.backend.initialized
-    assert c.backend.initialization_status == 0
+    assert c.mw.boardType == mw_board
+    assert c.mw.initialized
+    assert c.mw.initialization_status == 0
 
     expected_cmds = [
         [0x01, 0x80], [0x02, 0x80], [0x03, 0x80], [0x04, 0x80],
@@ -62,4 +62,9 @@ def test_client_init_delayed_connect(mw_board):
         [0x16, 0x80], [0x17, 0x80], [0x18, 0x80], [0x19, 0x80],
         [0xfe, 0x80], [0x0b, 0x84]
     ]
-    assert c.backend.full_history == expected_cmds
+    assert c.mw.full_history == expected_cmds
+
+
+def test_client_creation():
+    c = pymetawear.client.MetaWearClient('XX:XX:XX:XX:XX:XX', connect=False)
+    assert c is not None
