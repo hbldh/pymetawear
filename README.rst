@@ -25,7 +25,7 @@ feeling of interacting with the MetaWear board.
 Capabilities and Limitations
 ----------------------------
 
-TBW.
+A clear definition of what this package might do for you and what it probably will not be able to do.
 
 
 Installation
