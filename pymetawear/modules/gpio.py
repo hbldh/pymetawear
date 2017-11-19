@@ -15,14 +15,12 @@ from __future__ import absolute_import
 
 import re
 import logging
-from functools import wraps
-from ctypes import c_uint, cast, POINTER
 
 from pymetawear import libmetawear
-from pymetawear.exceptions import PyMetaWearException
+
 from mbientlab.metawear.cbindings import GpioPinChangeType, GpioPullMode, \
-    GpioAnalogReadParameters, GpioAnalogReadMode, DataTypeId
-from pymetawear.modules.base import PyMetaWearModule
+    GpioAnalogReadParameters, GpioAnalogReadMode
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -90,10 +88,11 @@ class GpioModule(PyMetaWearModule):
 
     @property
     def sensor_name(self):
-        return self.gpio_class.__name__.replace('Gpio', '')
+        return self.module_name
 
     @property
     def data_signal(self):
+        # TODO: Fix this pin issue!
         if self.analog:
             return libmetawear.mbl_mw_gpio_get_analog_input_data_signal(
                 self.board, pin)

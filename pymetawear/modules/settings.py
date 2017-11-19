@@ -14,13 +14,10 @@ from __future__ import absolute_import
 
 import logging
 import warnings
-from functools import wraps
 from ctypes import c_ubyte, create_string_buffer, cast, POINTER
 
 from pymetawear import libmetawear
-from pymetawear.exceptions import PyMetaWearException
-from mbientlab.metawear.cbindings import DataTypeId, BatteryState
-from pymetawear.modules.base import PyMetaWearModule
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +59,7 @@ class SettingsModule(PyMetaWearModule):
 
     @property
     def sensor_name(self):
-        return 'Settings'
+        return self.module_name
 
     @property
     def data_signal(self):

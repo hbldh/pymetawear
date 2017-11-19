@@ -22,5 +22,5 @@ Contributors (sorted alphabetically)
 * `m-georgi <https://github.com/m-georgi>`_
     - Sensor fusion module
 
-* `Eric Tsai <https://github.com/scaryghost>`_ (Mbientlab)
+* `Eric Tsai <https://github.com/scaryghost>`_ (MBIENTLAB INC)
     - 64-bit datasignal address handling and typecasting

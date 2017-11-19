@@ -15,9 +15,7 @@ from __future__ import absolute_import
 import logging
 
 from pymetawear import libmetawear
-from pymetawear.exceptions import PyMetaWearException
-from mbientlab.metawear.cbindings import DataTypeId
-from pymetawear.modules.base import PyMetaWearModule
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -77,4 +75,3 @@ class SwitchModule(PyMetaWearModule):
         """
         super(SwitchModule, self).notifications(
             data_handler(callback) if callback is not None else None)
-

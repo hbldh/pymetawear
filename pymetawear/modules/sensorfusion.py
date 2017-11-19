@@ -19,9 +19,8 @@ from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import SensorFusionAccRange, \
     SensorFusionData, SensorFusionGyroRange, SensorFusionMode, \
-    SensorOrientation, DataTypeId, CartesianFloat, CorrectedCartesianFloat, \
-    Quaternion, EulerAngles, FnVoid_VoidP, FnVoid_DataP, TimeMode
-from pymetawear.modules.base import PyMetaWearModule, Modules
+    SensorOrientation, FnVoid_VoidP, FnVoid_DataP, TimeMode
+from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 current_processor = None
@@ -347,7 +346,7 @@ def processor_set(processor):
     Set global variables as the libmetawear callback can't handle the self
     parameter of instance methods.
 
-    :param processor: The processor thas was created
+    :param processor: The processor that was created
     """
     global current_processor
     global waiting_for_processor

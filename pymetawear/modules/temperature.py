@@ -16,9 +16,7 @@ import warnings
 import logging
 
 from pymetawear import libmetawear
-from pymetawear.exceptions import PyMetaWearException
-from mbientlab.metawear.cbindings import DataTypeId
-from pymetawear.modules.base import PyMetaWearModule
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -154,7 +152,8 @@ class TemperatureModule(PyMetaWearModule):
 
         """
         if self.callback is None:
-            warnings.warn("No temperature callback is registered!", RuntimeWarning)
+            warnings.warn("No temperature callback is registered!",
+                          RuntimeWarning)
         libmetawear.mbl_mw_datasignal_read(self.data_signal)
 
     def notifications(self, callback=None):
@@ -175,7 +174,8 @@ class TemperatureModule(PyMetaWearModule):
             mwclient.temperature_func.notifications(temperature_callback)
 
         :param callable callback: Temperature notification callback function.
-            If `None`, unsubscription to temperature_func notifications is registered.
+            If `None`, unsubscription to temperature_func notifications
+            is registered.
 
         """
         super(TemperatureModule, self).notifications(

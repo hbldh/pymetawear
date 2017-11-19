@@ -17,11 +17,10 @@ import re
 import logging
 
 from pymetawear import libmetawear
-from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import BaroBme280StandbyTime, \
     BaroBmp280StandbyTime, BaroBoschIirFilter, \
-    BaroBoschOversampling, DataTypeId
-from pymetawear.modules.base import PyMetaWearModule
+    BaroBoschOversampling
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -55,24 +54,26 @@ class BarometerModule(PyMetaWearModule):
         }
         self.barometer_o_class = BaroBoschOversampling
         self.barometer_i_class = BaroBoschIirFilter
-        self.barometer_s_class = barometer_standbytime_sensors.get(self.module_id, None)
+        self.barometer_s_class = barometer_standbytime_sensors.get(
+            self.module_id, None)
 
+        # FIXME: These parsings most probably incorrect now.
         if self.barometer_o_class is not None:
             # Parse oversampling status
             for key, value in vars(self.barometer_o_class).items():
-                if re.search('^([A-Z\_]*)', key) and isinstance(value, int):
+                if re.search('^([A-Z_]*)', key) and isinstance(value, int):
                     self.oversampling.update({key.lower():value})
 
         if self.barometer_i_class is not None:
             # Parse IR filter values 
             for key, value in vars(self.barometer_i_class).items():
-                if re.search('^([0-9AVG\_OFF]+)', key) and isinstance(value, int):
+                if re.search('^AVG_([0-9]+)', key) and isinstance(value, int):
                     self.iir_filter.update({key.lower():value})
-            
+
         if self.barometer_s_class is not None:
             # Parse standby time values 
             for key, value in vars(self.barometer_s_class).items():
-                if re.search('^_([0-9]+)\_*([0-9]*)ms', key) and isinstance(value, int):
+                if re.search('^_([0-9]+)_*([0-9]*)ms', key) and isinstance(value, int):
                     self.standby_time.update({key[1:-2].replace("_",".").lower():value})
             
         else:
@@ -102,7 +103,7 @@ class BarometerModule(PyMetaWearModule):
 
     @property
     def sensor_name(self):
-        return self.barometer_class.__name__.replace('Barometer', '')
+        return self.barometer_s_class.__name__.replace('Baro', '').replace('StandbyTime', '')
 
     @property
     def data_signal(self):

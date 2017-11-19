@@ -15,13 +15,13 @@ from __future__ import absolute_import
 
 import re
 import logging
+from ctypes import c_float
 
 from pymetawear import libmetawear
-from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import AccBma255Odr, AccBmi160Odr, \
     AccBmi160StepCounterMode, AccBoschOrientationMode, AccBoschRange, \
-    AccMma8452qOdr, AccMma8452qRange, Const, DataTypeId, CartesianFloat
-from pymetawear.modules.base import PyMetaWearModule
+    AccMma8452qOdr, AccMma8452qRange, Const
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -52,9 +52,9 @@ class AccelerometerModule(PyMetaWearModule):
         self.high_frequency_stream = False
 
         acc_sensors = [
-            Const.MODULE_ACC_TYPE_BMA255,  #3
-            Const.MODULE_ACC_TYPE_BMI160,  #1
-            Const.MODULE_ACC_TYPE_MMA8452Q #0
+            Const.MODULE_ACC_TYPE_BMA255,   # 3
+            Const.MODULE_ACC_TYPE_BMI160,   # 1
+            Const.MODULE_ACC_TYPE_MMA8452Q  # 0
         ]
         acc_sensor_odr = [
             AccBma255Odr,
@@ -75,7 +75,7 @@ class AccelerometerModule(PyMetaWearModule):
         if acc_odr_class is not None:
             # Parse possible output data rates for this accelerometer.
             for key, value in vars(acc_odr_class).items():
-                if re.search('^_([0-9]+)\_*([0-9]*)Hz', key) and key is not None:
+                if re.search('^_([0-9]+)_*([0-9]*)Hz', key) and key is not None:
                     self.odr.update({key[1:-2].replace("_","."):value})
 
         if acc_fsr_class is not None:
@@ -83,7 +83,9 @@ class AccelerometerModule(PyMetaWearModule):
             for key, value in vars(acc_fsr_class).items():
                 if re.search('^_([0-9]+)G', key) and key is not None:
                     self.fsr.update({key[1:-1]:value})
-            
+
+        self._acc_sensor_name = acc_odr_class.__name__.replace(
+            'Acc', '').replace('Odr', '')
         if debug:
             log.setLevel(logging.DEBUG)
 
@@ -103,7 +105,7 @@ class AccelerometerModule(PyMetaWearModule):
 
     @property
     def sensor_name(self):
-        return self.acc_class.__name__.replace('Accelerometer', '')
+        return self._acc_sensor_name
 
     @property
     def data_signal(self):
@@ -133,7 +135,8 @@ class AccelerometerModule(PyMetaWearModule):
         return float(value)
 
     def get_current_settings(self):
-        return "data_rate in Hz: {} data_range in Gs: {}".format(self.current_odr, self.current_fsr)
+        return "data_rate in Hz: {} data_range in Gs: {}".format(
+            self.current_odr, self.current_fsr)
 
     def get_possible_settings(self):
         return {
@@ -205,7 +208,8 @@ class AccelerometerModule(PyMetaWearModule):
             mwclient.accelerometer.notifications(handle_acc_notification)
 
         :param callable callback: Accelerometer notification callback function.
-            If `None`, unsubscription to accelerometer notifications is registered.
+            If `None`, unsubscription to accelerometer notifications
+            is registered.
 
         """
 
@@ -214,7 +218,8 @@ class AccelerometerModule(PyMetaWearModule):
             self.toggle_sampling(False)
             super(AccelerometerModule, self).notifications(None)
         else:
-            super(AccelerometerModule, self).notifications(data_handler(callback))
+            super(AccelerometerModule, self).notifications(
+                data_handler(callback))
             self.toggle_sampling(True)
             self.start()
 
@@ -236,4 +241,3 @@ class AccelerometerModule(PyMetaWearModule):
             libmetawear.mbl_mw_acc_enable_acceleration_sampling(self.board)
         else:
             libmetawear.mbl_mw_acc_disable_acceleration_sampling(self.board)
-

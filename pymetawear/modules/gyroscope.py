@@ -17,9 +17,8 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from mbientlab.metawear.cbindings import GyroBmi160Odr, GyroBmi160Range, \
-    DataTypeId, CartesianFloat
-from pymetawear.modules.base import PyMetaWearModule, Modules
+from mbientlab.metawear.cbindings import GyroBmi160Odr, GyroBmi160Range
+from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -64,13 +63,13 @@ class GyroscopeModule(PyMetaWearModule):
             # Parse possible output data rates for this gyroscope.
             for key, value in vars(self.gyro_o_class).items():
                 if re.search('_([0-9]+)Hz', key) and key is not None:
-                    self.odr.update({key[1:-2]:value})
+                    self.odr.update({key[1:-2]: value})
 
         if self.gyro_r_class is not None:
             # Parse possible ranges for this gyroscope.
             for key, value in vars(self.gyro_r_class).items():
                 if re.search('_([0-9]+)dps', key) and key is not None:
-                    self.fsr.update({key[1:-3]:value})
+                    self.fsr.update({key[1:-3]: value})
             
         if debug:
             log.setLevel(logging.DEBUG)
@@ -91,8 +90,9 @@ class GyroscopeModule(PyMetaWearModule):
 
     @property
     def sensor_name(self):
-        if self.gyro_class is not None:
-            return self.gyro_class.__name__.replace('Gyro', '')
+        if self.gyro_r_class is not None:
+            return self.gyro_r_class.__name__.replace(
+                'Gyro', '').replace('Range', '')
         else:
             return ''
 

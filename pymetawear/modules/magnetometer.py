@@ -17,9 +17,8 @@ import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from mbientlab.metawear.cbindings import MagBmm150Odr, MagBmm150Preset, \
-    DataTypeId, CartesianFloat
-from pymetawear.modules.base import PyMetaWearModule, Modules
+from mbientlab.metawear.cbindings import MagBmm150Odr, MagBmm150Preset
+from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -89,7 +88,8 @@ class MagnetometerModule(PyMetaWearModule):
     @property
     def sensor_name(self):
         if self.mag_p_class is not None:
-            return self.mag_p_class.__name__.replace('Magnetometer', '')
+            return self.mag_p_class.__name__.replace(
+                'Mag', '').replace('Preset', '')
         else:
             return ''
 

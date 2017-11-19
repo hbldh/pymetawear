@@ -14,15 +14,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import re
-import copy
+
 import logging
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import AlsLtr329Gain, \
-    AlsLtr329IntegrationTime, AlsLtr329MeasurementRate, \
-    DataTypeId, CartesianFloat, BatteryState, Tcs34725ColorAdc
-from pymetawear.modules.base import PyMetaWearModule, Modules
+    AlsLtr329IntegrationTime, AlsLtr329MeasurementRate
+from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -228,7 +227,8 @@ class AmbientLightModule(PyMetaWearModule):
             super(AmbientLightModule, self).notifications(None)
             self.stop()
         else:
-            super(AmbientLightModule, self).notifications(data_handler(callback))
+            super(AmbientLightModule, self).notifications(
+                data_handler(callback))
             self.start()
 
     @require_ltr329
