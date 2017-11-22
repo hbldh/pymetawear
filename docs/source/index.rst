@@ -11,21 +11,19 @@ PyMetaWear documentation
 .. image:: https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master
     :target: https://coveralls.io/github/hbldh/pymetawear?branch=master
 
-Python package for connecting to and using `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
+Python package for connecting to and using
+`MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
-PyMetawear is meant to be a thin wrapper around the
+PyMetaWear was previously a wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
-providing a more Pythonic interface. It has support for two different
-Python packages for Bluetooth Low Energy communication:
+providing a more Pythonic interface. In version 0.9.0 it instead becomes
+a wrapper around `MetaWear's official Python SDK <https://github.com/mbientlab/MetaWear-SDK-Python>`_,
+doing the very same thing. The official SDK handles the actual board
+connections and communication while PyMetaWear aims to remove the low level
+feeling of interacting with the MetaWear board.
 
-- `pygatt <https://github.com/peplin/pygatt>`_
-- `pybluez <https://github.com/karulis/pybluez>`_ with
-  `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_
+**PyMetaWear is Linux-only**!
 
-PyMetaWear can be run with Python 2 or 3 with both backends,
-but only with the `pygatt` backend for Python 3.5. It builds and runs on Linux systems,
-and can be built on Windows, given that Visual Studio Community 2015 has been installed first,
-but there is no working backend for Windows BLE yet.
 
 
 Contents
@@ -37,7 +35,6 @@ Contents
    discover
    client
    exceptions
-   backends/index
    modules/index
    history
    authors
@@ -45,52 +42,22 @@ Contents
 Installation
 ------------
 
+Due to a dependency on ``gattlib``, a very good Python BLE package that regrettably is
+poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`
+and ships a patched version with its Python SDK. This makes installation of
+PyMetaWear a bit messier:
+
 .. code-block:: bash
 
+    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib-0.20171002
     $ pip install pymetawear
 
-Currently, only the `pygatt <https://github.com/peplin/pygatt>`_ communication
-backend is installed by default. The other backends can be installed as extras:
-
-.. code-block:: bash
-
-    $ pip install pymetawear[pybluez]
-
-
-Requirements for ``pymetawear``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* ``build-essential``
-* ``python-dev``
-
-Additional requirements for ``pybluez``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~
-
-* ``libglib2.0-dev``
-* ``bluetooth``
-* ``libbluetooth-dev``
-* ``libboost-python-dev``
-* ``libboost-thread-dev``
-
+Please ensure that the `dependencies <https://bitbucket.org/OscarAcena/pygattlib/src/a858e8626a93cb9b4ad56f3fb980a6517a0702c6/DEPENDS?at=default&fileviewer=file-view-default>`_ for ``gattlib`` are fulfilled before installing.
 
 Development
 ~~~~~~~~~~~
 
-Clone this repository and run
-
-.. code-block:: bash
-
-    $ python setup.py build
-
-to pull in the `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_ submodule,
-build it and copy the Python wrappers from it to the PyMetaWear folder. This can also be achieved by
-running
-
-.. code-block:: bash
-
-    $ pip install -e .
-
-in the cloned repository's root folder.
+TBW.
 
 
 Indices and tables

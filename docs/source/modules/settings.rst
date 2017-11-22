@@ -10,7 +10,7 @@ The PyMetaWear implementation of the ``libmetawear``
 switch module.
 
 It is initialized at the creation of the :py:class:`~MetaWearClient`
-client and can then be accessed in the ``battery``
+client and can then be accessed in the ``settings``
 attribute of the client.
 
 Example usage:
@@ -26,15 +26,13 @@ Example usage:
         print("Voltage: {0}, Charge: {1}".format(
             data[0], data[1]))
     # Enable notifications and register a callback for them.
-    mwclient.battery.notifications(battery_callback)
+    mwclient.settings.notifications(battery_callback)
     # Trigger battery status notification.
-    mwclient.battery.read_battery_state()
-
-
+    mwclient.settings.read_battery_state()
 
 
 API
 ~~~
 
-.. automodule:: pymetawear.modules.battery
+.. automodule:: pymetawear.modules.settings
    :members:

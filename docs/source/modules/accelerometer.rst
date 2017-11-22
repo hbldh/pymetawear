@@ -18,7 +18,7 @@ Example usage:
 
     c = MetaWearClient('DD:3A:7D:4D:56:F0')
 
-    # Set data rate to 200 Hz and measureing range to +/- 8g
+    # Set data rate to 200 Hz and measuring range to +/- 8g
     c.accelerometer.set_settings(data_rate=200.0, data_range=8)
 
     def acc_callback(data):

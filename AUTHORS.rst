@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* Henrik Blidh <henrik.blidh@nedomkull.com>
+* `Henrik Blidh <henrik.blidh@nedomkull.com>`_
 
 Contributors (sorted alphabetically)
 ------------------------------------
@@ -16,7 +16,11 @@ Contributors (sorted alphabetically)
 * `Thibaud Mathieu <https://github.com/enlight3d>`_
     - Raw example for temperature module
 
-* `Eric Tsai <https://github.com/scaryghost>`_ (mbientlab)
+* `MBIENTLAB INC <hello@mbientlab.com>`_
+    - Some refactoring and corrections
+
+* `m-georgi <https://github.com/m-georgi>`_
+    - Sensor fusion module
+
+* `Eric Tsai <https://github.com/scaryghost>`_ (MBIENTLAB INC)
     - 64-bit datasignal address handling and typecasting
-
-

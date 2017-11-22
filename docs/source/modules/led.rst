@@ -10,6 +10,11 @@ It is initialized at the creation of the :py:class:`~MetaWearClient`
 client and can then be accessed in the ``led``
 attribute of the client.
 
+.. note::
+
+    The API in the LED module is under rewriting, so expect changes
+    to be made to it in future releases.
+
 Example usage:
 
 .. code-block:: python

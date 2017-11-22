@@ -4,6 +4,7 @@
 :mod:`accelerometer`
 ==================
 
+Updated by lkasso <hello@mbientlab.com>
 Created by hbldh <henrik.blidh@nedomkull.com>
 Created on 2016-04-10
 
@@ -19,22 +20,29 @@ from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
 
 address = select_device()
-c = MetaWearClient(str(address), 'pygatt', debug=True)
+c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
+print("Get possible accelerometer settings...")
+settings = c.accelerometer.get_possible_settings()
+print(settings)
 
-def acc_callback(data):
-    """Handle a (epoch, (x,y,z)) accelerometer tuple."""
-    print("Epoch time: [{0}] - X: {1}, Y: {2}, Z: {3}".format(data[0], *data[1]))
-
+time.sleep(1.0)
 
 print("Write accelerometer settings...")
-c.accelerometer.set_settings(data_rate=100.0, data_range=4.0)
+c.accelerometer.set_settings(data_rate=3.125, data_range=4.0)
+
+time.sleep(1.0)
+
+print("Check accelerometer settings...")
+settings = c.accelerometer.get_current_settings()
+print(settings)
+
 print("Subscribing to accelerometer signal notifications...")
 c.accelerometer.high_frequency_stream = False
-c.accelerometer.notifications(acc_callback)
+c.accelerometer.notifications(lambda data: print(data))
 
-time.sleep(20.0)
+time.sleep(10.0)
 
 print("Unsubscribe to notification...")
 c.accelerometer.notifications(None)

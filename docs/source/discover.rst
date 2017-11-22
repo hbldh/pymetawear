@@ -6,11 +6,9 @@ can be found by performing a scan.
 
 .. code-block:: python
 
-    In [1]: from pymetawear.client import discover_devices
-
-    In [2]: discover_devices()
-    Out[2]: [(u'DD:3A:7D:4D:56:F0', u'MetaWear'),
-             (u'FF:50:35:82:3B:5A', u'MetaWear')]
+    >>> from pymetawear.client import discover_devices
+    >>> discover_devices()
+    [(u'DD:3A:7D:4D:56:F0', u'MetaWear'), (u'FF:50:35:82:3B:5A', u'MetaWear')]
 
 The :func:`~discover_devices` function uses the
 ``hcitool`` application, provided by the `BlueZ  <http://www.bluez.org/>`_

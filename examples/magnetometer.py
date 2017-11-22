@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`gyroscope`
+:mod:`magnetometer`
 ==================
 
 Created by hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-04-26
+Created on 2016-04-10
 
 """
 
@@ -23,24 +23,28 @@ c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
 
-print("Write gyroscope settings...")
-settings = c.gyroscope.get_possible_settings()
+print("Get possible magnetometer settings...")
+settings = c.magnetometer.get_possible_settings()
 print(settings)
 
-time.sleep(5.0)
+time.sleep(1.0)
 
-print("Write gyroscope settings...")
-c.gyroscope.set_settings(data_rate=50.0, data_range=1000.0)
+print("Write accelerometer settings...")
+c.magnetometer.set_settings(power_preset='REGULAR')
 
-time.sleep(5.0)
+time.sleep(1.0)
 
-print("Subscribing to gyroscope signal notifications...")
-c.gyroscope.notifications(lambda data: print(data))
+#print("Check accelerometer settings...")
+#settings = c.accelerometer.get_current_settings()
+#print(settings)
 
-time.sleep(20.0)
+print("Subscribing to magnetometer signal notifications...")
+c.magnetometer.notifications(lambda data: print(data))
+
+time.sleep(10.0)
 
 print("Unsubscribe to notification...")
-c.gyroscope.notifications(None)
+c.magnetometer.notifications(None)
 
 time.sleep(5.0)
 

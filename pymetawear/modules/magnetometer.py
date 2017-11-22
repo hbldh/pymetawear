@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Magnetometer module
+-------------------
 
-.. moduleauthor:: jboeer <jonas.boeer@kinemic.de>
-
-Created: 2016-04-14
+Created by jboeer <jonas.boeer@kinemic.de> on 2016-09-07
 
 """
 
@@ -14,21 +14,18 @@ from __future__ import absolute_import
 
 import re
 import logging
-from functools import wraps
-from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear import sensor
-from pymetawear.mbientlab.metawear.core import DataTypeId, CartesianFloat
-from pymetawear.modules.base import PyMetaWearModule, Modules
+from mbientlab.metawear.cbindings import MagBmm150Odr, MagBmm150Preset
+from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 
 
 def require_bmm150(f):
     def wrapper(*args, **kwargs):
-        if getattr(args[0], 'mag_class', None) is None:
+        if getattr(args[0], 'mag_p_class', None) is None:
             raise PyMetaWearException("There is not Magnetometer "
                                       "module on your MetaWear board!")
         return f(*args, **kwargs)
@@ -49,18 +46,30 @@ class MagnetometerModule(PyMetaWearModule):
     def __init__(self, board, module_id, debug=False):
         super(MagnetometerModule, self).__init__(board, debug)
         self.module_id = module_id
+        
+        self.power_presets = {}
+        self.odr = {}
 
         if self.module_id == Modules.MBL_MW_MODULE_NA:
             # No magnetometer present!
-            self.mag_class = None
+            self.mag_o_class = None
+            self.mag_p_class = None
         else:
-            self.mag_class = sensor.MagnetometerBmm150
+            self.mag_o_class = MagBmm150Odr
+            self.mag_p_class = MagBmm150Preset
 
-        if self.mag_class is not None:
-            self.power_presets = {re.search('^POWER_PRESET_([A-Z\_]*)', k).groups()[0].lower():
-                                  getattr(self.mag_class, k, None) for k in filter(
-                lambda x: x.startswith('POWER_PRESET_'), vars(self.mag_class))}
+        if self.mag_p_class is not None:
+            # Parse possible presets for this magnetometer.
+            for key, value in vars(self.mag_p_class).items():
+                if re.search('^([A-Z\_]*)', key) and isinstance(value,int):
+                    self.power_presets.update({key.lower():value})
 
+        if self.mag_o_class is not None:
+            # Parse possible data rates for this magnetometer.
+            for key, value in vars(self.mag_o_class).items():
+                if re.search('^_([0-9\_]*Hz)', key) and isinstance(value,int):
+                    self.odr.update({key:value})
+        
         if debug:
             log.setLevel(logging.DEBUG)
 
@@ -78,8 +87,9 @@ class MagnetometerModule(PyMetaWearModule):
 
     @property
     def sensor_name(self):
-        if self.mag_class is not None:
-            return self.mag_class.__name__.replace('Magnetometer', '')
+        if self.mag_p_class is not None:
+            return self.mag_p_class.__name__.replace(
+                'Mag', '').replace('Preset', '')
         else:
             return ''
 
@@ -102,7 +112,8 @@ class MagnetometerModule(PyMetaWearModule):
     @require_bmm150
     def get_possible_settings(self):
         return {
-            'power_preset': [sorted(self.power_presets.keys(), key=lambda x:(x.lower()))]
+            'power_preset': [sorted(self.power_presets.keys(), key=lambda x:(x.lower()))],
+            'odr': [sorted(self.odr.keys(), key=lambda x:(x.lower()))]
         }
 
     @require_bmm150
@@ -123,7 +134,7 @@ class MagnetometerModule(PyMetaWearModule):
         pp = self._get_power_preset(power_preset)
         if self._debug:
             log.debug("Setting Magnetometer power preset to {0}".format(pp))
-        libmetawear.mbl_mw_mag_bmm150_set_power_preset(self.board, pp)
+        libmetawear.mbl_mw_mag_bmm150_set_preset(self.board, pp)
 
     @require_bmm150
     def notifications(self, callback=None):
@@ -136,10 +147,10 @@ class MagnetometerModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_notification(data):
-                # Handle a (epoch_time, (x,y,z)) magnetometer tuple.
-                epoch = data[0]
-                xyz = data[1]
-                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(epoch, *xyz))
+                # Handle dictionary with [epoch, value] keys.
+                epoch = data["epoch"]
+                xyz = data["value"]
+                print(str(data))
 
             mwclient.magnetometer.notifications(handle_notification)
 
@@ -152,8 +163,7 @@ class MagnetometerModule(PyMetaWearModule):
             self.toggle_sampling(False)
             super(MagnetometerModule, self).notifications(None)
         else:
-            super(MagnetometerModule, self).notifications(
-                sensor_data(callback))
+            super(MagnetometerModule, self).notifications(data_handler(callback))
             self.toggle_sampling(True)
             self.start()
 
@@ -178,19 +188,3 @@ class MagnetometerModule(PyMetaWearModule):
             libmetawear.mbl_mw_mag_bmm150_enable_b_field_sampling(self.board)
         else:
             libmetawear.mbl_mw_mag_bmm150_disable_b_field_sampling(self.board)
-
-
-def sensor_data(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            func((epoch, (data_ptr.contents.x,
-                          data_ptr.contents.y,
-                          data_ptr.contents.z)))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-
-    return wrapper

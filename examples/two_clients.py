@@ -16,14 +16,15 @@ from __future__ import absolute_import
 import time
 from pymetawear.client import MetaWearClient
 
-address_1 = 'DD:3A:7D:4D:56:F0'
-address_2 = 'FF:50:35:82:3B:5A'
+address_1 = 'D1:75:74:0B:59:1F'
+address_2 = 'F1:D9:71:7E:34:7A'
 
 print("Connect to {0}...".format(address_1))
-client_1 = MetaWearClient(str(address_1), timeout=10.0, debug=False)
+client_1 = MetaWearClient(str(address_1), debug=True)
 print("New client created: {0}".format(client_1))
+
 print("Connect to {0}...".format(address_2))
-client_2 = MetaWearClient(str(address_2), timeout=10.0, debug=False)
+client_2 = MetaWearClient(str(address_2), debug=True)
 print("New client created: {0}".format(client_2))
 
 print("Blinking 10 times with green LED on client 1...")
