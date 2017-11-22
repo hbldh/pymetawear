@@ -25,6 +25,12 @@ from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
+_settings_map = {
+    Const.MODULE_ACC_TYPE_BMA255: (AccBma255Odr, AccBoschRange),
+    Const.MODULE_ACC_TYPE_BMI160: (AccBmi160Odr, AccBoschRange),
+    Const.MODULE_ACC_TYPE_MMA8452Q: (AccMma8452qOdr, AccMma8452qRange)
+}
+
 
 class AccelerometerModule(PyMetaWearModule):
     """MetaWear accelerometer module implementation.
@@ -45,44 +51,22 @@ class AccelerometerModule(PyMetaWearModule):
 
         self.odr = {}
         self.fsr = {}
-        
-        acc_odr_class = None
-        acc_fsr_class = None
 
         self.high_frequency_stream = False
 
-        acc_sensors = [
-            Const.MODULE_ACC_TYPE_BMA255,   # 3
-            Const.MODULE_ACC_TYPE_BMI160,   # 1
-            Const.MODULE_ACC_TYPE_MMA8452Q  # 0
-        ]
-        acc_sensor_odr = [
-            AccBma255Odr,
-            AccBmi160Odr,
-            AccMma8452qOdr
-        ]
-        acc_sensor_fsr = [
-            AccMma8452qRange,
-            AccBoschRange,
-            AccBoschRange
-        ]
-        
-        for count, a in enumerate(acc_sensors):
-            if module_id == a:
-                acc_odr_class = acc_sensor_odr[count]
-                acc_fsr_class = acc_sensor_fsr[count]
+        acc_odr_class, acc_fsr_class = _settings_map.get(module_id)
 
         if acc_odr_class is not None:
             # Parse possible output data rates for this accelerometer.
             for key, value in vars(acc_odr_class).items():
                 if re.search('^_([0-9]+)_*([0-9]*)Hz', key) and key is not None:
-                    self.odr.update({key[1:-2].replace("_","."):value})
+                    self.odr.update({key[1:-2].replace("_","."): value})
 
         if acc_fsr_class is not None:
             # Parse possible output data ranges for this accelerometer.
             for key, value in vars(acc_fsr_class).items():
                 if re.search('^_([0-9]+)G', key) and key is not None:
-                    self.fsr.update({key[1:-1]:value})
+                    self.fsr.update({key[1:-1]: value})
 
         self._acc_sensor_name = acc_odr_class.__name__.replace(
             'Acc', '').replace('Odr', '')
@@ -142,7 +126,7 @@ class AccelerometerModule(PyMetaWearModule):
         return {
             'data_rate in Hz': [float(x) for x in sorted(
                 self.odr.keys(), key=lambda x:(float(x)))],
-            'data_range in Gs': [x for x in sorted(self.fsr.keys())]
+            'data_range in Gs': [int(x) for x in sorted(self.fsr.keys())]
         }
 
     def set_settings(self, data_rate=None, data_range=None):

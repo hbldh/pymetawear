@@ -190,6 +190,6 @@ def data_handler(func):
         func({
             'epoch': int(data.contents.epoch),
             'value': DATA_HANDLERS.get(
-                data.contents.type_id, default=_error_handler)(data)
+                data.contents.type_id, _error_handler)(data)
         })
     return wrapper

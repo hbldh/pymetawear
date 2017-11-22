@@ -12,8 +12,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from ctypes import byref, cast, c_ubyte, c_uint, POINTER
-import errno
 import logging
 
 from mbientlab.metawear import MetaWear, libmetawear
@@ -38,6 +36,8 @@ _model_names = [
     "MetaMotion R",
     "MetaMotion C"
 ]
+
+
 class MetaWearClient(object):
     """A MetaWear communication client.
 
@@ -48,8 +48,8 @@ class MetaWearClient(object):
     development and testing.
 
     :param str address: A Bluetooth MAC address to a MetaWear board.
-    :param str mw: `pygatt`, designating which
-        BLE communication backend that should be used.
+    :param str device: Specifying which Bluetooth device to use. Defaults
+        to ``hci0``.
     :param float timeout: Timeout for connecting to the MetaWear board. If
         ``None`` timeout defaults to the backend default.
     :param bool connect: If client should connect automatically, or wait for
@@ -59,8 +59,7 @@ class MetaWearClient(object):
 
     """
 
-    def __init__(self, address, device='hci0', timeout=None,
-                 connect=True, debug=False):
+    def __init__(self, address, device='hci0', connect=True, debug=False):
         """Constructor."""
         self._address = address
         self._debug = debug
@@ -122,12 +121,7 @@ class MetaWearClient(object):
         return "<MetaWearClient, {0}>".format(self._address)
 
     def connect(self):
-        """Connect this client to the MetaWear device.
-
-        :param bool clean_connect: If old backend components should be replaced.
-            Default is ``False``.
-
-        """
+        """Connect this client to the MetaWear device."""
         self.mw.connect()
         self._initialize_modules()
 

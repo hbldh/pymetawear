@@ -57,7 +57,6 @@ class BarometerModule(PyMetaWearModule):
         self.barometer_s_class = barometer_standbytime_sensors.get(
             self.module_id, None)
 
-        # FIXME: These parsings most probably incorrect now.
         if self.barometer_o_class is not None:
             # Parse oversampling status
             for key, value in vars(self.barometer_o_class).items():
@@ -69,6 +68,8 @@ class BarometerModule(PyMetaWearModule):
             for key, value in vars(self.barometer_i_class).items():
                 if re.search('^AVG_([0-9]+)', key) and isinstance(value, int):
                     self.iir_filter.update({key.lower():value})
+                elif key == 'OFF':
+                    self.iir_filter.update({'off': isinstance(value, int)})
 
         if self.barometer_s_class is not None:
             # Parse standby time values 
