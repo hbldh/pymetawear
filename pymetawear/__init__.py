@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Release data for the PyMetaWear project."""
-
-# -----------------------------------------------------------------------------
-#  Copyright (c) 2017, Henrik Blidh
-# -----------------------------------------------------------------------------
+"""
+PyMetaWear
+"""
 
 import sys
 
@@ -11,8 +9,6 @@ from mbientlab.metawear import libmetawear
 
 from pymetawear.version import __version__, version  # flake8: noqa
 
-# Logging solution inspired by Hitchhiker's Guide to Python and Requests
-# Set default logging handler to avoid "No handler found" warnings.
 import logging
 try:  # Python 2.7+
     from logging import NullHandler
