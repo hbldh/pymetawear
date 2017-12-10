@@ -30,10 +30,13 @@ feeling of interacting with the MetaWear board.
 Examples of good usecases
 +++++++++++++++++++++++++
 
+TBW.
 
 Examples of poor usecases
 +++++++++++++++++++++++++
 
+- **Reading data over longer periods of time.** Many users have reported
+ disconnection problems when trying to use PyMetaWear for long periods.
 
 Limitations
 +++++++++++
