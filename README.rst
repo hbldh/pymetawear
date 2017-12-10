@@ -14,6 +14,11 @@ PyMetaWear
 Python package for connecting to and using
 `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
+
+
+Capabilities and Limitations
+----------------------------
+
 PyMetaWear was previously a wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
 providing a more Pythonic interface. In version 0.9.0 it instead becomes
@@ -22,8 +27,16 @@ doing the very same thing. The official SDK handles the actual board
 connections and communication while PyMetaWear aims to remove the low level
 feeling of interacting with the MetaWear board.
 
-Capabilities and Limitations
-----------------------------
+Examples of good usecases
++++++++++++++++++++++++++
+
+
+Examples of poor usecases
++++++++++++++++++++++++++
+
+
+Limitations
++++++++++++
 
 A clear definition of what this package might do for you and what it
 probably will not be able to do.
@@ -35,11 +48,11 @@ Installation
 Due to a dependency on ``gattlib``, a Python BLE package that is
 poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`
 and ships a patched version with its Python SDK. This makes installation of
-PyMetaWear a bit messier:
+PyMetaWear require a flag to function properly, a flag that `pip` has deprecated
+and will remove eventually:
 
 .. code-block:: bash
 
-    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib
     $ pip install pymetawear --process-dependency-links
 
 Please ensure that the `dependencies <https://bitbucket.org/OscarAcena/pygattlib/src/a858e8626a93cb9b4ad56f3fb980a6517a0702c6/DEPENDS?at=default&fileviewer=file-view-default>`_ for ``gattlib`` are fulfilled before installing.
@@ -119,10 +132,10 @@ Completed Modules Partial Modules Unimplemented Modules
 Accelerometer     GPIO            NeoPixel
 Gyroscope                         Color Detector
 Haptic                            Humidity
-Switch                            iBeacon 
+Switch                            iBeacon
 LED                               I2C
-Barometer                         
-Magnetometer                      
+Barometer
+Magnetometer
 Temperature
 Settings
 Ambient Light
