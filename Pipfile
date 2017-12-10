@@ -7,8 +7,9 @@ name = "pypi"
 
 [packages]
 
-"gattlib-0.20171002" = {git = "https://github.com/mbientlab/pygattlib.git", ref = "master"}
+gattlib = {git = "https://github.com/mbientlab/pygattlib"}
 metawear = "*"
+"e1839a8" = {path = ".", editable = true}
 
 
 [dev-packages]
@@ -16,8 +17,3 @@ metawear = "*"
 pytest = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
-
-
-[requires]
-
-python_version = "2.7"

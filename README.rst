@@ -32,18 +32,11 @@ Examples of good usecases
 
 TBW.
 
-Examples of poor usecases
-+++++++++++++++++++++++++
-
-- **Reading data over longer periods of time.** Many users have reported
- disconnection problems when trying to use PyMetaWear for long periods.
-
 Limitations
 +++++++++++
 
-A clear definition of what this package might do for you and what it
-probably will not be able to do.
-
+- **Reading data over longer periods of time.** Many users have reported
+disconnection problems when trying to use PyMetaWear for long periods.
 
 Installation
 ------------
@@ -51,12 +44,13 @@ Installation
 Due to a dependency on ``gattlib``, a Python BLE package that is
 poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`
 and ships a patched version with its Python SDK. This makes installation of
-PyMetaWear require a flag to function properly, a flag that `pip` has deprecated
-and will remove eventually:
+PyMetaWear require some additional work:
 
 .. code-block:: bash
 
-    $ pip install pymetawear --process-dependency-links
+    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib
+    $ pip install metawear
+    $ pip install pymetawear
 
 Please ensure that the `dependencies <https://bitbucket.org/OscarAcena/pygattlib/src/a858e8626a93cb9b4ad56f3fb980a6517a0702c6/DEPENDS?at=default&fileviewer=file-view-default>`_ for ``gattlib`` are fulfilled before installing.
 
