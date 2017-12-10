@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Clean up Pygatt"
+echo "Clean up"
 sudo systemctl restart bluetooth
 sudo systemctl restart bluetooth.target
 sudo hciconfig hci0 up

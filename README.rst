@@ -39,8 +39,8 @@ PyMetaWear a bit messier:
 
 .. code-block:: bash
 
-    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib-0.20171002
-    $ pip install pymetawear
+    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib
+    $ pip install pymetawear --process-dependency-links
 
 Please ensure that the `dependencies <https://bitbucket.org/OscarAcena/pygattlib/src/a858e8626a93cb9b4ad56f3fb980a6517a0702c6/DEPENDS?at=default&fileviewer=file-view-default>`_ for ``gattlib`` are fulfilled before installing.
 
@@ -97,7 +97,7 @@ directly with ``hcitool lescan`` or with the included ``discover_devices`` metho
 
 .. code-block:: python
 
-    from pymetawear.client import discover_devices
+    from pymetawear.discover import discover_devices
     out = discover_devices()
     print out
     [(u'DD:3A:7D:4D:56:F0', u'MetaWear'), (u'FF:50:35:82:3B:5A', u'MetaWear')]
