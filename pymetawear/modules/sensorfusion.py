@@ -12,8 +12,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import time
 import logging
+from threading import Event
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
@@ -23,9 +23,7 @@ from mbientlab.metawear.cbindings import SensorFusionAccRange, \
 from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
-current_processor = None
-waiting_for_processor = False
-max_processor_wait_time = 5
+PROCESSOR_SET_WAIT_TIME = 5
 
 
 def require_fusion_module(f):
@@ -83,7 +81,6 @@ class SensorFusionModule(PyMetaWearModule):
         }
 
         self._callbacks = {}
-        self._waiting_for_processor = False
 
         if debug:
             log.setLevel(logging.DEBUG)
@@ -106,10 +103,6 @@ class SensorFusionModule(PyMetaWearModule):
         :param differential: Set Time Preprocessor mode to differential,
             instead of the default, absolute
         """
-
-        global current_processor
-        global waiting_for_processor
-
         if self._data_source_signals[data_source] is None:
             log.debug("Getting data signal for data source {0}".format(
                 data_source
@@ -122,27 +115,30 @@ class SensorFusionModule(PyMetaWearModule):
         if delay is not None:
             mode = TimeMode.DIFFERENTIAL if differential else \
                 TimeMode.ABSOLUTE
-            waiting_for_processor = True
             log.debug("Creating time dataprocessor for signal {0}".format(
                 self._data_source_signals[data_source]
             ))
+            _done = Event()
+
+            def _processor_set(processor):
+                """
+                Set global variables as the libmetawear callback can't handle the self
+                parameter of instance methods.
+
+                :param processor: The processor that was created
+                """
+                self._data_source_signals[data_source] = processor
+                _done.set()
+
             libmetawear.mbl_mw_dataprocessor_time_create(
                 self._data_source_signals[data_source],
                 mode,
                 delay,
-                FnVoid_VoidP(processor_set))
+                FnVoid_VoidP(_processor_set))
+            _done.wait(timeout=PROCESSOR_SET_WAIT_TIME)
 
-            wait_time = 0
-            while waiting_for_processor and wait_time < max_processor_wait_time:
-                sleeptime = 0.1
-                time.sleep(sleeptime)
-                wait_time += sleeptime
-            if current_processor is not None:
-                self._data_source_signals[data_source] = current_processor
-                current_processor = None
-            else:
+            if self._data_source_signals[data_source] is None:
                 raise PyMetaWearException("Can't set data processor!")
-
         else:
             data_signal = libmetawear.mbl_mw_sensor_fusion_get_data_signal(
                     self.board, data_source)
@@ -339,16 +335,3 @@ class SensorFusionModule(PyMetaWearModule):
         else:
             libmetawear.mbl_mw_sensor_fusion_clear_enabled_mask(
                 self.board)
-
-
-def processor_set(processor):
-    """
-    Set global variables as the libmetawear callback can't handle the self
-    parameter of instance methods.
-
-    :param processor: The processor that was created
-    """
-    global current_processor
-    global waiting_for_processor
-    current_processor = processor
-    waiting_for_processor = False

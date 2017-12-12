@@ -28,8 +28,8 @@ def handle_notification(data):
 
 print("Write Sensor Fusion settings...")
 c.sensorfusion.set_mode(SensorFusionMode.NDOF)
-c.sensorfusion.set_acc_range(SensorFusionAccRange._8G)
-c.sensorfusion.set_gyro_range(SensorFusionGyroRange._1000DPS)
+#c.sensorfusion.set_acc_range(SensorFusionAccRange._8G)
+#c.sensorfusion.set_gyro_range(SensorFusionGyroRange._1000DPS)
 
 print("Set Time Processor to limit data rate to 50Hz for each channel")
 #c.sensorfusion.set_sample_delay(SensorFusionData.EULER_ANGLE, 20)
