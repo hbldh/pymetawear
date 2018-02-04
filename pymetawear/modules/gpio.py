@@ -95,7 +95,7 @@ class GpioModule(PyMetaWearModule):
     def data_signal(self):
         if self.analog:
             return libmetawear.mbl_mw_gpio_get_analog_input_data_signal(self.board, pin)
-        else if self.digital:    
+        elif self.digital:    
             return libmetawear.mbl_mw_gpio_get_digital_input_data_signal(self.board, pin)
         else:    
             return libmetawear.mbl_mw_gpio_get_pin_monitor_data_signal(self.board)
@@ -141,7 +141,7 @@ class GpioModule(PyMetaWearModule):
         if rmode is not None:
             rmode = self._get_read(rmode)
             if self._debug:
-                log.debug("Setting the Analog Read Mode to {0}".format(rmode)   
+                log.debug("Setting the Analog Read Mode to {0}".format(rmode))   
             self.current_mode = rmode
 
         if pmode is not None:
