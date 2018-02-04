@@ -94,12 +94,11 @@ class GpioModule(PyMetaWearModule):
     def data_signal(self):
         # TODO: Fix this pin issue!
         if self.analog:
+            return libmetawear.mbl_mw_gpio_get_analog_input_data_signal(self.board, pin)
+        elif self.digital:
             return libmetawear.mbl_mw_gpio_get_analog_input_data_signal(
                 self.board, pin)
-        elif self.digital:
-            return libmetawear.mbl_mw_gpio_get_digital_input_data_signal(
-                self.board, pin)
-        else:    
+        else:
             return libmetawear.mbl_mw_gpio_get_pin_monitor_data_signal(
                 self.board)
 
