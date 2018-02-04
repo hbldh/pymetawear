@@ -296,8 +296,10 @@ class SensorFusionModule(PyMetaWearModule):
                 log.debug("Subscribing to {0} changes. (Sig#: {1})".format(
                     self.module_name, data_signal))
             if data_signal in self._callbacks:
-                raise PyMetaWearException(
-                    "Subscription to {0} signal already in place!")
+                log.debug('Replacing callback for datasignal {0}...'.format(
+                    data_signal))
+                libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
+                self._callbacks.pop(data_signal)
             self._callbacks[data_signal] = (callback, FnVoid_DataP(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
                 data_signal, self._callbacks[data_signal][1])
@@ -308,7 +310,7 @@ class SensorFusionModule(PyMetaWearModule):
                 log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
                     self.module_name, data_signal))
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
-            del self._callbacks[data_signal]
+            self._callbacks.pop(data_signal)
 
     @require_fusion_module
     def start(self):
