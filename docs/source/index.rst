@@ -25,7 +25,6 @@ feeling of interacting with the MetaWear board.
 **PyMetaWear is Linux-only**!
 
 
-
 Contents
 --------
 
@@ -42,14 +41,22 @@ Contents
 Installation
 ------------
 
-Due to a dependency on ``gattlib``, a very good Python BLE package that regrettably is
+Due to a dependency on ``gattlib``, a Python BLE package that is
 poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`
 and ships a patched version with its Python SDK. This makes installation of
-PyMetaWear a bit messier:
+PyMetaWear require some additional work:
 
 .. code-block:: bash
 
-    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib-0.20171002
+    $ pip install pymetawear --process-dependency-links
+
+The ``--process-dependency-links`` is deprecated and will removed from ``pip``
+eventually, but it can still be used. Another approach is this:
+
+.. code-block:: bash
+
+    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib
+    $ pip install metawear
     $ pip install pymetawear
 
 Please ensure that the `dependencies <https://bitbucket.org/OscarAcena/pygattlib/src/a858e8626a93cb9b4ad56f3fb980a6517a0702c6/DEPENDS?at=default&fileviewer=file-view-default>`_ for ``gattlib`` are fulfilled before installing.

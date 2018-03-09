@@ -15,7 +15,6 @@ Python package for connecting to and using
 `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
 
-
 Capabilities and Limitations
 ----------------------------
 
@@ -27,10 +26,6 @@ doing the very same thing. The official SDK handles the actual board
 connections and communication while PyMetaWear aims to remove the low level
 feeling of interacting with the MetaWear board.
 
-Examples of good usecases
-+++++++++++++++++++++++++
-
-TBW.
 
 Limitations
 +++++++++++
@@ -48,17 +43,16 @@ PyMetaWear require some additional work:
 
 .. code-block:: bash
 
+    $ pip install pymetawear --process-dependency-links
+
+The ``--process-dependency-links`` is deprecated and will removed from ``pip``
+eventually, but it can still be used. Another approach is this:
+
+.. code-block:: bash
+
     $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib
     $ pip install metawear
     $ pip install pymetawear
-
-Please ensure that the `dependencies <https://bitbucket.org/OscarAcena/pygattlib/src/a858e8626a93cb9b4ad56f3fb980a6517a0702c6/DEPENDS?at=default&fileviewer=file-view-default>`_ for ``gattlib`` are fulfilled before installing.
-
-
-Development
-~~~~~~~~~~~
-
-TBW.
 
 Documentation
 -------------

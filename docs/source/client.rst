@@ -8,8 +8,7 @@ The MetaWear client provided by this package. It can be used as such:
 .. code-block:: python
 
     from pymetawear.client import MetaWearClient
-    backend = 'pygatt'  # Or 'pybluez'
-    c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
+    c = MetaWearClient('DD:3A:7D:4D:56:F0')
 
 The client can now be used for e.g. subscribing to data signals or logging data.
 

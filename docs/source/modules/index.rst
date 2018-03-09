@@ -16,3 +16,4 @@ MetaWear modules
    haptic
    switch
    temperature
+   sensor_fusion

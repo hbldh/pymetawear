@@ -21,7 +21,7 @@ AUTHOR = 'Henrik Blidh'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'metawear'
+    'metawear>=0.3.1'
 ]
 
 # ------------------------------------------------
@@ -92,6 +92,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Operating System :: POSIX :: Linux',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

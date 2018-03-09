@@ -26,6 +26,10 @@ print("New client created: {0}".format(c))
 def handle_notification(data):
     print(data)
 
+def handle_notification2(data):
+    print("Number 2!")
+    print(data)
+
 print("Write Sensor Fusion settings...")
 c.sensorfusion.set_mode(SensorFusionMode.NDOF)
 #c.sensorfusion.set_acc_range(SensorFusionAccRange._8G)
@@ -39,10 +43,14 @@ c.sensorfusion.set_sample_delay(SensorFusionData.QUATERION, 20)
 
 print("Subscribing to Sensor Fusion Quaternion signal notifications...")
 #c.sensorfusion.notifications(euler_angle_callback=handle_notification)
-c.sensorfusion.notifications(quaternion_callback=handle_notification)
-#c.sensorfusion.notifications(corrected_acc_callback=handle_notification,
-#                             quaternion_callback=handle_notification,
-#                             corrected_gyro_callback=handle_notification)
+#c.sensorfusion.notifications(quaternion_callback=handle_notification)
+c.sensorfusion.notifications(corrected_acc_callback=handle_notification,
+                             quaternion_callback=handle_notification,
+                             corrected_gyro_callback=handle_notification)
+
+time.sleep(2.0)
+
+c.sensorfusion.notifications(quaternion_callback=handle_notification2)
 
 time.sleep(10.0)
 
