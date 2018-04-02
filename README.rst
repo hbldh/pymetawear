@@ -36,7 +36,7 @@ Installation
 ------------
 
 Due to a dependency on ``gattlib``, a Python BLE package that is
-poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`
+poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`_
 and ships a patched version with its Python SDK. This makes installation of
 PyMetaWear require some additional work:
 
