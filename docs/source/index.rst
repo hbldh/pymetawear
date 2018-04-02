@@ -8,6 +8,7 @@ PyMetaWear documentation
 
 .. image:: https://travis-ci.org/hbldh/pymetawear.svg?branch=master
     :target: https://travis-ci.org/hbldh/pymetawear
+
 .. image:: https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master
     :target: https://coveralls.io/github/hbldh/pymetawear?branch=master
 
@@ -42,7 +43,7 @@ Installation
 ------------
 
 Due to a dependency on ``gattlib``, a Python BLE package that is
-poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`
+poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`_
 and ships a patched version with its Python SDK. This makes installation of
 PyMetaWear require some additional work:
 

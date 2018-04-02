@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 discover
------------
+--------
 
 :copyright: 2016-11-29 by hbldh <henrik.blidh@nedomkull.com>
 
