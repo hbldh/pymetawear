@@ -46,10 +46,10 @@ after_success:
 env:
   global:
     - GH_REF: github.com/hbldh/pymetawear.git
-deploy:
-  provider: script
-  skip_cleanup: true
-  script: bash ./deploy_gh_pages.sh
-  on:
-    branch: master
-    python: 2.7
+#deploy:
+#  provider: script
+#  skip_cleanup: true
+#  script: bash ./deploy_gh_pages.sh
+#  on:
+#    branch: master
+#    python: 2.7

@@ -30,9 +30,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and HISTORY and use it as the long-description.
 with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = '\n' + f.read()
-with io.open(os.path.join(here, 'HISTORY.rst'), encoding='utf-8') as f:
-    long_description += '\n' + f.read()
+    long_description = f.read()
 
 about = {}
 with io.open('pymetawear/version.py', 'r', encoding='utf-8') as fd:
