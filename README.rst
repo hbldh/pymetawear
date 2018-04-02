@@ -28,10 +28,9 @@ feeling of interacting with the MetaWear board.
 
 
 Limitations
-+++++++++++
+~~~~~~~~~~~
 
-- **Reading data over longer periods of time.** Many users have reported
-disconnection problems when trying to use PyMetaWear for long periods.
+- **Reading data over longer periods of time.** Many users have reported disconnection problems when trying to use PyMetaWear for long periods.
 
 Installation
 ------------

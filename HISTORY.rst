@@ -2,6 +2,15 @@
 History
 =======
 
+v0.9.1 (2018-04-02)
+-------------------
+- Fix for documentation and README
+
+v0.9.0 (2018-04-02)
+-------------------
+- Ownership returned to original owner
+- Using MetaWear-Python-SDK instead of Cpp directly
+
 v0.8.0 (2017-07-04)
 -------------------
 - Using MetaWear-CppAPI version 0.8.0
