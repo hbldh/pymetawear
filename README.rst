@@ -43,16 +43,10 @@ PyMetaWear require some additional work:
 
 .. code-block:: bash
 
-    $ pip install pymetawear --process-dependency-links
-
-The ``--process-dependency-links`` is deprecated and will removed from ``pip``
-eventually, but it can still be used. Another approach is this:
-
-.. code-block:: bash
-
     $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib
     $ pip install metawear
     $ pip install pymetawear
+
 
 Documentation
 -------------
