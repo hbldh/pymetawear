@@ -19,13 +19,8 @@ from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
 
 address = select_device()
-c = MetaWearClient(str(address), 'pygatt', debug=True)
+c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
-
-
-def mag_callback(data):
-    """Handle a (epoch, (x,y,z)) magnetometer tuple."""
-    print("Epoch time: [{0}] - X: {1}, Y: {2}, Z: {3}".format(data[0], *data[1]))
 
 
 print("Get possible magnetometer settings...")
@@ -44,7 +39,7 @@ time.sleep(1.0)
 #print(settings)
 
 print("Subscribing to magnetometer signal notifications...")
-c.magnetometer.notifications(mag_callback)
+c.magnetometer.notifications(lambda data: print(data))
 
 time.sleep(10.0)
 

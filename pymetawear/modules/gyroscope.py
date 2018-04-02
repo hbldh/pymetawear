@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Gyroscope module
+----------------
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-
-Created on 2016-04-26
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-26
 
 """
 
@@ -14,13 +14,11 @@ from __future__ import absolute_import
 
 import re
 import logging
-from functools import wraps
-from ctypes import cast, POINTER
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import *
-from pymetawear.modules.base import PyMetaWearModule, Modules
+from mbientlab.metawear.cbindings import GyroBmi160Odr, GyroBmi160Range
+from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -65,13 +63,13 @@ class GyroscopeModule(PyMetaWearModule):
             # Parse possible output data rates for this gyroscope.
             for key, value in vars(self.gyro_o_class).items():
                 if re.search('_([0-9]+)Hz', key) and key is not None:
-                    self.odr.update({key[1:-2]:value})
+                    self.odr.update({key[1:-2]: value})
 
         if self.gyro_r_class is not None:
             # Parse possible ranges for this gyroscope.
             for key, value in vars(self.gyro_r_class).items():
                 if re.search('_([0-9]+)dps', key) and key is not None:
-                    self.fsr.update({key[1:-3]:value})
+                    self.fsr.update({key[1:-3]: value})
             
         if debug:
             log.setLevel(logging.DEBUG)
@@ -92,8 +90,9 @@ class GyroscopeModule(PyMetaWearModule):
 
     @property
     def sensor_name(self):
-        if self.gyro_class is not None:
-            return self.gyro_class.__name__.replace('Gyro', '')
+        if self.gyro_r_class is not None:
+            return self.gyro_r_class.__name__.replace(
+                'Gyro', '').replace('Range', '')
         else:
             return ''
 
@@ -193,10 +192,10 @@ class GyroscopeModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_notification(data):
-                # Handle a (epoch_time, (x,y,z)) gyroscope tuple.
-                epoch = data[0]
-                xyz = data[1]
-                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(epoch, *xyz))
+                # Handle dictionary with [epoch, value] keys.
+                epoch = data["epoch"]
+                xyz = data["value"]
+                print(str(data))
 
             mwclient.gyroscope.notifications(handle_notification)
 
@@ -209,8 +208,7 @@ class GyroscopeModule(PyMetaWearModule):
             self.toggle_sampling(False)
             super(GyroscopeModule, self).notifications(None)
         else:
-            super(GyroscopeModule, self).notifications(
-                sensor_data(callback))
+            super(GyroscopeModule, self).notifications(data_handler(callback))
             self.toggle_sampling(True)
             self.start()
 
@@ -235,19 +233,3 @@ class GyroscopeModule(PyMetaWearModule):
             libmetawear.mbl_mw_gyro_bmi160_enable_rotation_sampling(self.board)
         else:
             libmetawear.mbl_mw_gyro_bmi160_disable_rotation_sampling(self.board)
-
-
-def sensor_data(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            func((epoch, (data_ptr.contents.x,
-                          data_ptr.contents.y,
-                          data_ptr.contents.z)))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-
-    return wrapper

@@ -13,16 +13,96 @@ from __future__ import division
 from __future__ import print_function
 
 import logging
-import os
 
-from pymetawear import libmetawear, specs, add_stream_logger
-from pymetawear import modules
-from pymetawear.backends.pybluez import PyBluezBackend
-from pymetawear.backends.pygatt import PyGattBackend
-from pymetawear.exceptions import PyMetaWearException, PyMetaWearConnectionTimeout
-from pymetawear.mbientlab.metawear.cbindings import Const
+from mbientlab.metawear import MetaWear, libmetawear
+# Temporary for money patch
+from mbientlab.metawear.cbindings import FnVoid_VoidP_Int, Const
+from mbientlab.metawear import Event
+
+from pymetawear import add_stream_logger, modules
+
 
 log = logging.getLogger(__name__)
+
+_model_names = [
+    "Unknown",
+    "MetaWear R",
+    "MetaWear RG",
+    "MetaWear RPro",
+    "MetaWear C",
+    "MetaWear CPro",
+    "MetaEnvironment",
+    "MetaDetector",
+    "MetaHealth",
+    "MetaTracker",
+    "MetaMotion R",
+    "MetaMotion C"
+]
+
+
+def _connect(self, **kwargs):
+    """Monkey patch for connecting.
+
+    Will be removed after PR fixing issue is accepted.
+    """
+    try:
+        self.gatt.connect(True, channel_type='random')
+    except RuntimeError as e:
+        # gattlib.connect's `wait=True` requires elevated permission
+        # or modified capabilities.
+        # It still connects, but a RuntimeError is raised. Check if
+        # `self.gatt` is connected, and rethrow exception otherwise.
+        if not self.gatt.is_connected():
+            raise e
+
+    self.services = set()
+    for s in self.gatt.discover_primary():
+        self.services.add(s['uuid'])
+
+    self.characteristics = {}
+    for c in self.gatt.discover_characteristics():
+        self.characteristics[c['uuid']] = c['value_handle']
+
+    if 'hardware' not in self.info:
+        self.info['hardware'] = self.gatt.read_by_uuid(
+            "00002a27-0000-1000-8000-00805f9b34fb")[0]
+
+    if 'manufacturer' not in self.info:
+        self.info['manufacturer'] = self.gatt.read_by_uuid(
+            "00002a29-0000-1000-8000-00805f9b34fb")[0]
+
+    if 'serial' not in self.info:
+        self.info['serial'] = self.gatt.read_by_uuid(
+            "00002a25-0000-1000-8000-00805f9b34fb")[0]
+
+    if 'model' not in self.info:
+        self.info['model'] = self.gatt.read_by_uuid(
+            "00002a24-0000-1000-8000-00805f9b34fb")[0]
+
+    if not self.in_metaboot_mode:
+        init_event = Event()
+
+        def init_handler(device, status):
+            self.init_status = status
+            init_event.set()
+
+        init_handler_fn = FnVoid_VoidP_Int(init_handler)
+        libmetawear.mbl_mw_metawearboard_initialize(self.board, init_handler_fn)
+        init_event.wait()
+
+        if self.init_status != Const.STATUS_OK:
+            self.disconnect()
+            raise RuntimeError(
+                "Error initializing the API (%d)" % self.init_status)
+
+        if 'serialize' not in kwargs or kwargs['serialize']:
+            self.serialize()
+    else:
+        self.info['firmware'] = self.gatt.read_by_uuid(
+            "00002a26-0000-1000-8000-00805f9b34fb")[0]
+
+
+MetaWear.connect = _connect
 
 
 class MetaWearClient(object):
@@ -35,8 +115,8 @@ class MetaWearClient(object):
     development and testing.
 
     :param str address: A Bluetooth MAC address to a MetaWear board.
-    :param str backend: `pygatt`, designating which
-        BLE communication backend that should be used.
+    :param str device: Specifying which Bluetooth device to use. Defaults
+        to ``hci0``.
     :param float timeout: Timeout for connecting to the MetaWear board. If
         ``None`` timeout defaults to the backend default.
     :param bool connect: If client should connect automatically, or wait for
@@ -46,40 +126,20 @@ class MetaWearClient(object):
 
     """
 
-    def __init__(self, address, backend='pygatt',
-                 interface='hci0', timeout=None, connect=True, debug=False):
+    def __init__(self, address, device='hci0', connect=True, debug=False):
         """Constructor."""
         self._address = address
         self._debug = debug
-        self._initialized = False
 
         if self._debug:
             add_stream_logger()
             log.info("Creating MetaWearClient for {0}...".format(address))
 
-        # Handling of timeout.
-        if timeout is None:
-            timeout = os.environ.get('PYMETAWEAR_TIMEOUT', None)
-            if timeout is not None:
-                try:
-                    timeout = float(timeout)
-                except:
-                    timeout = None
+        self.mw = MetaWear(self._address, device=device)
 
-        if backend == 'pygatt':
-            self._backend = PyGattBackend(
-                self._address, interface=interface,
-                timeout=timeout, debug=debug)
-        elif backend == 'pybluez':
-            self._backend = PyBluezBackend(
-                self._address, interface=interface,
-                timeout=timeout, debug=debug)
-        else:
-            raise PyMetaWearException("Unknown backend: {0}".format(backend))
+        log.info("Client started for BLE device {0} on {1}...".format(
+            self._address, device))
 
-        log.info("Backend starter with {0} for device address {1} with timeout {2}...".format(backend, address, timeout))
-        self.firmware_version = None
-        self.model_version = None
         self.accelerometer = None
         #self.gpio = None
         self.gyroscope = None
@@ -96,91 +156,45 @@ class MetaWearClient(object):
         if connect:
             self.connect()
 
+    @property
+    def board(self):
+        return self.mw.board
+
+    @property
+    def firmware_version(self):
+        return self.mw.info['firmware']
+
+    @property
+    def hardware_version(self):
+        return self.mw.info['hardware']
+
+    @property
+    def manufacturer(self):
+        return self.mw.info['manufacturer']
+
+    @property
+    def serial(self):
+        return self.mw.info['serial']
+
+    @property
+    def model(self):
+        return self.mw.info['model']
+
     def __str__(self):
-        return "MetaWearClient, {0}, Model: {1}, Firmware: {2}".format(
-            self.backend, self.model_version,
-            ".".join([str(i) for i in self.firmware_version]) if self.firmware_version else None)
+        return "MetaWearClient, {0}: {1}".format(
+            self._address, self.mw.info)
 
     def __repr__(self):
         return "<MetaWearClient, {0}>".format(self._address)
 
-    @property
-    def backend(self):
-        """The backend object for this client.
-
-        :return: The connected BLE backend.
-        :rtype: :class:`pymetawear.backend.BLECommunicationBackend`
-
-        """
-        return self._backend
-
-    @property
-    def board(self):
-        return self.backend.board
-
-    def connect(self, clean_connect=False):
-        """Connect this client to the MetaWear device.
-
-        :param bool clean_connect: If old backend components should be replaced.
-            Default is ``False``.
-
-        """
-        if self.backend.is_connected:
-            return
-        self.backend.connect(clean_connect=clean_connect)
-
-        if self._debug:
-            log.debug("Waiting for MetaWear board to be fully initialized...")
-
-        while not self.backend.initialized:
-            self.backend.sleep(0.1)
-
-        # Check if initialization has been completed successfully.
-        if self.backend.initialization_status != Const.STATUS_OK:
-            if self.backend.initialization_status == Const.STATUS_ERROR_TIMEOUT:
-                raise PyMetaWearConnectionTimeout("libmetawear initialization status 16: Timeout")
-            else:
-                raise PyMetaWearException("libmetawear initialization status {0}".format(
-                    self.backend.initialization_status))
-
-        # Read out firmware and model version.
-        self.firmware_version = tuple(
-            [int(x) for x in self.backend.read_gatt_char_by_uuid(
-                specs.DEV_INFO_FIRMWARE_CHAR[1]).decode().split('.')])
-        self.model_version = int(self.backend.read_gatt_char_by_uuid(
-            specs.DEV_INFO_MODEL_CHAR[1]).decode())
-
+    def connect(self):
+        """Connect this client to the MetaWear device."""
+        self.mw.connect()
         self._initialize_modules()
 
     def disconnect(self):
         """Disconnects this client from the MetaWear device."""
-        libmetawear.mbl_mw_metawearboard_tear_down(self.board)
-        libmetawear.mbl_mw_metawearboard_free(self.board)
-        self.backend.disconnect()
-
-    def get_handle(self, uuid, notify_handle=False):
-        """Get handle for a characteristic UUID.
-
-        :param uuid.UUID uuid: The UUID to get handle of.
-        :param bool notify_handle:
-        :return: Integer handle corresponding to the input characteristic UUID.
-        :rtype: int
-
-        """
-        return self.backend.get_handle(uuid, notify_handle=notify_handle)
-
-    def _set_logging_state(self, enabled=False):
-        if enabled:
-            libmetawear.mbl_mw_logging_start(self.board)
-        else:
-            libmetawear.mbl_mw_logging_stop(self.board)
-
-    def _download_log(self, n_notifies):
-        libmetawear.mbl_mw_logging_download(self.board, n_notifies)
-
-    def soft_reset(self):
-        """Issues a soft reset to the board."""
-        libmetawear.mbl_mw_debug_reset(self.board)
+        self.mw.disconnect()
 
     def _initialize_modules(self):
         #self.gpio = modules.GpioModule(

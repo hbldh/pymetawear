@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Sensor Fusion module
+--------------------
 
-.. moduleauthor:: mgeorgi <marcus.georgi@kinemic.de>
-
-Created: 2016-02-01
+Created by mgeorgi <marcus.georgi@kinemic.de> on 2017-02-01
 
 """
 
@@ -12,20 +12,18 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import time
 import logging
-from functools import wraps
-from ctypes import cast, POINTER
+from threading import Event
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import * 
-from pymetawear.modules.base import PyMetaWearModule, Modules
+from mbientlab.metawear.cbindings import SensorFusionAccRange, \
+    SensorFusionData, SensorFusionGyroRange, SensorFusionMode, \
+    SensorOrientation, FnVoid_VoidP, FnVoid_DataP, TimeMode
+from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
-current_processor = None
-waiting_for_processor = False
-max_processor_wait_time = 5
+PROCESSOR_SET_WAIT_TIME = 5
 
 
 def require_fusion_module(f):
@@ -83,7 +81,6 @@ class SensorFusionModule(PyMetaWearModule):
         }
 
         self._callbacks = {}
-        self._waiting_for_processor = False
 
         if debug:
             log.setLevel(logging.DEBUG)
@@ -106,10 +103,6 @@ class SensorFusionModule(PyMetaWearModule):
         :param differential: Set Time Preprocessor mode to differential,
             instead of the default, absolute
         """
-
-        global current_processor
-        global waiting_for_processor
-
         if self._data_source_signals[data_source] is None:
             log.debug("Getting data signal for data source {0}".format(
                 data_source
@@ -122,27 +115,30 @@ class SensorFusionModule(PyMetaWearModule):
         if delay is not None:
             mode = TimeMode.DIFFERENTIAL if differential else \
                 TimeMode.ABSOLUTE
-            waiting_for_processor = True
             log.debug("Creating time dataprocessor for signal {0}".format(
                 self._data_source_signals[data_source]
             ))
+            _done = Event()
+
+            def _processor_set(processor):
+                """
+                Set global variables as the libmetawear callback can't handle the self
+                parameter of instance methods.
+
+                :param processor: The processor that was created
+                """
+                self._data_source_signals[data_source] = processor
+                _done.set()
+
             libmetawear.mbl_mw_dataprocessor_time_create(
                 self._data_source_signals[data_source],
                 mode,
                 delay,
-                FnVoid_VoidP(processor_set))
+                FnVoid_VoidP(_processor_set))
+            _done.wait(timeout=PROCESSOR_SET_WAIT_TIME)
 
-            wait_time = 0
-            while waiting_for_processor and wait_time < max_processor_wait_time:
-                sleeptime = 0.1
-                time.sleep(sleeptime)
-                wait_time += sleeptime
-            if current_processor is not None:
-                self._data_source_signals[data_source] = current_processor
-                current_processor = None
-            else:
+            if self._data_source_signals[data_source] is None:
                 raise PyMetaWearException("Can't set data processor!")
-
         else:
             data_signal = libmetawear.mbl_mw_sensor_fusion_get_data_signal(
                     self.board, data_source)
@@ -218,11 +214,10 @@ class SensorFusionModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_notification(data):
-                # Handle a (epoch_time, (x,y,z,accuracy)) corrected acc tuple.
-                epoch = data[0]
-                xyzaccu = data[1]
-                print("[{0}] X: {1}, Y: {2}, Z: {3}".format(
-                    epoch, *xyzaccu[:-1]))
+                # Handle dictionary with [epoch, value] keys.
+                epoch = data["epoch"]
+                xyz = data["value"]
+                print(str(data))
 
             mwclient.sensorfusion.notifications(
                 corrected_acc_callback=handle_notification)
@@ -283,7 +278,7 @@ class SensorFusionModule(PyMetaWearModule):
             if callback is not None:
                 self.check_and_change_callback(
                     self.get_data_signal(data_source),
-                    sensor_data(callback)
+                    data_handler(callback)
                 )
             else:
                 self.check_and_change_callback(
@@ -301,8 +296,10 @@ class SensorFusionModule(PyMetaWearModule):
                 log.debug("Subscribing to {0} changes. (Sig#: {1})".format(
                     self.module_name, data_signal))
             if data_signal in self._callbacks:
-                raise PyMetaWearException(
-                    "Subscription to {0} signal already in place!")
+                log.debug('Replacing callback for datasignal {0}...'.format(
+                    data_signal))
+                libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
+                self._callbacks.pop(data_signal)
             self._callbacks[data_signal] = (callback, FnVoid_DataP(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
                 data_signal, self._callbacks[data_signal][1])
@@ -313,7 +310,7 @@ class SensorFusionModule(PyMetaWearModule):
                 log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
                     self.module_name, data_signal))
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
-            del self._callbacks[data_signal]
+            self._callbacks.pop(data_signal)
 
     @require_fusion_module
     def start(self):
@@ -340,54 +337,3 @@ class SensorFusionModule(PyMetaWearModule):
         else:
             libmetawear.mbl_mw_sensor_fusion_clear_enabled_mask(
                 self.board)
-
-
-def processor_set(processor):
-    """
-    Set global variables as the libmetawear callback can't handle the self
-    parameter of instance methods.
-
-    :param processor: The processor thas was created
-    """
-    global current_processor
-    global waiting_for_processor
-    current_processor = processor
-    waiting_for_processor = False
-
-
-def sensor_data(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.CARTESIAN_FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(CartesianFloat))
-            func((epoch, (data_ptr.contents.x,
-                          data_ptr.contents.y,
-                          data_ptr.contents.z)))
-        elif data.contents.type_id == DataTypeId.QUATERNION:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(Quaternion))
-            func((epoch, (data_ptr.contents.w,
-                          data_ptr.contents.x,
-                          data_ptr.contents.y,
-                          data_ptr.contents.z)))
-        elif data.contents.type_id == DataTypeId.CORRECTED_CARTESIAN_FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value,
-                            POINTER(CorrectedCartesianFloat))
-            func((epoch, (data_ptr.contents.x,
-                          data_ptr.contents.y,
-                          data_ptr.contents.z,
-                          data_ptr.contents.accuracy)))
-        elif data.contents.type_id == DataTypeId.EULER_ANGLE:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(EulerAngles))
-            func((epoch, (data_ptr.contents.heading,
-                          data_ptr.contents.pitch,
-                          data_ptr.contents.roll,
-                          data_ptr.contents.yaw)))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-
-    return wrapper

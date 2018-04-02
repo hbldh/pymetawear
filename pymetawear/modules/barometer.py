@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Barometer module
+----------------
 
-.. moduleauthor:: lkasso <hello@mbientlab.com>
-.. modulecreator:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-08-16
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-08-16
+Modified by lkasso <hello@mbientlab.com>
 
 """
 
@@ -15,13 +15,12 @@ from __future__ import absolute_import
 
 import re
 import logging
-from functools import wraps
-from ctypes import c_float, cast, POINTER
 
 from pymetawear import libmetawear
-from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import *
-from pymetawear.modules.base import PyMetaWearModule
+from mbientlab.metawear.cbindings import BaroBme280StandbyTime, \
+    BaroBmp280StandbyTime, BaroBoschIirFilter, \
+    BaroBoschOversampling
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -55,24 +54,27 @@ class BarometerModule(PyMetaWearModule):
         }
         self.barometer_o_class = BaroBoschOversampling
         self.barometer_i_class = BaroBoschIirFilter
-        self.barometer_s_class = barometer_standbytime_sensors.get(self.module_id, None)
+        self.barometer_s_class = barometer_standbytime_sensors.get(
+            self.module_id, None)
 
         if self.barometer_o_class is not None:
             # Parse oversampling status
             for key, value in vars(self.barometer_o_class).items():
-                if re.search('^([A-Z\_]*)', key) and isinstance(value, int):
+                if re.search('^([A-Z_]*)', key) and isinstance(value, int):
                     self.oversampling.update({key.lower():value})
 
         if self.barometer_i_class is not None:
             # Parse IR filter values 
             for key, value in vars(self.barometer_i_class).items():
-                if re.search('^([0-9AVG\_OFF]+)', key) and isinstance(value, int):
+                if re.search('^AVG_([0-9]+)', key) and isinstance(value, int):
                     self.iir_filter.update({key.lower():value})
-            
+                elif key == 'OFF':
+                    self.iir_filter.update({'off': isinstance(value, int)})
+
         if self.barometer_s_class is not None:
             # Parse standby time values 
             for key, value in vars(self.barometer_s_class).items():
-                if re.search('^_([0-9]+)\_*([0-9]*)ms', key) and isinstance(value, int):
+                if re.search('^_([0-9]+)_*([0-9]*)ms', key) and isinstance(value, int):
                     self.standby_time.update({key[1:-2].replace("_",".").lower():value})
             
         else:
@@ -102,7 +104,7 @@ class BarometerModule(PyMetaWearModule):
 
     @property
     def sensor_name(self):
-        return self.barometer_class.__name__.replace('Barometer', '')
+        return self.barometer_s_class.__name__.replace('Baro', '').replace('StandbyTime', '')
 
     @property
     def data_signal(self):
@@ -224,10 +226,10 @@ class BarometerModule(PyMetaWearModule):
         .. code-block:: python
 
             def handle_barometer_notification(data)
-                # Handle a (epoch_time, value) barometer tuple.
-                epoch = data[0]
-                value = data[1]
-                print("[{0}] Altitude: {1}".format(epoch, value))
+                # Handle dictionary with [epoch, value] keys.
+                epoch = data["epoch"]
+                value = data["value"]
+                print(data)
 
             mwclient.barometer.notifications(handle_barometer_notification)
 
@@ -240,8 +242,7 @@ class BarometerModule(PyMetaWearModule):
             self.stop()
             super(BarometerModule, self).notifications(None)
         else:
-            super(BarometerModule, self).notifications(
-                sensor_data(callback))
+            super(BarometerModule, self).notifications(data_handler(callback))
             self.start()
 
     def start(self):
@@ -251,17 +252,3 @@ class BarometerModule(PyMetaWearModule):
     def stop(self):
         """Switches the barometer to standby mode."""
         libmetawear.mbl_mw_baro_bosch_stop(self.board)
-
-
-def sensor_data(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.FLOAT:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(c_float))
-            func((epoch, data_ptr.contents.value))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-
-    return wrapper

@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Base module
+-----------
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-04-14
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-14
+Modified by lkasso <hello@mbientlab.com>
 
 """
 
@@ -13,10 +14,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import logging
+from ctypes import c_int, c_uint, c_float, cast, POINTER, c_ubyte
+from functools import wraps
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import FnVoid_DataP
+from mbientlab.metawear.cbindings import FnVoid_DataP, DataTypeId, \
+    CartesianFloat, BatteryState, Tcs34725ColorAdc, EulerAngles, \
+    Quaternion, CorrectedCartesianFloat
 
 log = logging.getLogger(__name__)
 
@@ -70,7 +75,7 @@ class PyMetaWearModule(object):
             log.setLevel(logging.DEBUG)
 
     def __str__(self):
-        return "PyMetaWear module: {0}".format()
+        return "PyMetaWearModule"
 
     def __repr__(self):
         return super(PyMetaWearModule, self).__repr__()
@@ -144,3 +149,47 @@ class PyMetaWearModule(object):
                 return
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
             self.callback = None
+
+
+def _error_handler(data):
+    raise RuntimeError('Unrecognized data type id: ' +
+                       str(data.contents.type_id))
+
+
+def _byte_array_handler(data):
+    ptr = cast(data.contents.value, POINTER(c_ubyte * data.contents.length))
+    return [ptr.contents[i].value for i in range(0, data.contents.length)]
+
+
+DATA_HANDLERS = {
+    DataTypeId.UINT32: lambda x: cast(
+        x.contents.value, POINTER(c_uint)).contents.value,
+    DataTypeId.INT32: lambda x: cast(
+        x.contents.value, POINTER(c_int)).contents.value,
+    DataTypeId.FLOAT: lambda x: cast(
+        x.contents.value, POINTER(c_float)).contents.value,
+    DataTypeId.CARTESIAN_FLOAT: lambda x: cast(
+        x.contents.value, POINTER(CartesianFloat)).contents,
+    DataTypeId.BATTERY_STATE: lambda x: cast(
+        x.contents.value, POINTER(BatteryState)).contents,
+    DataTypeId.BYTE_ARRAY: _byte_array_handler,
+    DataTypeId.TCS34725_ADC: lambda x: cast(
+        x.contents.value, POINTER(Tcs34725ColorAdc)).contents,
+    DataTypeId.EULER_ANGLE: lambda x: cast(
+        x.contents.value, POINTER(EulerAngles)).contents,
+    DataTypeId.QUATERNION: lambda x: cast(
+        x.contents.value, POINTER(Quaternion)).contents,
+    DataTypeId.CORRECTED_CARTESIAN_FLOAT: lambda x: cast(
+        x.contents.value, POINTER(CorrectedCartesianFloat)).contents
+}
+
+
+def data_handler(func):
+    @wraps(func)
+    def wrapper(data):
+        func({
+            'epoch': int(data.contents.epoch),
+            'value': DATA_HANDLERS.get(
+                data.contents.type_id, _error_handler)(data)
+        })
+    return wrapper

@@ -19,13 +19,8 @@ from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
 
 address = select_device()
-c = MetaWearClient(str(address), 'pygatt', debug=True)
+c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
-
-
-def gyro_callback(data):
-    """Handle a (epoch, (x,y,z)) gyroscope tuple."""
-    print("Epoch time: [{0}] - X: {1}, Y: {2}, Z: {3}".format(data[0], *data[1]))
 
 
 print("Write gyroscope settings...")
@@ -40,7 +35,7 @@ c.gyroscope.set_settings(data_rate=50.0, data_range=1000.0)
 time.sleep(5.0)
 
 print("Subscribing to gyroscope signal notifications...")
-c.gyroscope.notifications(gyro_callback)
+c.gyroscope.notifications(lambda data: print(data))
 
 time.sleep(20.0)
 

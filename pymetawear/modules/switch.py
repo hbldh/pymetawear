@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Switch module
+-------------
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-
-Created: 2016-04-14
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-04-14
 
 """
 
@@ -13,13 +13,9 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import logging
-from functools import wraps
-from ctypes import c_uint, cast, POINTER
 
 from pymetawear import libmetawear
-from pymetawear.exceptions import PyMetaWearException
-from pymetawear.mbientlab.metawear.cbindings import DataTypeId
-from pymetawear.modules.base import PyMetaWearModule
+from pymetawear.modules.base import PyMetaWearModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -63,9 +59,10 @@ class SwitchModule(PyMetaWearModule):
         .. code-block:: python
 
             def switch_callback(data):
-                epoch = data[0]
-                status = data[1]
-                if status == 1:
+                # Handle dictionary with [epoch, value] keys.
+                epoch = data["epoch"]
+                value = data["value"]
+                if value == 1:
                     print("[{0}] Switch pressed!".format(epoch))
                 elif status == 0:
                     print("[{0}] Switch released!".format(epoch))
@@ -77,17 +74,4 @@ class SwitchModule(PyMetaWearModule):
 
         """
         super(SwitchModule, self).notifications(
-            switch_data(callback) if callback is not None else None)
-
-
-def switch_data(func):
-    @wraps(func)
-    def wrapper(data):
-        if data.contents.type_id == DataTypeId.UINT32:
-            epoch = int(data.contents.epoch)
-            data_ptr = cast(data.contents.value, POINTER(c_uint))
-            func((epoch, data_ptr.contents.value))
-        else:
-            raise PyMetaWearException('Incorrect data type id: {0}'.format(
-                data.contents.type_id))
-    return wrapper
+            data_handler(callback) if callback is not None else None)

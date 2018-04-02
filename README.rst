@@ -1,72 +1,57 @@
-**PyMetaWear is a community developed Python SDK started by** `Henrik Blidh <https://github.com/hbldh>`_ **.**  
-
-**MbientLab does not provide support for this SDK and recommends that developers use the official Python SDK (https://github.com/mbientlab/MetaWear-SDK-Python) to receive up-to-date feature support for your MetaSensors.**  
-
 ==========
 PyMetaWear
 ==========
 
+.. image:: https://travis-ci.org/hbldh/pymetawear.svg?branch=master
+    :target: https://travis-ci.org/hbldh/pymetawear
+
+.. image:: https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master
+    :target: https://coveralls.io/github/hbldh/pymetawear?branch=master
+
+**PyMetaWear is a community developed Python SDK started by**
+`Henrik Blidh <https://github.com/hbldh>`_ **. MbientLab does not provide support for this SDK.**
+
 Python package for connecting to and using
 `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
-PyMetawear is meant to be a thin wrapper around the
+
+Capabilities and Limitations
+----------------------------
+
+PyMetaWear was previously a wrapper around the
 `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_,
-providing a more Pythonic interface. It has support for two different
-Python packages for Bluetooth Low Energy communication:
+providing a more Pythonic interface. In version 0.9.0 it instead becomes
+a wrapper around `MetaWear's official Python SDK <https://github.com/mbientlab/MetaWear-SDK-Python>`_,
+doing the very same thing. The official SDK handles the actual board
+connections and communication while PyMetaWear aims to remove the low level
+feeling of interacting with the MetaWear board.
 
-- `pygatt <https://github.com/peplin/pygatt>`_
-- `pybluez <https://github.com/karulis/pybluez>`_ with
-  `gattlib <https://bitbucket.org/OscarAcena/pygattlib>`_
 
-PyMetaWear can be run with Python 2 and 3.4 with both backends,
-but only with the `pygatt` backend for Python 3.5.
+Limitations
++++++++++++
 
-**PyMetaWear is Linux-only**! 
-Please use the other APIs for other platforms including Android, Windows, and Apple OS.
+- **Reading data over longer periods of time.** Many users have reported
+disconnection problems when trying to use PyMetaWear for long periods.
 
 Installation
 ------------
 
-Currently, the `pygatt <https://github.com/peplin/pygatt>`_ communication
-backend is used by default.
-
-Debian requirements for ``pygatt and pymetawear`` 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* ``build-essential``
-* ``python-dev``
+Due to a dependency on ``gattlib``, a Python BLE package that is
+poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`
+and ships a patched version with its Python SDK. This makes installation of
+PyMetaWear require some additional work:
 
 .. code-block:: bash
 
-    $ pip install pygatt 
+    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib
+    $ pip install metawear
+    $ pip install pymetawear
 
-Additional requirements for ``pybluez``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* ``libglib2.0-dev``
-* ``bluetooth``
-* ``libbluetooth-dev``
-* ``libboost-python-dev``
-* ``libboost-thread-dev``
-
-.. code-block:: bash
-
-    $ pip install pybluez[ble]
-
-Development
-~~~~~~~~~~~
-Clone this repository and run
-
-.. code-block:: bash
-
-    $ python setup.py build
-
-to pull in the `MetaWear C++ API <https://github.com/mbientlab/Metawear-CppAPI>`_ submodule,
-build it and copy the Python wrappers from it to the PyMetaWear folder.
 
 Documentation
 -------------
 
-New documentation coming soon.
+Available in the `Github pages <https://hbldh.github.io/pymetawear/>`_ of this repository.
 
 Basic Usage
 -----------
@@ -81,8 +66,7 @@ MetaWear board, is equal for both the two usage profiles:
 .. code-block:: python
 
     from pymetawear.client import MetaWearClient
-    backend = 'pygatt' # Or 'pybluez'
-    c = MetaWearClient('DD:3A:7D:4D:56:F0', backend)
+    c = MetaWearClient('DD:3A:7D:4D:56:F0')
 
 An example: blinking with the LED lights can be done like this with the
 convenience methods:
@@ -99,7 +83,7 @@ or like this using the raw ``libmetawear`` shared library:
 
     from ctypes import byref
     from pymetawear import libmetawear
-    from pymetawear.mbientlab.metawear.cbindings import LedColor, LedPreset
+    from mbientlab.metawear.cbindings import LedColor, LedPreset
 
     pattern = Led.Pattern(repeat_count=10)
     libmetawear.mbl_mw_led_load_preset_pattern(byref(pattern), LedPreset.BLINK)
@@ -111,7 +95,7 @@ directly with ``hcitool lescan`` or with the included ``discover_devices`` metho
 
 .. code-block:: python
 
-    from pymetawear.client import discover_devices
+    from pymetawear.discover import discover_devices
     out = discover_devices()
     print out
     [(u'DD:3A:7D:4D:56:F0', u'MetaWear'), (u'FF:50:35:82:3B:5A', u'MetaWear')]
@@ -133,10 +117,10 @@ Completed Modules Partial Modules Unimplemented Modules
 Accelerometer     GPIO            NeoPixel
 Gyroscope                         Color Detector
 Haptic                            Humidity
-Switch                            iBeacon 
+Switch                            iBeacon
 LED                               I2C
-Barometer                         
-Magnetometer                      
+Barometer
+Magnetometer
 Temperature
 Settings
 Ambient Light

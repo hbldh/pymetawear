@@ -19,20 +19,11 @@ from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
 
 address = select_device()
-c = MetaWearClient(str(address), 'pygatt', debug=True)
+c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
-
-def battery_callback(data):
-    """Handle a battery status tuple."""
-    epoch = data[0]
-    battery = data[1]
-    print("[{0}] Voltage: {1}, Charge: {2}".format(
-        epoch, battery[0], battery[1]))
-
-
 print("Subscribe to battery notifications...")
-c.settings.notifications(battery_callback)
+c.settings.notifications(lambda data: print(data))
 
 time.sleep(1.0)
 
