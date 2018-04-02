@@ -24,11 +24,10 @@ c = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(c))
 
 def handle_notification(data):
-    print(data)
+    print("1: {0}".format(data))
 
 def handle_notification2(data):
-    print("Number 2!")
-    print(data)
+    print("2: {0}".format(data))
 
 print("Write Sensor Fusion settings...")
 c.sensorfusion.set_mode(SensorFusionMode.NDOF)
@@ -38,8 +37,8 @@ c.sensorfusion.set_mode(SensorFusionMode.NDOF)
 print("Set Time Processor to limit data rate to 50Hz for each channel")
 #c.sensorfusion.set_sample_delay(SensorFusionData.EULER_ANGLE, 20)
 c.sensorfusion.set_sample_delay(SensorFusionData.QUATERION, 20)
-#c.sensorfusion.set_sample_delay(SensorFusionData.CORRECTED_ACC, 20)
-#c.sensorfusion.set_sample_delay(SensorFusionData.CORRECTED_GYRO, 20)
+c.sensorfusion.set_sample_delay(SensorFusionData.CORRECTED_ACC, 20)
+c.sensorfusion.set_sample_delay(SensorFusionData.CORRECTED_GYRO, 20)
 
 print("Subscribing to Sensor Fusion Quaternion signal notifications...")
 #c.sensorfusion.notifications(euler_angle_callback=handle_notification)
