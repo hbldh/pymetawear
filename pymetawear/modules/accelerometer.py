@@ -18,6 +18,7 @@ import logging
 from ctypes import c_float
 
 from pymetawear import libmetawear
+from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import AccBma255Odr, AccBmi160Odr, \
     AccBmi160StepCounterMode, AccBoschOrientationMode, AccBoschRange, \
     AccMma8452qOdr, AccMma8452qRange, Const
@@ -225,3 +226,19 @@ class AccelerometerModule(PyMetaWearModule):
             libmetawear.mbl_mw_acc_enable_acceleration_sampling(self.board)
         else:
             libmetawear.mbl_mw_acc_disable_acceleration_sampling(self.board)
+
+    def start_logging(self):
+        """Enables accelerometer data logging."""
+        super(AccelerometerModule, self).start_logging()
+        self.toggle_sampling(True)
+        self.start()
+
+    def download_log(self, callback):
+        """Disables accelerometer data logging and download log.
+
+        :param callback: Accelerometer download callback function.
+
+        """
+        self.stop()
+        self.toggle_sampling(False)
+        super(AccelerometerModule, self).download_log(callback)
