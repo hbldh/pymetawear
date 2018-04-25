@@ -29,7 +29,7 @@ print(settings)
 time.sleep(1.0)
 
 print("\nWrite accelerometer settings...")
-client.accelerometer.set_settings(data_rate=50, data_range=4.0)
+client.accelerometer.set_settings(data_rate=400, data_range=4.0)
 
 time.sleep(1.0)
 
@@ -43,7 +43,7 @@ client.accelerometer.logging = True
 client.accelerometer.start_logging()
 print("\nLogging...")
 
-time.sleep(5.0)
+time.sleep(0.5)
 print("Logging stopped.")
 
 client.accelerometer.download_log(lambda data : print(data))

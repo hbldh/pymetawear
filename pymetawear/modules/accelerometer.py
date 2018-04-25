@@ -219,6 +219,8 @@ class AccelerometerModule(PyMetaWearModule):
     def start(self):
         """Switches the accelerometer to active mode."""
         libmetawear.mbl_mw_acc_start(self.board)
+        if self._debug:
+            log.debug("Start Sampling (Accelerometer)")
 
     def stop(self):
         """Switches the accelerometer to standby mode."""
