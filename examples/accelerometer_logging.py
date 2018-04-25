@@ -38,6 +38,7 @@ settings = client.accelerometer.get_current_settings()
 print(settings)
 
 client.accelerometer.high_frequency_stream = False
+client.accelerometer.logging = True
 
 client.accelerometer.start_logging()
 print("\nLogging...")

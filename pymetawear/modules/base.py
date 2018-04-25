@@ -194,12 +194,12 @@ class PyMetaWearModule(object):
         if self.logger_address is None:
             libmetawear.mbl_mw_debug_reset(self.board)
             time.sleep(2.0)
-            #self.disconnect() won't work here
+            libmetawear.mbl_mw_debug_disconnect()
             raise Exception("Aborting due failed initiation of logger.")
 
         if self._debug:
-	    log.debug("Start Logger. (Logger#: {0})".format(
-                    self.logger_address));
+	    log.debug("Start Logger (Logger#: {0}, Signal#: {1})".format(
+                    self.logger_address, data_signal));
 
         libmetawear.mbl_mw_logging_start(self.board, 0)
 
@@ -214,6 +214,7 @@ class PyMetaWearModule(object):
 
         data_point_handler = FnVoid_DataP(data_handler(callback));
 
+        time.sleep(0.2)
 	if self._debug:
 	    log.debug("Subscribe to Logger. (Logger#: {0})".format(
                     self.logger_address));
@@ -226,7 +227,7 @@ class PyMetaWearModule(object):
             received_unknown_entry = unknown_entry,
             received_unhandled_entry = unhandled_entry
         )
-        time.sleep(0.1)
+        time.sleep(0.2)
         libmetawear.mbl_mw_logging_download(self.board, 100, byref(log_download_handler))
 
         if self._debug:

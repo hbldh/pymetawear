@@ -15,6 +15,7 @@ from __future__ import absolute_import
 
 import re
 import logging
+import time
 from ctypes import c_float
 
 from pymetawear import libmetawear
@@ -54,6 +55,7 @@ class AccelerometerModule(PyMetaWearModule):
         self.fsr = {}
 
         self.high_frequency_stream = False
+        self.logging = False
 
         acc_odr_class, acc_fsr_class = _settings_map.get(module_id)
 
@@ -94,7 +96,13 @@ class AccelerometerModule(PyMetaWearModule):
 
     @property
     def data_signal(self):
-        if self.high_frequency_stream:
+        if self.high_frequency_stream and self.logging:
+            libmetawear.mbl_mw_debug_reset(self.board)
+            time.sleep(2.0)
+            libmetawear.mbl_mw_debug_disconnect(self.board)
+            raise Exception("Signal high_freq_acceleration is not intended for logging. "
+                 "Set high_frequency_stream False, even though your are sampling with 100 Hz and higher.")
+        elif self.high_frequency_stream:
             return libmetawear.mbl_mw_acc_get_high_freq_acceleration_data_signal(self.board)
         else:
             return libmetawear.mbl_mw_acc_get_acceleration_data_signal(self.board)
@@ -229,6 +237,8 @@ class AccelerometerModule(PyMetaWearModule):
 
     def start_logging(self):
         """Enables accelerometer data logging."""
+        if self.logging is not True:
+            raise Exception("Set logging True, if you want to use the logger.")
         super(AccelerometerModule, self).start_logging()
         self.toggle_sampling(True)
         self.start()
