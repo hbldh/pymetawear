@@ -14,7 +14,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import logging
-import time
+import time, pdb
 from ctypes import c_int, c_uint, c_float, cast, POINTER, c_ubyte, byref
 from functools import wraps
 from threading import Event
@@ -74,7 +74,9 @@ class PyMetaWearModule(object):
         self.callback = None
 
         self.logger_ready_event = Event()
-        self.download_done = Event()
+        self.data_received = Event()
+        self.download_done = False
+        self.logger_running = False
         self.logger_address = None
 
         if debug:
@@ -131,8 +133,9 @@ class PyMetaWearModule(object):
 
     def _progress_update(self, entriesLeft, totalEntries):
         print('received_progress_update entriesLeft:' + str(entriesLeft) + ' totalEntries:' + str(totalEntries))
+        self.data_received.set()
         if entriesLeft == 0:
-            self.download_done.set()
+            self.download_done = True
 
     def _unknown_entry(self, id, epoch, data, length):
         # I have no idea what this data is. Needs further investigation.
@@ -140,11 +143,13 @@ class PyMetaWearModule(object):
         #
         # from pymetawear.modules.base import DATA_HANDLERS, _error_handler
         # DATA_HANDLERS.get(data.contents.type_id, _error_handler)(data)
-        print('received_unknown_entry: id: {0}, epoch: {1}, '
-              'data: {2}, length: {3}'.format(id, epoch, data, length))
+        if self._debug:
+            log.debug('received_unknown_entry: id: {0}, epoch: {1}, '
+                      'data: {2}, length: {3}'.format(id, epoch, data, length))
 
     def _unhandled_entry(self, data):
-        print('received_unhandled_entry: ' + str(data))
+        if self._debug:
+            log.debug('received_unhandled_entry: ' + str(data))
 
     def set_settings(self, **kwargs):
         raise PyMetaWearException(
@@ -194,31 +199,39 @@ class PyMetaWearModule(object):
         if self.logger_address is None:
             libmetawear.mbl_mw_debug_reset(self.board)
             time.sleep(2.0)
-            libmetawear.mbl_mw_debug_disconnect()
+            libmetawear.mbl_mw_debug_disconnect(self.board)
             raise Exception("Aborting due failed initiation of logger.")
 
         if self._debug:
 	    log.debug("Start Logger (Logger#: {0}, Signal#: {1})".format(
                     self.logger_address, data_signal));
 
+        self.logger_running = True
+        self.download_done = False
         libmetawear.mbl_mw_logging_start(self.board, 0)
 
-    def download_log(self, callback):
+    def stop_logging(self):
+        """Stop logging of data signals on the MetaWear board"""
+        if self._debug:
+	    log.debug("Stop Logger (Logger#: {0})".format(self.logger_address));
+
+        libmetawear.mbl_mw_logging_stop(self.board)
+        self.logger_running = False
+
+    def download_log(self, client, callback):
         """Download logged data from the MetaWear board
 
         :param callback: The function to call when
             downloaded data arrives.
 
         """
-        libmetawear.mbl_mw_logging_stop(self.board)
+        if self.logger_running:
+            libmetawear.mbl_mw_debug_reset(self.board)
+            time.sleep(2.0)
+            libmetawear.mbl_mw_debug_disconnect(self.board)
+            raise Exception("Download impossible, logger is still running.")
 
         data_point_handler = FnVoid_DataP(data_handler(callback));
-
-        time.sleep(0.2)
-	if self._debug:
-	    log.debug("Subscribe to Logger. (Logger#: {0})".format(
-                    self.logger_address));
-        libmetawear.mbl_mw_logger_subscribe(self.logger_address, data_point_handler)
         progress_update = FnVoid_UInt_UInt(self._progress_update)
         unknown_entry = FnVoid_UByte_Long_UByteP_UByte(self._unknown_entry)
         unhandled_entry = FnVoid_DataP(data_handler(self._unhandled_entry))
@@ -227,28 +240,47 @@ class PyMetaWearModule(object):
             received_unknown_entry = unknown_entry,
             received_unhandled_entry = unhandled_entry
         )
-        time.sleep(0.2)
-        libmetawear.mbl_mw_logging_download(self.board, 100, byref(log_download_handler))
 
-        if self._debug:
-            log.debug("Waiting for completed download. (Logger#: {0})".format(
-                    self.logger_address));
-        self.download_done.wait()
+        status = False
+        while not self.download_done:
+            if not status:
+                time.sleep(0.2)
+                client.mw.disconnect()
+                client.mw.connect()
+                if self._debug:
+	            log.debug("Subscribe to Logger. (Logger#: {0})".format(
+                              self.logger_address))
+                libmetawear.mbl_mw_logger_subscribe(self.logger_address,
+                                                    data_point_handler)
+
+                time.sleep(0.2)
+                if self._debug:
+                    log.debug("Waiting for completed download. (Logger#: {0})".format(
+                              self.logger_address))
+                libmetawear.mbl_mw_logging_download(self.board, 100,
+                                                    byref(log_download_handler))
+
+            status = self.data_received.wait(10)
+            if not status:
+                print("BT connetion lost! Retry download...")
+                client.mw.disconnect()
+                client.mw.connect()
+
         if self._debug:
             log.debug("Download done. (Logger#: {0})".format(
-                    self.logger_address));
+                      self.logger_address));
 
-        if self._debug:
-                log.debug("Remove logger. (Logger#: {0})".format(
-                    self.logger_address));
-        libmetawear.mbl_mw_logger_remove(self.logger_address)
         time.sleep(0.2)
+        if self._debug:
+            log.debug("Remove logger. (Logger#: {0})".format(
+                      self.logger_address));
+            libmetawear.mbl_mw_logger_remove(self.logger_address)
 
-        if self._debug:
-                log.debug("Cleanup memory. (Logger#: {0})".format(
-                    self.logger_address));
-        libmetawear.mbl_mw_metawearboard_tear_down(self.board)
         time.sleep(0.2)
+        if self._debug:
+            log.debug("Cleanup memory. (Logger#: {0})".format(
+                      self.logger_address));
+            libmetawear.mbl_mw_metawearboard_tear_down(self.board)
 
 def _error_handler(data):
     raise RuntimeError('Unrecognized data type id: ' +

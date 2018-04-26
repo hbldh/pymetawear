@@ -245,12 +245,16 @@ class AccelerometerModule(PyMetaWearModule):
         self.toggle_sampling(True)
         self.start()
 
-    def download_log(self, callback):
-        """Disables accelerometer data logging and download log.
+    def stop_logging(self):
+        """Disables accelerometer data logging."""
+        self.stop()
+        self.toggle_sampling(False)
+        super(AccelerometerModule, self).stop_logging()
+
+    def download_log(self, client, callback):
+        """Download logged data.
 
         :param callback: Accelerometer download callback function.
 
         """
-        self.stop()
-        self.toggle_sampling(False)
-        super(AccelerometerModule, self).download_log(callback)
+        super(AccelerometerModule, self).download_log(client, callback)
