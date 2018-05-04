@@ -177,12 +177,13 @@ class GyroscopeModule(PyMetaWearLoggingModule):
             if self._debug:
                 log.debug("Setting Gyroscope ODR to {0}".format(odr))
             libmetawear.mbl_mw_gyro_bmi160_set_odr(self.board, odr)
+            self.current_odr = data_rate
         if data_range is not None:
             fsr = self._get_fsr(data_range)
             if self._debug:
                 log.debug("Setting Gyroscope FSR to {0}".format(fsr))
             libmetawear.mbl_mw_gyro_bmi160_set_range(self.board, fsr)
-
+            self.current_fsr = data_range
         if (data_rate is not None) or (data_range is not None):
             libmetawear.mbl_mw_gyro_bmi160_write_config(self.board)
 

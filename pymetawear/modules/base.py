@@ -19,6 +19,8 @@ from ctypes import c_int, c_uint, c_float, cast, POINTER, c_ubyte, byref
 from functools import wraps
 from threading import Event
 
+import tqdm
+
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearDownloadTimeout
 from mbientlab.metawear.cbindings import FnVoid_DataP, DataTypeId, \
@@ -166,6 +168,8 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         self._logger_running = False
         self._logger_address = None
 
+        self._progress_bar = None
+
         self._logged_data = []
 
     def _logger_ready(self, address):
@@ -179,10 +183,16 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         self._logger_ready_event.set()
 
     def _progress_update(self, entries_left, total_entries):
-        log.info("Download Progress: {0} / {1}".format(
-            total_entries - entries_left, total_entries))
+        if self._progress_bar is None:
+            self._progress_bar = tqdm.tqdm(total=total_entries)
+        n_read_entries = total_entries - entries_left
+        self._progress_bar.update(n_read_entries - self._progress_bar.n)
         self.data_received.set()
         if entries_left == 0:
+            self._progress_bar.update(
+                total_entries - self._progress_bar.n)
+            self._progress_bar.close()
+            self._progress_bar = None
             self._download_done = True
 
     def _unknown_entry(self, id, epoch, data, length):
@@ -209,9 +219,7 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
             log.debug('Unhandled Entry: ' + str(data))
 
     def _default_download_callback(self, data):
-        if self._debug:
-            log.debug(data)
-        self._logged_data.append(deepcopy(data))
+        self._logged_data.append(data)
 
     def start(self):
         raise NotImplementedError("Must be implemented by module.")
@@ -225,8 +233,9 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
     def start_logging(self):
         """Setup and start logging of data signals on the MetaWear board"""
         data_signal = self.data_signal
-        #if getattr(self, 'high_frequency_stream', default=False):
-        #    raise PyMetaWearException("Cannot log on high frequency stream signal.")
+        if getattr(self, 'high_frequency_stream', False):
+            raise PyMetaWearException(
+                "Cannot log on high frequency stream signal.")
         self._logger_ready_event = Event()
         logger_ready = FnVoid_VoidP(self._logger_ready)
         libmetawear.mbl_mw_datasignal_log(self.data_signal, logger_ready)
@@ -258,7 +267,7 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
 
     def download_log(
             self,
-            timeout=5.0,
+            timeout=3.0,
             data_callback=None,
             progress_update_function=None,
             unknown_entry_function=None,
@@ -266,9 +275,15 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
     ):
         """Download logged data from the MetaWear board
 
-        :param data_callback: The function to call when
-            downloaded data arrives.
-
+        :param timeout: Time to wait for download to resume if connection is
+        lost.
+        :param data_callback: Function called to process each downloaded sample.
+        :param progress_update_function: Function called each
+        `progress_update_each_n_sample` to give feedback on download progress.
+        :param unknown_entry_function: Function called when unknown logging
+        entry is encountered.
+        :param unhandled_entry_function: Function called when
+        :return: The logged data, in case
         """
         if self._logger_running:
             # Stop logging if it is active.
@@ -303,12 +318,16 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
             log.debug("Waiting for completed download. (Logger#: {0})".format(
                 self._logger_address))
         libmetawear.mbl_mw_logging_download(
-            self.board, 100, byref(log_download_handler))
+            self.board, 1000,
+            byref(log_download_handler))
 
         while not self._download_done:
             status = self.data_received.wait(timeout)
             self.data_received = Event()
-            if not status:
+            if not self._download_done and not status:
+                if self._progress_bar is not None:
+                    self._progress_bar.close()
+                    self._progress_bar = None
                 raise PyMetaWearDownloadTimeout(
                     "Bluetooth connection lost! Please reconnect and retry download...")
 
@@ -407,8 +426,8 @@ def data_handler(func):
     def wrapper(data):
         func({
             'epoch': int(data.contents.epoch),
-            'value': DATA_HANDLERS.get(
-                data.contents.type_id, _error_handler)(data)
+            'value': deepcopy(DATA_HANDLERS.get(
+                data.contents.type_id, _error_handler)(data)),
         })
 
     return wrapper
