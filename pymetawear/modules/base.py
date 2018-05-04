@@ -200,11 +200,13 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         :param length (int):
 
         """
+        self.data_received.set()
         if self._debug:
             log.debug('Unknown Entry: ID: {0}, epoch: {1}, '
                       'data: {2}, Length: {3}'.format(id, epoch, bytearray(data), length))
 
     def _unhandled_entry(self, data):
+        self.data_received.set()
         if self._debug:
             log.debug('Unhandled Entry: ' + str(data))
 
