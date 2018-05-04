@@ -22,26 +22,18 @@ address = select_device()
 client = MetaWearClient(str(address), debug=False)
 print("New client created: {0}".format(client))
 
-print("Get possible accelerometer settings of client 1...")
 settings = client.accelerometer.get_possible_settings()
-print(settings)
+print("Possible accelerometer settings of client:")
+for k, v in settings.items():
+    print(k, v)
 
-time.sleep(1.0)
-
-print("\nWrite accelerometer settings...")
+print("Write accelerometer settings...")
 client.accelerometer.set_settings(data_rate=400, data_range=4.0)
 
-time.sleep(1.0)
-
-print("\nCheck accelerometer settings of client 1...")
 settings = client.accelerometer.get_current_settings()
-print(settings)
-
-time.sleep(1.0)
-print("\n")
+print("Accelerometer settings of client: {0}".format(settings))
 
 client.accelerometer.high_frequency_stream = False
-
 client.accelerometer.start_logging()
 print("Logging accelerometer data...")
 
@@ -50,9 +42,10 @@ time.sleep(10.0)
 client.accelerometer.stop_logging()
 print("Logging stopped.")
 
-print("\nDownloading data...")
+print("Downloading data...")
 data = client.accelerometer.download_log()
-print(data)
+for d in data:
+    print(d)
 
 pattern = client.led.load_preset_pattern('blink', repeat_count=10)
 client.led.write_pattern(pattern, 'g')
@@ -62,5 +55,5 @@ time.sleep(5.0)
 
 client.led.stop_and_clear()
 
-print("\nDisconnecting...")
+print("Disconnecting...")
 client.disconnect()
