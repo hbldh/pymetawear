@@ -18,7 +18,7 @@ import logging
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import GyroBmi160Odr, GyroBmi160Range
-from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
+from pymetawear.modules.base import PyMetaWearLoggingModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def require_bmi160(f):
     return wrapper
 
 
-class GyroscopeModule(PyMetaWearModule):
+class GyroscopeModule(PyMetaWearLoggingModule):
     """MetaWear gyroscope module implementation.
 
     :param ctypes.c_long board: The MetaWear board pointer value.
@@ -48,8 +48,12 @@ class GyroscopeModule(PyMetaWearModule):
         self.module_id = module_id
 
         self.high_frequency_stream = False
+
         self.odr = {}
         self.fsr = {}
+
+        self.current_odr = 0
+        self.current_fsr = 0
 
         if self.module_id == Modules.MBL_MW_MODULE_NA:
             # No gyroscope present!
@@ -130,7 +134,8 @@ class GyroscopeModule(PyMetaWearModule):
 
     @require_bmi160
     def get_current_settings(self):
-        raise NotImplementedError()
+        return "data_rate in Hz: {} data_range in deg/sec: {}".format(
+            self.current_odr, self.current_fsr)
 
     @require_bmi160
     def get_possible_settings(self):

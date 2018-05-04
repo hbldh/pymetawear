@@ -61,7 +61,7 @@ class BarometerModule(PyMetaWearModule):
             # Parse oversampling status
             for key, value in vars(self.barometer_o_class).items():
                 if re.search('^([A-Z_]*)', key) and isinstance(value, int):
-                    self.oversampling.update({key.lower():value})
+                    self.oversampling.update({key.lower(): value})
 
         if self.barometer_i_class is not None:
             # Parse IR filter values 

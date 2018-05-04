@@ -18,7 +18,7 @@ import logging
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import MagBmm150Odr, MagBmm150Preset
-from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
+from pymetawear.modules.base import PyMetaWearLoggingModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def require_bmm150(f):
     return wrapper
 
 
-class MagnetometerModule(PyMetaWearModule):
+class MagnetometerModule(PyMetaWearLoggingModule):
     """MetaWear accelerometer module implementation.
 
     :param ctypes.c_long board: The MetaWear board pointer value.

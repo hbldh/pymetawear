@@ -20,7 +20,7 @@ from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import SensorFusionAccRange, \
     SensorFusionData, SensorFusionGyroRange, SensorFusionMode, \
     SensorOrientation, FnVoid_VoidP, FnVoid_DataP, TimeMode
-from pymetawear.modules.base import PyMetaWearModule, Modules, data_handler
+from pymetawear.modules.base import PyMetaWearLoggingModule, Modules, data_handler
 
 log = logging.getLogger(__name__)
 PROCESSOR_SET_WAIT_TIME = 5
@@ -36,7 +36,7 @@ def require_fusion_module(f):
     return wrapper
 
 
-class SensorFusionModule(PyMetaWearModule):
+class SensorFusionModule(PyMetaWearLoggingModule):
     """MetaWear accelerometer module implementation.
 
     :param ctypes.c_long board: The MetaWear board pointer value.

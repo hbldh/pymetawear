@@ -23,7 +23,7 @@ from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import AccBma255Odr, AccBmi160Odr, \
     AccBmi160StepCounterMode, AccBoschOrientationMode, AccBoschRange, \
     AccMma8452qOdr, AccMma8452qRange, Const
-from pymetawear.modules.base import PyMetaWearModule, data_handler
+from pymetawear.modules.base import PyMetaWearLoggingModule, data_handler
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ _settings_map = {
 }
 
 
-class AccelerometerModule(PyMetaWearModule):
+class AccelerometerModule(PyMetaWearLoggingModule):
     """MetaWear accelerometer module implementation.
 
     :param ctypes.c_long board: The MetaWear board pointer value.
@@ -47,15 +47,14 @@ class AccelerometerModule(PyMetaWearModule):
     def __init__(self, board, module_id, debug=False):
         super(AccelerometerModule, self).__init__(board, debug)
         self.module_id = module_id
-        
+
+        self.high_frequency_stream = False
+
         self.current_odr = 0
         self.current_fsr = 0
 
         self.odr = {}
         self.fsr = {}
-
-        self.high_frequency_stream = False
-        self.logging = False
 
         acc_odr_class, acc_fsr_class = _settings_map.get(module_id)
 
@@ -96,13 +95,7 @@ class AccelerometerModule(PyMetaWearModule):
 
     @property
     def data_signal(self):
-        if self.high_frequency_stream and self.logging:
-            libmetawear.mbl_mw_debug_reset(self.board)
-            time.sleep(2.0)
-            libmetawear.mbl_mw_debug_disconnect(self.board)
-            raise Exception("Signal high_freq_acceleration is not intended for logging. "
-                 "Set high_frequency_stream False, even though your are sampling with 100 Hz and higher.")
-        elif self.high_frequency_stream:
+        if self.high_frequency_stream:
             return libmetawear.mbl_mw_acc_get_high_freq_acceleration_data_signal(self.board)
         else:
             return libmetawear.mbl_mw_acc_get_acceleration_data_signal(self.board)
@@ -236,25 +229,3 @@ class AccelerometerModule(PyMetaWearModule):
             libmetawear.mbl_mw_acc_enable_acceleration_sampling(self.board)
         else:
             libmetawear.mbl_mw_acc_disable_acceleration_sampling(self.board)
-
-    def start_logging(self):
-        """Enables accelerometer data logging."""
-        if self.logging is not True:
-            raise Exception("Set logging True, if you want to use the logger.")
-        super(AccelerometerModule, self).start_logging()
-        self.toggle_sampling(True)
-        self.start()
-
-    def stop_logging(self):
-        """Disables accelerometer data logging."""
-        self.stop()
-        self.toggle_sampling(False)
-        super(AccelerometerModule, self).stop_logging()
-
-    def download_log(self, client, callback):
-        """Download logged data.
-
-        :param callback: Accelerometer download callback function.
-
-        """
-        super(AccelerometerModule, self).download_log(client, callback)

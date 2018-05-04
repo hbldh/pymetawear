@@ -21,3 +21,8 @@ class PyMetaWearException(Exception):
 class PyMetaWearConnectionTimeout(PyMetaWearException):
     """Connection could not be established in time."""
     pass
+
+
+class PyMetaWearDownloadTimeout(PyMetaWearException):
+    """Raised when connection is lost during download of logging data."""
+    pass

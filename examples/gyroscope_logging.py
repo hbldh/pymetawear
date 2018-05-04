@@ -22,36 +22,36 @@ address = select_device()
 client = MetaWearClient(str(address), debug=True)
 print("New client created: {0}".format(client))
 
-print("Get possible accelerometer settings of client 1...")
-settings = client.accelerometer.get_possible_settings()
+print("Get possible gyroscope settings of client 1...")
+settings = client.gyroscope.get_possible_settings()
 print(settings)
 
 time.sleep(1.0)
 
-print("\nWrite accelerometer settings...")
-client.accelerometer.set_settings(data_rate=400, data_range=4.0)
+print("\nWrite gyroscope settings...")
+client.gyroscope.set_settings(data_rate=400, data_range=1000.0)
 
 time.sleep(1.0)
 
-print("\nCheck accelerometer settings of client 1...")
-settings = client.accelerometer.get_current_settings()
+print("\nCheck gyroscope settings of client 1...")
+settings = client.gyroscope.get_current_settings()
 print(settings)
 
 time.sleep(1.0)
 print("\n")
 
-client.accelerometer.high_frequency_stream = False
+client.gyroscope.high_frequency_stream = False
 
-client.accelerometer.start_logging()
-print("Logging accelerometer data...")
+client.gyroscope.start_logging()
+print("Logging gyroscope data...")
 
 time.sleep(0.25)
 
-client.accelerometer.stop_logging()
+client.gyroscope.stop_logging()
 print("Logging stopped.")
 
 print("\nDownloading data...")
-data = client.accelerometer.download_log()
+data = client.gyroscope.download_log()
 for d in data:
     print(d)
 
