@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+exceptions
+----------
 
-.. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
-Created on 2016-03-30, 10:11
+Created by hbldh <henrik.blidh@nedomkull.com> on 2016-03-30
 
 """
 
@@ -19,4 +20,9 @@ class PyMetaWearException(Exception):
 
 class PyMetaWearConnectionTimeout(PyMetaWearException):
     """Connection could not be established in time."""
+    pass
+
+
+class PyMetaWearDownloadTimeout(PyMetaWearException):
+    """Raised when connection is lost during download of logging data."""
     pass

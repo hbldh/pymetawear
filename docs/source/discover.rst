@@ -1,5 +1,5 @@
-Discovering MetaWear boards addresses
-=====================================
+Discovering addresses to MetaWear boards
+========================================
 
 If you do not know the address of your MetaWear board, it
 can be found by performing a scan.
