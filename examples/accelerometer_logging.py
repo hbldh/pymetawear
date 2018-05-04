@@ -19,7 +19,7 @@ from pymetawear.client import MetaWearClient
 
 address = select_device()
 
-client = MetaWearClient(str(address), debug=True)
+client = MetaWearClient(str(address), debug=False)
 print("New client created: {0}".format(client))
 
 print("Get possible accelerometer settings of client 1...")
@@ -45,15 +45,14 @@ client.accelerometer.high_frequency_stream = False
 client.accelerometer.start_logging()
 print("Logging accelerometer data...")
 
-time.sleep(0.25)
+time.sleep(10.0)
 
 client.accelerometer.stop_logging()
 print("Logging stopped.")
 
 print("\nDownloading data...")
 data = client.accelerometer.download_log()
-for d in data:
-    print(d)
+print(data)
 
 pattern = client.led.load_preset_pattern('blink', repeat_count=10)
 client.led.write_pattern(pattern, 'g')
