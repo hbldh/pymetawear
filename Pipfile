@@ -9,7 +9,7 @@ name = "pypi"
 
 gattlib = {git = "https://github.com/mbientlab/pygattlib"}
 metawear = "*"
-"e1839a8" = {path = ".", editable = true}
+tqdm = "*"
 
 
 [dev-packages]

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:'accelerometer_logging.py'
+:mod:'gyroscope_logging.py'
 ==================
-Updated by dmatthes1982 <dmatthes@cbs.mpg.de>
 Created by hbldh <henrik.blidh@nedomkull.com>
 Created on 2018-04-20
+
 """
 
 from __future__ import division
@@ -19,38 +19,32 @@ from pymetawear.client import MetaWearClient
 
 address = select_device()
 
-client = MetaWearClient(str(address), debug=True)
+client = MetaWearClient(str(address), debug=False)
 print("New client created: {0}".format(client))
 
-print("Get possible gyroscope settings of client 1...")
 settings = client.gyroscope.get_possible_settings()
-print(settings)
+print("Possible gyroscope settings of client:")
+for k, v in settings.items():
+    print(k, v)
 
-time.sleep(1.0)
-
-print("\nWrite gyroscope settings...")
+print("Write gyroscope settings...")
 client.gyroscope.set_settings(data_rate=400, data_range=1000.0)
 
-time.sleep(1.0)
-
-print("\nCheck gyroscope settings of client 1...")
 settings = client.gyroscope.get_current_settings()
-print(settings)
+print("Gyroscope settings of client: {0}".format(settings))
 
-time.sleep(1.0)
-print("\n")
+time.sleep(0.2)
 
 client.gyroscope.high_frequency_stream = False
-
 client.gyroscope.start_logging()
 print("Logging gyroscope data...")
 
-time.sleep(0.25)
+time.sleep(3.0)
 
 client.gyroscope.stop_logging()
 print("Logging stopped.")
 
-print("\nDownloading data...")
+print("Downloading data...")
 data = client.gyroscope.download_log()
 for d in data:
     print(d)
@@ -63,5 +57,5 @@ time.sleep(5.0)
 
 client.led.stop_and_clear()
 
-print("\nDisconnecting...")
+print("Disconnecting...")
 client.disconnect()
