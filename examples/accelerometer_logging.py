@@ -16,6 +16,7 @@ import time
 
 from pymetawear.discover import select_device
 from pymetawear.client import MetaWearClient
+from pymetawear.exceptions import PyMetaWearException, PyMetaWearDownloadTimeout
 
 address = select_device()
 
@@ -43,7 +44,21 @@ client.accelerometer.stop_logging()
 print("Logging stopped.")
 
 print("Downloading data...")
-data = client.accelerometer.download_log()
+download_done = False
+n = 0
+data = None
+while download_done and n < 3:
+    try:
+        data = client.accelerometer.download_log()
+        download_done = True
+    except PyMetaWearDownloadTimeout:
+        print("Download of log interrupted. Trying to reconnect...")
+        client.disconnect()
+        client.connect()
+        n += 1
+if data is None:
+    raise PyMetaWearException("Download of logging data failed.")
+
 for d in data:
     print(d)
 

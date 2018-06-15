@@ -117,8 +117,6 @@ class MetaWearClient(object):
     :param str address: A Bluetooth MAC address to a MetaWear board.
     :param str device: Specifying which Bluetooth device to use. Defaults
         to ``hci0``.
-    :param float timeout: Timeout for connecting to the MetaWear board. If
-        ``None`` timeout defaults to the backend default.
     :param bool connect: If client should connect automatically, or wait for
         explicit :py:meth:`~MetaWearClient.connect` call. Default is ``True``.
     :param bool debug: If printout of all sent and received

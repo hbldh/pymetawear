@@ -44,9 +44,10 @@ c.sensorfusion.set_sample_delay(SensorFusionData.CORRECTED_ACC, 20)
 print("Subscribing to Sensor Fusion Quaternion signal notifications...")
 #c.sensorfusion.notifications(euler_angle_callback=handle_notification)
 #c.sensorfusion.notifications(quaternion_callback=handle_notification)
-c.sensorfusion.notifications(corrected_acc_callback=partial(handle_notification, type_='Acc '),
-                             quaternion_callback=partial(handle_notification, type_='Quat'),
-                             corrected_gyro_callback=partial(handle_notification, type_='Gyro'))
+c.sensorfusion.notifications(
+    corrected_acc_callback=partial(handle_notification, type_='Acc '),
+    quaternion_callback=partial(handle_notification, type_='Quat'),
+    corrected_gyro_callback=partial(handle_notification, type_='Gyro'))
 
 #time.sleep(2.0)
 

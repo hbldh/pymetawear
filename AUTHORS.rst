@@ -24,3 +24,6 @@ Contributors (sorted alphabetically)
 
 * `Eric Tsai <https://github.com/scaryghost>`_ (MBIENTLAB INC)
     - 64-bit datasignal address handling and typecasting
+
+* `Daniel Matthes <https://github.com/dmatthes1982>`_ (MPI-CBS)
+    - Accelerometer data logging feature
