@@ -199,10 +199,6 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         """Handle unknown data entries in the log.
 
         I have no idea what this data is. Needs further investigation.
-        Might work to parse data with this:
-
-        from pymetawear.modules.base import DATA_HANDLERS, _error_handler
-        DATA_HANDLERS.get(data.contents.type_id, _error_handler)(data)
 
         :param id (int):
         :param epoch (int):
@@ -213,7 +209,8 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         self.data_received.set()
         if self._debug:
             log.debug('Unknown Entry: ID: {0}, epoch: {1}, '
-                      'data: {2}, Length: {3}'.format(id, epoch, bytearray(data), length))
+                      'data: {2}, Length: {3}'.format(
+                id, epoch, bytearray(data)[:length], length))
 
     def _unhandled_entry(self, data):
         self.data_received.set()
@@ -292,7 +289,7 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
             self.stop_logging()
 
         if data_callback is None:
-            data_callback = self._default_download_callback
+            data_callback = data_handler(self._default_download_callback)
         if progress_update_function is None:
             progress_update_function = self._progress_update
         if unknown_entry_function is None:
@@ -300,7 +297,7 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         if unhandled_entry_function is None:
             unhandled_entry_function = self._unhandled_entry
 
-        data_point_handler = FnVoid_DataP(data_handler(data_callback))
+        data_point_handler = FnVoid_DataP(data_callback)
         progress_update = FnVoid_UInt_UInt(progress_update_function)
         unknown_entry = FnVoid_UByte_Long_UByteP_UByte(unknown_entry_function)
         unhandled_entry = FnVoid_DataP(data_handler(unhandled_entry_function))
@@ -346,48 +343,6 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         self._logged_data = []
 
         return logged_data
-
-        # status = False
-        # while not self._download_done:
-        #     if not status:
-        #         time.sleep(0.2)
-        #         client.mw.disconnect()
-        #         client.mw.connect()
-        #         if self._debug:
-        #             log.debug("Subscribe to Logger. (Logger#: {0})".format(
-        #                 self._logger_address))
-        #         libmetawear.mbl_mw_logger_subscribe(self._logger_address,
-        #                                             data_point_handler)
-        #
-        #         time.sleep(0.2)
-        #         if self._debug:
-        #             log.debug(
-        #                 "Waiting for completed download. (Logger#: {0})".format(
-        #                     self._logger_address))
-        #         libmetawear.mbl_mw_logging_download(self.board, 100,
-        #                                             byref(log_download_handler))
-        #
-        #     status = self.data_received.wait(10)
-        #     if not status:
-        #         print("BT connetion lost! Retry download...")
-        #         client.mw.disconnect()
-        #         client.mw.connect()
-        #
-        # if self._debug:
-        #     log.debug("Download done. (Logger#: {0})".format(
-        #         self._logger_address))
-        #
-        # time.sleep(0.2)
-        # if self._debug:
-        #     log.debug("Remove logger. (Logger#: {0})".format(
-        #         self._logger_address))
-        #     libmetawear.mbl_mw_logger_remove(self._logger_address)
-        #
-        # time.sleep(0.2)
-        # if self._debug:
-        #     log.debug("Cleanup memory. (Logger#: {0})".format(
-        #         self._logger_address))
-        #     libmetawear.mbl_mw_metawearboard_tear_down(self.board)
 
 
 def _error_handler(data):

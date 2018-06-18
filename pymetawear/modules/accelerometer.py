@@ -15,11 +15,9 @@ from __future__ import absolute_import
 
 import re
 import logging
-import time
 from ctypes import c_float
 
 from pymetawear import libmetawear
-from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import AccBma255Odr, AccBmi160Odr, \
     AccBmi160StepCounterMode, AccBoschOrientationMode, AccBoschRange, \
     AccMma8452qOdr, AccMma8452qRange, Const

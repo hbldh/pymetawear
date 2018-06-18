@@ -39,7 +39,10 @@ If you want to log data to the MetaWear board and retrieve it after some time, t
 
 .. code-block:: python
 
+    import os
     import json
+    import time
+
     from pymetawear.client import MetaWearClient
     from pymetawear.exceptions import PyMetaWearException, PyMetaWearDownloadTimeout
 
@@ -49,12 +52,12 @@ If you want to log data to the MetaWear board and retrieve it after some time, t
     c.accelerometer.set_settings(data_rate=200.0, data_range=8)
 
     # Log data for 10 seconds.
-    client.accelerometer.start_logging()
+    c.accelerometer.start_logging()
     print("Logging accelerometer data...")
 
     time.sleep(10.0)
 
-    client.accelerometer.stop_logging()
+    c.accelerometer.stop_logging()
     print("Finished logging.")
 
     # Download the stored data from the MetaWear board.
@@ -62,22 +65,31 @@ If you want to log data to the MetaWear board and retrieve it after some time, t
     download_done = False
     n = 0
     data = None
-    while download_done and n < 3:
+    while (not download_done) and n < 3:
         try:
-            data = client.accelerometer.download_log()
+            data = c.accelerometer.download_log()
             download_done = True
         except PyMetaWearDownloadTimeout:
             print("Download of log interrupted. Trying to reconnect...")
-            client.disconnect()
-            client.connect()
+            c.disconnect()
+            c.connect()
             n += 1
     if data is None:
         raise PyMetaWearException("Download of logging data failed.")
 
     print("Disconnecting...")
-    client.disconnect()
+    c.disconnect()
 
     # Save the logged data.
+    class MetaWearDataEncoder(json.JSONEncoder):
+        """JSON Encoder for converting ``mbientlab`` module's CartesianFloat
+        class to data tuple ``(x,y,z)``."""
+        def default(self, o):
+            if isinstance(o, CartesianFloat):
+                return o.x, o.y, o.z
+            else:
+                return super(MetaWearDataEncoder, self).default(o)
+
     data_file = os.path.join(os.getcwd(), "logged_data.json")
     print("Saving the data to file: {0}".format(data_file))
     with open("logged_data.json", "wt") as f:
