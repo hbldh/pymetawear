@@ -143,7 +143,8 @@ class BarometerModule(PyMetaWearModule):
         return float(value)
 
     def get_current_settings(self):
-        return "oversampling variables: {} IR filter average: {} standby time in ms: {}".format(self.current_oversampling, self.current_iir_filter, self.current_standby_time)  
+        return "oversampling variables: {} IR filter average: {} standby time in ms: {}".format(
+    self.current_oversampling, self.current_iir_filter, self.current_standby_time)  
 
     def get_possible_settings(self):
         return {

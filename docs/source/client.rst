@@ -10,7 +10,7 @@ The MetaWear client provided by this package. It can be used as such:
     from pymetawear.client import MetaWearClient
     c = MetaWearClient('DD:3A:7D:4D:56:F0')
 
-The client can now be used for e.g. subscribing to data signals or logging data.
+The client can now be used for either reading the current module data or activating some functionality in it. 
 
 API
 ---

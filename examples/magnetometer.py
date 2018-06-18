@@ -29,7 +29,7 @@ print(settings)
 
 time.sleep(1.0)
 
-print("Write accelerometer settings...")
+print("Write magnetometer settings...")
 c.magnetometer.set_settings(power_preset='REGULAR')
 
 time.sleep(1.0)

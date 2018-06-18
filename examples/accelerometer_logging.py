@@ -62,13 +62,5 @@ if data is None:
 for d in data:
     print(d)
 
-pattern = client.led.load_preset_pattern('blink', repeat_count=10)
-client.led.write_pattern(pattern, 'g')
-client.led.play()
-
-time.sleep(5.0)
-
-client.led.stop_and_clear()
-
 print("Disconnecting...")
 client.disconnect()

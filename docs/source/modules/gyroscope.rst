@@ -12,7 +12,10 @@ attribute of the client.
 
 The only MetaWear gyroscope available is the BMI160 sensor.
 
-Example usage:
+Data streaming example
+----------------------
+
+If you need a real time stream of sensor data, use the :py:method:`notifications` method on the :py:mod:`gyroscope` module:
 
 .. code-block:: python
 
@@ -29,6 +32,58 @@ Example usage:
 
     # Enable notifications and register a callback for them.
     c.gyroscope.notifications(gyro_callback)
+
+Logging Example
+---------------
+
+If you want to log data to the MetaWear board and retrieve it after some time, then use the 
+:py:method:`start_logging`, :py:method:`stop_logging` and :py:method:`download_log` methods:
+
+.. code-block:: python
+
+    import json
+    from pymetawear.client import MetaWearClient
+    from pymetawear.exceptions import PyMetaWearException, PyMetaWearDownloadTimeout
+
+    c = MetaWearClient('DD:3A:7D:4D:56:F0')
+
+    # Set data rate to 200 Hz and measuring range to +/- 1000 DPS
+    c.gyroscope.set_settings(data_rate=200.0, data_range=1000.0)
+
+    # Log data for 10 seconds.
+    client.gyroscope.start_logging()
+    print("Logging gyroscope data...")
+
+    time.sleep(10.0)
+
+    client.gyroscope.stop_logging()
+    print("Finished logging.")
+
+    # Download the stored data from the MetaWear board.
+    print("Downloading data...")
+    download_done = False
+    n = 0
+    data = None
+    while download_done and n < 3:
+        try:
+            data = client.gyroscope.download_log()
+            download_done = True
+        except PyMetaWearDownloadTimeout:
+            print("Download of log interrupted. Trying to reconnect...")
+            client.disconnect()
+            client.connect()
+            n += 1
+    if data is None:
+        raise PyMetaWearException("Download of logging data failed.")
+
+    print("Disconnecting...")
+    client.disconnect()
+
+    # Save the logged data.
+    data_file = os.path.join(os.getcwd(), "logged_data.json")
+    print("Saving the data to file: {0}".format(data_file))
+    with open("logged_data.json", "wt") as f:
+        json.dump(data, f, indent=2)
 
 API
 ---
