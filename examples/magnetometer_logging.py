@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:'gyroscope_logging.py'
+:mod:'magnetometer_logging.py'
 ==================
 Created by hbldh <henrik.blidh@nedomkull.com>
 Created on 2018-04-20
@@ -22,30 +22,30 @@ address = select_device()
 client = MetaWearClient(str(address), debug=False)
 print("New client created: {0}".format(client))
 
-settings = client.gyroscope.get_possible_settings()
-print("Possible gyroscope settings of client:")
+settings = client.magnetometer.get_possible_settings()
+print("Possible magnetometer settings of client:")
 for k, v in settings.items():
     print(k, v)
 
-print("Write gyroscope settings...")
-client.gyroscope.set_settings(data_rate=400, data_range=1000.0)
+print("Write magnetometer settings...")
+c.magnetometer.set_settings(power_preset='REGULAR')
 
-settings = client.gyroscope.get_current_settings()
-print("Gyroscope settings of client: {0}".format(settings))
+settings = client.magnetometer.get_current_settings()
+print("Magnetometer settings of client: {0}".format(settings))
 
 time.sleep(0.2)
 
-client.gyroscope.high_frequency_stream = False
-client.gyroscope.start_logging()
-print("Logging gyroscope data...")
+client.magnetometer.high_frequency_stream = False
+client.magnetometer.start_logging()
+print("Logging magnetometer data...")
 
 time.sleep(3.0)
 
-client.gyroscope.stop_logging()
+client.magnetometer.stop_logging()
 print("Logging stopped.")
 
 print("Downloading data...")
-data = client.gyroscope.download_log()
+data = client.magnetometer.download_log()
 for d in data:
     print(d)
 

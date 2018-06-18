@@ -33,7 +33,8 @@ def require_bmm150(f):
     return wrapper
 
 
-class MagnetometerModule(PyMetaWearLoggingModule):
+class 
+MagnetometerModule(PyMetaWearLoggingModule):
     """MetaWear accelerometer module implementation.
 
     :param ctypes.c_long board: The MetaWear board pointer value.

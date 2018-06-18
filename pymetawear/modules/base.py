@@ -157,7 +157,7 @@ class PyMetaWearModule(object):
 
 
 class PyMetaWearLoggingModule(PyMetaWearModule):
-    """Special class with additions for sensors with logging support."""
+    """Special class with additions for modules with logging support."""
 
     def __init__(self, board, debug=False):
         super(PyMetaWearLoggingModule, self).__init__(board, debug)
