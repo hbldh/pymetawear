@@ -47,7 +47,7 @@ print("Downloading data...")
 download_done = False
 n = 0
 data = None
-while download_done and n < 3:
+while (not download_done) and n < 3:
     try:
         data = client.accelerometer.download_log()
         download_done = True

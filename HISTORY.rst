@@ -2,6 +2,13 @@
 History
 =======
 
+v0.10.0 (2018-06-18)
+--------------------
+- Added support for data logging, thanks to ``dmatthes1982`` (#32, #46, #48, #49)
+- Locked ``metawear`` version to ``0.3.1``
+- Documentation for data logging
+- Fixes for code examples and documentation examples.
+
 v0.9.1 (2018-04-02)
 -------------------
 - Fix for documentation and README
@@ -19,7 +26,7 @@ v0.8.0 (2017-07-04)
 v0.7.1 (2017-02-04)
 -------------------
 - Using MetaWear-CppAPI version 0.7.10
-- Sensor fusion module contributed from user m-georgi (#26).
+- Sensor fusion module contributed from user ``m-georgi`` (#26).
 - Fix to magnetometer power preset setting due to
   change in MetaWear-CppAPI (#25).
 

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-discover
---------
+Performing BLE scans
 
 :copyright: 2016-11-29 by hbldh <henrik.blidh@nedomkull.com>
 

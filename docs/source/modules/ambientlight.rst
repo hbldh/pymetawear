@@ -1,4 +1,4 @@
-.. _modules_accelerometer:
+.. _modules_ambientlight:
 
 Ambient light module
 ====================
@@ -13,7 +13,7 @@ attribute of the client.
 Data streaming example
 ----------------------
 
-If you need a real time stream of sensor data, use the :py:method:`notifications` method on the :py:mod:`ambient_light` module:
+If you need a real time stream of sensor data, use the :py:func:`notifications` method on the :py:mod:`ambient_light` module:
 
 .. code-block:: python
 

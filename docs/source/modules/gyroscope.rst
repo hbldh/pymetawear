@@ -15,7 +15,7 @@ The only MetaWear gyroscope available is the BMI160 sensor.
 Data streaming example
 ----------------------
 
-If you need a real time stream of sensor data, use the :py:method:`notifications` method on the :py:mod:`gyroscope` module:
+If you need a real time stream of sensor data, use the :py:func:`notifications` method on the :py:mod:`gyroscope` module:
 
 .. code-block:: python
 
@@ -36,12 +36,15 @@ If you need a real time stream of sensor data, use the :py:method:`notifications
 Logging Example
 ---------------
 
-If you want to log data to the MetaWear board and retrieve it after some time, then use the 
-:py:method:`start_logging`, :py:method:`stop_logging` and :py:method:`download_log` methods:
+If you want to log data to the MetaWear board and retrieve it after some time, then use the
+:py:func:`start_logging`, :py:func:`stop_logging` and :py:func:`download_log` methods:
 
 .. code-block:: python
 
+    import os
     import json
+    import time
+
     from pymetawear.client import MetaWearClient
     from pymetawear.exceptions import PyMetaWearException, PyMetaWearDownloadTimeout
 
@@ -51,12 +54,12 @@ If you want to log data to the MetaWear board and retrieve it after some time, t
     c.gyroscope.set_settings(data_rate=200.0, data_range=1000.0)
 
     # Log data for 10 seconds.
-    client.gyroscope.start_logging()
+    c.gyroscope.start_logging()
     print("Logging gyroscope data...")
 
     time.sleep(10.0)
 
-    client.gyroscope.stop_logging()
+    c.gyroscope.stop_logging()
     print("Finished logging.")
 
     # Download the stored data from the MetaWear board.
@@ -64,22 +67,31 @@ If you want to log data to the MetaWear board and retrieve it after some time, t
     download_done = False
     n = 0
     data = None
-    while download_done and n < 3:
+    while (not download_done) and n < 3:
         try:
-            data = client.gyroscope.download_log()
+            data = c.gyroscope.download_log()
             download_done = True
         except PyMetaWearDownloadTimeout:
             print("Download of log interrupted. Trying to reconnect...")
-            client.disconnect()
-            client.connect()
+            c.disconnect()
+            c.connect()
             n += 1
     if data is None:
         raise PyMetaWearException("Download of logging data failed.")
 
     print("Disconnecting...")
-    client.disconnect()
+    c.disconnect()
 
     # Save the logged data.
+    class MetaWearDataEncoder(json.JSONEncoder):
+        """JSON Encoder for converting ``mbientlab`` module's CartesianFloat
+        class to data tuple ``(x,y,z)``."""
+        def default(self, o):
+            if isinstance(o, CartesianFloat):
+                return o.x, o.y, o.z
+            else:
+                return super(MetaWearDataEncoder, self).default(o)
+
     data_file = os.path.join(os.getcwd(), "logged_data.json")
     print("Saving the data to file: {0}".format(data_file))
     with open("logged_data.json", "wt") as f:

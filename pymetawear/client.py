@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Main module for PyMetaWear
 
 .. moduleauthor:: hbldh <henrik.blidh@nedomkull.com>
 

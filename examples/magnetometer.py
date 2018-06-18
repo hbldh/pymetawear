@@ -34,10 +34,6 @@ c.magnetometer.set_settings(power_preset='REGULAR')
 
 time.sleep(1.0)
 
-#print("Check accelerometer settings...")
-#settings = c.accelerometer.get_current_settings()
-#print(settings)
-
 print("Subscribing to magnetometer signal notifications...")
 c.magnetometer.notifications(lambda data: print(data))
 
