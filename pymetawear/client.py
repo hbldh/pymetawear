@@ -15,7 +15,7 @@ from __future__ import print_function
 import logging
 
 from mbientlab.metawear import MetaWear, libmetawear
-# Temporary for money patch
+# Temporary for monkey patch
 from mbientlab.metawear.cbindings import FnVoid_VoidP_Int, Const
 from mbientlab.metawear import Event
 
