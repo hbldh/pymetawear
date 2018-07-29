@@ -134,7 +134,7 @@ class MetaWearClient(object):
             add_stream_logger()
             log.info("Creating MetaWearClient for {0}...".format(address))
 
-        self.mw = MetaWear(self._address, device=device)
+        self.mw = MetaWear(self._address, hci_mac=device)
 
         log.info("Client started for BLE device {0} on {1}...".format(
             self._address, device))

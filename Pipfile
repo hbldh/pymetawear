@@ -7,8 +7,7 @@ name = "pypi"
 
 [packages]
 
-gattlib = {git = "https://github.com/mbientlab/pygattlib"}
-metawear = "==0.3.1"
+metawear = "==0.5.0"
 tqdm = "*"
 
 

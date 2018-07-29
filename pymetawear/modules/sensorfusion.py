@@ -19,8 +19,8 @@ from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import SensorFusionAccRange, \
     SensorFusionData, SensorFusionGyroRange, SensorFusionMode, \
-    SensorOrientation, FnVoid_VoidP, FnVoid_DataP, TimeMode
-from pymetawear.modules.base import PyMetaWearLoggingModule, Modules, data_handler
+    SensorOrientation, FnVoid_VoidP, FnVoid_VoidP_DataP, TimeMode
+from pymetawear.modules.base import PyMetaWearLoggingModule, Modules, data_handler, context_callback
 
 log = logging.getLogger(__name__)
 PROCESSOR_SET_WAIT_TIME = 5
@@ -64,7 +64,7 @@ class SensorFusionModule(PyMetaWearLoggingModule):
             SensorFusionData.CORRECTED_ACC: False,
             SensorFusionData.CORRECTED_GYRO: False,
             SensorFusionData.CORRECTED_MAG: False,
-            SensorFusionData.QUATERION: False,
+            SensorFusionData.QUATERNION: False,
             SensorFusionData.EULER_ANGLE: False,
             SensorFusionData.GRAVITY_VECTOR: False,
             SensorFusionData.LINEAR_ACC: False,
@@ -74,7 +74,7 @@ class SensorFusionModule(PyMetaWearLoggingModule):
             SensorFusionData.CORRECTED_ACC: None,
             SensorFusionData.CORRECTED_GYRO: None,
             SensorFusionData.CORRECTED_MAG: None,
-            SensorFusionData.QUATERION: None,
+            SensorFusionData.QUATERNION: None,
             SensorFusionData.EULER_ANGLE: None,
             SensorFusionData.GRAVITY_VECTOR: None,
             SensorFusionData.LINEAR_ACC: None,
@@ -253,7 +253,7 @@ class SensorFusionModule(PyMetaWearLoggingModule):
             SensorFusionData.CORRECTED_ACC: corrected_acc_callback,
             SensorFusionData.CORRECTED_GYRO: corrected_gyro_callback,
             SensorFusionData.CORRECTED_MAG: corrected_mag_callback,
-            SensorFusionData.QUATERION: quaternion_callback,
+            SensorFusionData.QUATERNION: quaternion_callback,
             SensorFusionData.EULER_ANGLE: euler_angle_callback,
             SensorFusionData.GRAVITY_VECTOR: gravity_callback,
             SensorFusionData.LINEAR_ACC: linear_acc_callback
@@ -300,9 +300,10 @@ class SensorFusionModule(PyMetaWearLoggingModule):
                     data_signal))
                 libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
                 self._callbacks.pop(data_signal)
-            self._callbacks[data_signal] = (callback, FnVoid_DataP(callback))
+            callback = context_callback(callback)
+            self._callbacks[data_signal] = (callback, FnVoid_VoidP_DataP(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
-                data_signal, self._callbacks[data_signal][1])
+                data_signal, None, self._callbacks[data_signal][1])
         else:
             if data_signal not in self._callbacks:
                 return
