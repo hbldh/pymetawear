@@ -28,10 +28,11 @@ for k, v in settings.items():
     print(k, v)
 
 print("Write magnetometer settings...")
-c.magnetometer.set_settings(power_preset='REGULAR')
+client.magnetometer.set_settings(power_preset='REGULAR')
 
-settings = client.magnetometer.get_current_settings()
-print("Magnetometer settings of client: {0}".format(settings))
+# Not implemented yet...
+# settings = client.magnetometer.get_current_settings()
+# print("Magnetometer settings of client: {0}".format(settings))
 
 time.sleep(0.2)
 

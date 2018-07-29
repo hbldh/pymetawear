@@ -19,7 +19,7 @@ from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException
 from mbientlab.metawear.cbindings import SensorFusionAccRange, \
     SensorFusionData, SensorFusionGyroRange, SensorFusionMode, \
-    SensorOrientation, FnVoid_VoidP, FnVoid_VoidP_DataP, TimeMode
+    SensorOrientation, FnVoid_VoidP_VoidP, FnVoid_VoidP_DataP, TimeMode
 from pymetawear.modules.base import PyMetaWearLoggingModule, Modules, data_handler, context_callback
 
 log = logging.getLogger(__name__)
@@ -46,8 +46,8 @@ class SensorFusionModule(PyMetaWearLoggingModule):
 
     """
 
-    def __init__(self, board, module_id, debug=False):
-        super(SensorFusionModule, self).__init__(board, debug)
+    def __init__(self, board, module_id):
+        super(SensorFusionModule, self).__init__(board)
         self.module_id = module_id
 
         if self.module_id == Modules.MBL_MW_MODULE_NA:
@@ -81,9 +81,6 @@ class SensorFusionModule(PyMetaWearLoggingModule):
         }
 
         self._callbacks = {}
-
-        if debug:
-            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "{0}".format(self.module_name)
@@ -120,21 +117,25 @@ class SensorFusionModule(PyMetaWearLoggingModule):
             ))
             _done = Event()
 
-            def _processor_set(processor):
+            def _processor_set(context, processor):
                 """
                 Set global variables as the libmetawear callback can't handle the self
                 parameter of instance methods.
 
+                :param context: Pointer to additional data for the callback function
                 :param processor: The processor that was created
+
                 """
                 self._data_source_signals[data_source] = processor
                 _done.set()
 
+            processor_set_func = FnVoid_VoidP_VoidP(_processor_set)
             libmetawear.mbl_mw_dataprocessor_time_create(
                 self._data_source_signals[data_source],
                 mode,
                 delay,
-                FnVoid_VoidP(_processor_set))
+                None,
+                processor_set_func)
             _done.wait(timeout=PROCESSOR_SET_WAIT_TIME)
 
             if self._data_source_signals[data_source] is None:
@@ -292,9 +293,9 @@ class SensorFusionModule(PyMetaWearLoggingModule):
 
     def check_and_change_callback(self, data_signal, callback):
         if callback is not None:
-            if self._debug:
-                log.debug("Subscribing to {0} changes. (Sig#: {1})".format(
-                    self.module_name, data_signal))
+
+            log.debug("Subscribing to {0} changes. (Sig#: {1})".format(
+                self.module_name, data_signal))
             if data_signal in self._callbacks:
                 log.debug('Replacing callback for datasignal {0}...'.format(
                     data_signal))
@@ -307,9 +308,8 @@ class SensorFusionModule(PyMetaWearLoggingModule):
         else:
             if data_signal not in self._callbacks:
                 return
-            if self._debug:
-                log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
-                    self.module_name, data_signal))
+            log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
+                self.module_name, data_signal))
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
             self._callbacks.pop(data_signal)
 

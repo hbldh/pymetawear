@@ -17,6 +17,7 @@ import subprocess
 import time
 
 from pymetawear.exceptions import PyMetaWearException
+from mbientlab.warble import BleScanner
 
 try:
     input_fcn = raw_input
@@ -73,6 +74,24 @@ def discover_devices(timeout=5):
                 filtered_devices[d[0]] = d[1]
 
     return [(k, v) for k, v in filtered_devices.items()]
+
+
+def discover_devices_warble(timeout=5.0):
+    """Use PyWarbles discovery method.
+
+    Requires elevated access in Linux?"""
+    devices = {}
+
+    def handler(result):
+        devices[result.mac] = result.name
+
+    BleScanner.set_handler(handler)
+    BleScanner.start()
+
+    time.sleep(timeout)
+    BleScanner.stop()
+
+    return list(devices.items())
 
 
 def select_device(timeout=3):

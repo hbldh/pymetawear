@@ -35,8 +35,8 @@ class BarometerModule(PyMetaWearModule):
 
     """
 
-    def __init__(self, board, module_id, debug=False):
-        super(BarometerModule, self).__init__(board, debug)
+    def __init__(self, board, module_id):
+        super(BarometerModule, self).__init__(board)
         self.module_id = module_id
         self._altitude_data = True
 
@@ -79,9 +79,6 @@ class BarometerModule(PyMetaWearModule):
             
         else:
             self.is_present = False
-
-        if debug:
-            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "{0} {1}".format(
@@ -188,27 +185,24 @@ class BarometerModule(PyMetaWearModule):
         """
         if oversampling is not None:
             oversampling = self._get_oversampling(oversampling)
-            if self._debug:
-                log.debug("Setting Barometer Oversampling to {0}".format(
-                    oversampling))
+            log.debug("Setting Barometer Oversampling to {0}".format(
+                oversampling))
             libmetawear.mbl_mw_baro_bosch_set_oversampling(
                 self.board, oversampling)
             self.current_oversampling = oversampling
 
         if iir_filter is not None:
             iir_filter = self._get_iir_filter(iir_filter)
-            if self._debug:
-                log.debug(
-                    "Setting Barometer IIR filter to {0}".format(iir_filter))
+            log.debug(
+                "Setting Barometer IIR filter to {0}".format(iir_filter))
             libmetawear.mbl_mw_baro_bosch_set_iir_filter(
                 self.board, iir_filter)
             self.current_iir_filter = iir_filter
 
         if standby_time is not None:
             standby_time = self._get_standby_time(standby_time)
-            if self._debug:
-                log.debug("Setting Barometer Standby Time to {0}".format(
-                    standby_time))
+            log.debug("Setting Barometer Standby Time to {0}".format(
+                standby_time))
             libmetawear.mbl_mw_baro_bosch_set_standby_time(
                 self.board, standby_time)
             self.current_standby_time = standby_time

@@ -71,14 +71,10 @@ class PyMetaWearModule(object):
 
     """
 
-    def __init__(self, board, debug=False):
+    def __init__(self, board):
         self.board = board
-        self._debug = debug
         self.is_present = True
         self.callback = None
-
-        if debug:
-            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "PyMetaWearModule"
@@ -138,9 +134,8 @@ class PyMetaWearModule(object):
         """
         data_signal = self.data_signal
         if callback is not None:
-            if self._debug:
-                log.debug("Subscribing to {0} changes. (Sig#: {1})".format(
-                    self.module_name, data_signal))
+            log.debug("Subscribing to {0} changes. (Sig#: {1})".format(
+                self.module_name, data_signal))
             if self.callback is not None:
                 raise PyMetaWearException(
                     "Subscription to {0} signal already in place!")
@@ -150,9 +145,8 @@ class PyMetaWearModule(object):
             libmetawear.mbl_mw_datasignal_subscribe(
                 data_signal, None, self.callback[1])
         else:
-            if self._debug:
-                log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
-                    self.module_name, data_signal))
+            log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
+                self.module_name, data_signal))
             if self.callback is None:
                 return
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
@@ -162,11 +156,11 @@ class PyMetaWearModule(object):
 class PyMetaWearLoggingModule(PyMetaWearModule):
     """Special class with additions for modules with logging support."""
 
-    def __init__(self, board, debug=False):
-        super(PyMetaWearLoggingModule, self).__init__(board, debug)
+    def __init__(self, board):
+        super(PyMetaWearLoggingModule, self).__init__(board)
 
         self._logger_ready_event = None
-        self._data_received = Event()
+        self._data_received = None
         self._download_done = False
         self._logger_running = False
         self._logger_address = None
@@ -178,8 +172,7 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
     def _logger_ready(self, address):
         if address:
             self._logger_address = address
-            if self._debug:
-                log.debug("Logger address: {0}".format(self._logger_address))
+            log.debug("Logger address: {0}".format(self._logger_address))
         else:
             # Do nothing here. Let main thread handle lack of address.
             pass
@@ -210,15 +203,13 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
 
         """
         self._data_received.set()
-        if self._debug:
-            log.debug('Unknown Entry: ID: {0}, epoch: {1}, '
-                      'data: {2}, Length: {3}'.format(
-                id, epoch, bytearray(data)[:length], length))
+        log.debug('Unknown Entry: ID: {0}, epoch: {1}, '
+                  'data: {2}, Length: {3}'.format(
+            id, epoch, bytearray(data)[:length], length))
 
     def _unhandled_entry(self, data):
         self._data_received.set()
-        if self._debug:
-            log.debug('Unhandled Entry: ' + str(data))
+        log.debug('Unhandled Entry: ' + str(data))
 
     def _default_download_callback(self, data):
         self._logged_data.append(data)
@@ -247,9 +238,8 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
                 'Failed to start logging for {0} module!'.format(
                     self.module_name))
 
-        if self._debug:
-            log.debug("Start Logger (Logger#: {0}, Signal#: {1})".format(
-                self._logger_address, data_signal))
+        log.debug("Start Logger (Logger#: {0}, Signal#: {1})".format(
+            self._logger_address, data_signal))
 
         self._logger_running = True
         self._download_done = False
@@ -261,8 +251,7 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         """Stop logging of data signals on the MetaWear board"""
         self.stop()
         self.toggle_sampling(False)
-        if self._debug:
-            log.debug("Stop Logger (Logger#: {0})".format(self._logger_address))
+        log.debug("Stop Logger (Logger#: {0})".format(self._logger_address))
 
         libmetawear.mbl_mw_logging_stop(self.board)
         self._logger_running = False
@@ -311,22 +300,20 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
             received_unhandled_entry=unhandled_entry
         )
 
-        if self._debug:
-            log.debug("Subscribe to Logger. (Logger#: {0})".format(
-                self._logger_address))
+        log.debug("Subscribe to Logger. (Logger#: {0})".format(
+            self._logger_address))
         libmetawear.mbl_mw_logger_subscribe(
             self._logger_address, None, data_point_handler)
-
-        if self._debug:
-            log.debug("Waiting for completed download. (Logger#: {0})".format(
-                self._logger_address))
+        self._data_received = Event()
+        log.debug("Waiting for completed download. (Logger#: {0})".format(
+            self._logger_address))
         libmetawear.mbl_mw_logging_download(
             self.board, 1000,
             byref(log_download_handler))
 
         while not self._download_done:
             status = self._data_received.wait(timeout)
-            self._data_received = self._data_received.clear()
+            self._data_received.clear()
             if not self._download_done and not status:
                 if self._progress_bar is not None:
                     self._progress_bar.close()
@@ -334,17 +321,15 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
                 raise PyMetaWearDownloadTimeout(
                     "Bluetooth connection lost! Please reconnect and retry download...")
 
-        if self._debug:
-            log.debug("Download done. (Logger#: {0})".format(
-                self._logger_address))
-
-        if self._debug:
-            log.debug("Remove logger. (Logger#: {0})".format(
-                self._logger_address))
+        log.debug("Download done. (Logger#: {0})".format(
+            self._logger_address))
+        log.debug("Remove logger. (Logger#: {0})".format(
+            self._logger_address))
         libmetawear.mbl_mw_logger_remove(self._logger_address)
 
         logged_data = self._logged_data
         self._logged_data = []
+        self._data_received = None
 
         return logged_data
 

@@ -47,8 +47,8 @@ class TemperatureModule(PyMetaWearModule):
 
     """
 
-    def __init__(self, board, debug=False):
-        super(TemperatureModule, self).__init__(board, debug)
+    def __init__(self, board):
+        super(TemperatureModule, self).__init__(board)
 
         self._active_channel = 0
 
@@ -69,9 +69,6 @@ class TemperatureModule(PyMetaWearModule):
             source_enum = libmetawear.mbl_mw_multi_chnl_temp_get_source(
                 self.board, i)
             self.channels[self._channel_source_mapping.get(source_enum)] = source_enum
-
-        if debug:
-            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "{0}".format(self.module_name)

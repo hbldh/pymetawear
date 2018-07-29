@@ -43,8 +43,8 @@ class MagnetometerModule(PyMetaWearLoggingModule):
 
     """
 
-    def __init__(self, board, module_id, debug=False):
-        super(MagnetometerModule, self).__init__(board, debug)
+    def __init__(self, board, module_id):
+        super(MagnetometerModule, self).__init__(board)
         self.module_id = module_id
         
         self.power_presets = {}
@@ -62,16 +62,13 @@ class MagnetometerModule(PyMetaWearLoggingModule):
             # Parse possible presets for this magnetometer.
             for key, value in vars(self.mag_p_class).items():
                 if re.search('^([A-Z\_]*)', key) and isinstance(value,int):
-                    self.power_presets.update({key.lower():value})
+                    self.power_presets.update({key.lower(): value})
 
         if self.mag_o_class is not None:
             # Parse possible data rates for this magnetometer.
             for key, value in vars(self.mag_o_class).items():
                 if re.search('^_([0-9\_]*Hz)', key) and isinstance(value,int):
-                    self.odr.update({key:value})
-        
-        if debug:
-            log.setLevel(logging.DEBUG)
+                    self.odr.update({key[1:-2]: value})
 
     def __str__(self):
         return "{0} {1}: Power presets: {2}".format(
@@ -131,9 +128,9 @@ class MagnetometerModule(PyMetaWearLoggingModule):
             accuracy and power consumption
 
         """
+        # TODO: Add setting of ODR.
         pp = self._get_power_preset(power_preset)
-        if self._debug:
-            log.debug("Setting Magnetometer power preset to {0}".format(pp))
+        log.debug("Setting Magnetometer power preset to {0}".format(pp))
         libmetawear.mbl_mw_mag_bmm150_set_preset(self.board, pp)
 
     @require_bmm150

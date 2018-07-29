@@ -35,8 +35,8 @@ class GpioModule(PyMetaWearModule):
 
     """
 
-    def __init__(self, board, module_id, debug=False):
-        super(GpioModule, self).__init__(board, debug)
+    def __init__(self, board, module_id):
+        super(GpioModule, self).__init__(board)
         self.module_id = module_id
         
         self.current_pin = 0
@@ -68,9 +68,6 @@ class GpioModule(PyMetaWearModule):
             for key, value in vars(gpio_read_class).items():
                 if re.search('^([A-Z]*)', key) and isinstance(value,int):
                     self.read.update({key:value})
-        
-        if debug:
-            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "{0} {1}: Pin outputs: {2}, Pull modes: {3}, Read modes: {4}".format(
@@ -142,8 +139,7 @@ class GpioModule(PyMetaWearModule):
     def set_settings(self, pin, rmode=None, pmode=None, ptype=None):
         if rmode is not None:
             rmode = self._get_read(rmode)
-            if self._debug:
-                log.debug("Setting the Analog Read Mode to {0}".format(rmode))
+            log.debug("Setting the Analog Read Mode to {0}".format(rmode))
             self.current_mode = rmode
 
         if pmode is not None:

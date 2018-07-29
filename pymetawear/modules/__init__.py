@@ -29,7 +29,7 @@ from .sensorfusion import SensorFusionModule
 __all__ = [
     "PyMetaWearModule", "Modules",
     "AccelerometerModule", "AmbientLightModule",
-    "BarometerModule", "SettingModule",
+    "BarometerModule", "SettingsModule",
     "GyroscopeModule", "HapticModule",
     "LEDModule", "MagnetometerModule",
     "SwitchModule", "TemperatureModule",

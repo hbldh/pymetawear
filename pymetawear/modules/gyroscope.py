@@ -43,8 +43,8 @@ class GyroscopeModule(PyMetaWearLoggingModule):
 
     """
 
-    def __init__(self, board, module_id, debug=False):
-        super(GyroscopeModule, self).__init__(board, debug)
+    def __init__(self, board, module_id):
+        super(GyroscopeModule, self).__init__(board)
         self.module_id = module_id
 
         self.high_frequency_stream = False
@@ -74,9 +74,6 @@ class GyroscopeModule(PyMetaWearLoggingModule):
             for key, value in vars(self.gyro_r_class).items():
                 if re.search('_([0-9]+)dps', key) and key is not None:
                     self.fsr.update({key[1:-3]: value})
-            
-        if debug:
-            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "{0} {1}: Data rates (Hz): {2}, Data ranges (dps): {3}".format(
@@ -174,14 +171,12 @@ class GyroscopeModule(PyMetaWearLoggingModule):
         """
         if data_rate is not None:
             odr = self._get_odr(data_rate)
-            if self._debug:
-                log.debug("Setting Gyroscope ODR to {0}".format(odr))
+            log.debug("Setting Gyroscope ODR to {0}".format(odr))
             libmetawear.mbl_mw_gyro_bmi160_set_odr(self.board, odr)
             self.current_odr = data_rate
         if data_range is not None:
             fsr = self._get_fsr(data_range)
-            if self._debug:
-                log.debug("Setting Gyroscope FSR to {0}".format(fsr))
+            log.debug("Setting Gyroscope FSR to {0}".format(fsr))
             libmetawear.mbl_mw_gyro_bmi160_set_range(self.board, fsr)
             self.current_fsr = data_range
         if (data_rate is not None) or (data_range is not None):

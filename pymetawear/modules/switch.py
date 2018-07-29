@@ -28,12 +28,6 @@ class SwitchModule(PyMetaWearModule):
 
     """
 
-    def __init__(self, board, debug=False):
-        super(SwitchModule, self).__init__(board, debug)
-
-        if debug:
-            log.setLevel(logging.DEBUG)
-
     def __str__(self):
         return "{0}".format(
             self.module_name)
