@@ -14,6 +14,7 @@ from __future__ import absolute_import
 import os
 import signal
 import subprocess
+import platform
 import time
 
 from pymetawear.exceptions import PyMetaWearException
@@ -26,6 +27,20 @@ except NameError:
 
 
 def discover_devices(timeout=5):
+    """Run a BLE scan to discover nearby devices.
+
+    :param int timeout: Duration of scanning.
+    :return: List of tuples with `(address, name)`.
+    :rtype: list
+
+    """
+    if platform.uname()[0] == 'Windows':
+        return discover_devices_warble(timeout)
+    else:
+        return discover_devices_hcitool(timeout)
+
+
+def discover_devices_hcitool(timeout=5):
     """Discover Bluetooth Low Energy Devices nearby on Linux
 
     Using ``hcitool`` from Bluez in subprocess, which requires root privileges.
@@ -77,9 +92,15 @@ def discover_devices(timeout=5):
 
 
 def discover_devices_warble(timeout=5.0):
-    """Use PyWarbles discovery method.
+    """Use PyWarble's discovery method.
 
-    Requires elevated access in Linux?"""
+    Requires elevated access in Linux?
+
+    :param int timeout: Duration of scanning.
+    :return: List of tuples with `(address, name)`.
+    :rtype: list
+
+    """
     devices = {}
 
     def handler(result):

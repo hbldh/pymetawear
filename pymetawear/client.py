@@ -49,7 +49,7 @@ class MetaWearClient(object):
 
     :param str address: A Bluetooth MAC address to a MetaWear board.
     :param str device: Specifying which Bluetooth device to use. Defaults
-        to ``hci0``.
+        to ``hci0`` on Linux. Not available on Windows.
     :param bool connect: If client should connect automatically, or wait for
         explicit :py:meth:`~MetaWearClient.connect` call. Default is ``True``.
     :param bool debug: If printout of all sent and received
@@ -68,8 +68,7 @@ class MetaWearClient(object):
 
         self.mw = MetaWear(self._address, hci_mac=device)
 
-        log.info("Client started for BLE device {0} on {1}...".format(
-            self._address, device))
+        log.debug("Client started for BLE device {0}...".format(self._address))
 
         self.accelerometer = None
         #self.gpio = None

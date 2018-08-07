@@ -2,6 +2,11 @@
 History
 =======
 
+v0.11.0 (2018-08-07)
+--------------------
+- Using ``metawear`` version ``0.5.0``
+- Possible to use on Windows thanks to new dependency in ``metawear`` >= ``0.4.0``
+
 v0.10.0 (2018-06-18)
 --------------------
 - Added support for data logging, thanks to ``dmatthes1982`` (#32, #46, #48, #49)

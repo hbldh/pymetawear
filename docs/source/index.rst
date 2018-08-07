@@ -23,7 +23,10 @@ doing the very same thing. The official SDK handles the actual board
 connections and communication while PyMetaWear aims to remove the low level
 feeling of interacting with the MetaWear board.
 
-**PyMetaWear is Linux-only**!
+PyMetaWear can, from version 0.11.0, be used from both Windows and Linux. This is due to
+`metawear package <https://github.com/mbientlab/MetaWear-SDK-Python>`_ depending on a new BLE library called
+`PyWarble <https://github.com/mbientlab/PyWarble>`_. See installation instructions for more details about
+how to make it build on Windows.
 
 
 Contents
@@ -42,23 +45,32 @@ Contents
 Installation
 ------------
 
-Due to a dependency on ``gattlib``, a Python BLE package that is
-poorly maintained, MbientLab has `forked it <https://github.com/mbientlab/pygattlib>`_
-and ships a patched version with its Python SDK. This makes installation of
-PyMetaWear require some additional work:
+.. code-block:: bash
+
+    $ pip install pymetawear
+
+Since version 0.11.0, the installation requirements for ``pymetawear`` has changed some:
+
+Linux
++++++
+
+From ``PyWarble``'s README:
+
+> You will need to have BlueZ, Boost headers, and GNU Make installed along with a C++ compiler that support C++14.
+
+On Ubuntu this translates to installing the following:
 
 .. code-block:: bash
 
-    $ pip install git+https://github.com/mbientlab/pygattlib.git@master#egg=gattlib
-    $ pip install metawear
-    $ pip install pymetawear
+    $ sudo apt-get install build-essential cmake bluez libbluetooth-dev
 
-Please ensure that the `dependencies <https://bitbucket.org/OscarAcena/pygattlib/src/a858e8626a93cb9b4ad56f3fb980a6517a0702c6/DEPENDS?at=default&fileviewer=file-view-default>`_ for ``gattlib`` are fulfilled before installing.
+Windows
++++++++
 
-Development
-~~~~~~~~~~~
+On Windows, you need to install Visual Studio 2017 to be able to build and install the ``pymetawear`` package.
+Furthermore, at least the Fall Creators Update SDK is needed.
 
-TBW.
+Make sure that your ``MSBuild.exe`` file is available in your PATH before running the install command.
 
 
 Indices and tables
