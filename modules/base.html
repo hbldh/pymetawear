@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Module interface &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Accelerometer module" href="accelerometer.html" />
+    <link rel="prev" title="MetaWear modules" href="index.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../discover.html">Discovering addresses to MetaWear boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../exceptions.html">Exceptions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">MetaWear modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Module interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pymetawear.modules.base">API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#base-module">Base module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="accelerometer.html">Accelerometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gyroscope.html">Gyroscope module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="magnetometer.html">Magnetometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="barometer.html">Barometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="led.html">LED module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ambientlight.html">Ambient light module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haptic.html">Haptic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="switch.html">Switch module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temperature.html">Temperature module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensor_fusion.html">Sensor Fusion module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#streaming-data">Streaming data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#logging-data">Logging data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">MetaWear modules</a> &raquo;</li>
+        
+      <li>Module interface</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/modules/base.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-interface">
+<span id="modules-base"></span><h1>Module interface<a class="headerlink" href="#module-interface" title="Permalink to this headline">¶</a></h1>
+<p>The base/parent module interface that the
+actual module implementations inherit from.</p>
+<p>Performs the actual notification registration
+and handling of callbacks, but leaves everything else
+to the actual module implementations.</p>
+<div class="section" id="module-pymetawear.modules.base">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-pymetawear.modules.base" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="base-module">
+<h3>Base module<a class="headerlink" href="#base-module" title="Permalink to this headline">¶</a></h3>
+<p>Created by hbldh &lt;<a class="reference external" href="mailto:henrik&#46;blidh&#37;&#52;&#48;nedomkull&#46;com">henrik<span>&#46;</span>blidh<span>&#64;</span>nedomkull<span>&#46;</span>com</a>&gt; on 2016-04-14
+Modified by lkasso &lt;<a class="reference external" href="mailto:hello&#37;&#52;&#48;mbientlab&#46;com">hello<span>&#64;</span>mbientlab<span>&#46;</span>com</a>&gt;</p>
+<dl class="class">
+<dt id="pymetawear.modules.base.Modules">
+<em class="property">class </em><code class="descclassname">pymetawear.modules.base.</code><code class="descname">Modules</code><a class="reference internal" href="../_modules/pymetawear/modules/base.html#Modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.base.Modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for storing PyMetaWear module identifiers.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymetawear.modules.base.PyMetaWearLoggingModule">
+<em class="property">class </em><code class="descclassname">pymetawear.modules.base.</code><code class="descname">PyMetaWearLoggingModule</code><span class="sig-paren">(</span><em>board</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/base.html#PyMetaWearLoggingModule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.base.PyMetaWearLoggingModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Special class with additions for modules with logging support.</p>
+<dl class="method">
+<dt id="pymetawear.modules.base.PyMetaWearLoggingModule.download_log">
+<code class="descname">download_log</code><span class="sig-paren">(</span><em>timeout=3.0</em>, <em>data_callback=None</em>, <em>progress_update_function=None</em>, <em>unknown_entry_function=None</em>, <em>unhandled_entry_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/base.html#PyMetaWearLoggingModule.download_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.base.PyMetaWearLoggingModule.download_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download logged data from the MetaWear board</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>timeout</strong> – Time to wait for download to resume if connection is lost.</li>
+<li><strong>data_callback</strong> – Function called to process each downloaded sample.</li>
+<li><strong>progress_update_function</strong> – Function called each
+<cite>progress_update_each_n_sample</cite> to give feedback on download progress.</li>
+<li><strong>unknown_entry_function</strong> – Function called when unknown logging
+entries are encountered.</li>
+<li><strong>unhandled_entry_function</strong> – Function called when unhandled entries
+are encountered.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The logged data, in case download was successful.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymetawear.modules.base.PyMetaWearLoggingModule.start_logging">
+<code class="descname">start_logging</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/base.html#PyMetaWearLoggingModule.start_logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.base.PyMetaWearLoggingModule.start_logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup and start logging of data signals on the MetaWear board</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymetawear.modules.base.PyMetaWearLoggingModule.stop_logging">
+<code class="descname">stop_logging</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/base.html#PyMetaWearLoggingModule.stop_logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.base.PyMetaWearLoggingModule.stop_logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop logging of data signals on the MetaWear board</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymetawear.modules.base.PyMetaWearModule">
+<em class="property">class </em><code class="descclassname">pymetawear.modules.base.</code><code class="descname">PyMetaWearModule</code><span class="sig-paren">(</span><em>board</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/base.html#PyMetaWearModule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.base.PyMetaWearModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for PyMetaWear module implementations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>board</strong> (<em>ctypes.c_long</em>) – The MetaWear board pointer value.</li>
+<li><strong>debug</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, module prints out debug information.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymetawear.modules.base.PyMetaWearModule.data_signal">
+<code class="descname">data_signal</code><a class="headerlink" href="#pymetawear.modules.base.PyMetaWearModule.data_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the data signal pointer value for the switch module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The pointer value. (Long if on x64 architecture.)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">ctypes.c_long</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">ctypes.c_int</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymetawear.modules.base.PyMetaWearModule.module_name">
+<code class="descname">module_name</code><a class="headerlink" href="#pymetawear.modules.base.PyMetaWearModule.module_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get module name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The name of this module.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymetawear.modules.base.PyMetaWearModule.notifications">
+<code class="descname">notifications</code><span class="sig-paren">(</span><em>callback=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/base.html#PyMetaWearModule.notifications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.base.PyMetaWearModule.notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle notifications/subscriptions to data signals
+on the MetaWear board.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>callback</strong> (<em>callable</em>) – The function to call when
+data signal notification arrives. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, an
+unsubscription to notifications is sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymetawear.modules.base.PyMetaWearModule.sensor_name">
+<code class="descname">sensor_name</code><a class="headerlink" href="#pymetawear.modules.base.PyMetaWearModule.sensor_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get sensor name, if applicable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The name of this module.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymetawear.modules.base.context_callback">
+<code class="descclassname">pymetawear.modules.base.</code><code class="descname">context_callback</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/base.html#context_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.base.context_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator to handle the context argument added in MetaWear C++ API 0.12</p>
+<p>This method is used internally so that the end-user should not have to
+know about and handle the <code class="docutils literal notranslate"><span class="pre">context</span></code> argument.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>func</strong> – The function to add context argument to.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The wrapped function.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="accelerometer.html" class="btn btn-neutral float-right" title="Accelerometer module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="MetaWear modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

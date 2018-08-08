@@ -1,0 +1,399 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymetawear.modules.magnetometer &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discover.html">Discovering addresses to MetaWear boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">MetaWear modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pymetawear.modules.magnetometer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pymetawear.modules.magnetometer</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Magnetometer module</span>
+<span class="sd">-------------------</span>
+
+<span class="sd">Created by jboeer &lt;jonas.boeer@kinemic.de&gt; on 2016-09-07</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">pymetawear</span> <span class="k">import</span> <span class="n">libmetawear</span>
+<span class="kn">from</span> <span class="nn">pymetawear.exceptions</span> <span class="k">import</span> <span class="n">PyMetaWearException</span>
+<span class="kn">from</span> <span class="nn">mbientlab.metawear.cbindings</span> <span class="k">import</span> <span class="n">MagBmm150Odr</span><span class="p">,</span> <span class="n">MagBmm150Preset</span>
+<span class="kn">from</span> <span class="nn">pymetawear.modules.base</span> <span class="k">import</span> <span class="n">PyMetaWearLoggingModule</span><span class="p">,</span> <span class="n">Modules</span><span class="p">,</span> <span class="n">data_handler</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">require_bmm150</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;mag_p_class&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PyMetaWearException</span><span class="p">(</span><span class="s2">&quot;There is not Magnetometer &quot;</span>
+                                      <span class="s2">&quot;module on your MetaWear board!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<div class="viewcode-block" id="MagnetometerModule"><a class="viewcode-back" href="../../../modules/magnetometer.html#pymetawear.modules.magnetometer.MagnetometerModule">[docs]</a><span class="k">class</span> <span class="nc">MagnetometerModule</span><span class="p">(</span><span class="n">PyMetaWearLoggingModule</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;MetaWear accelerometer module implementation.</span>
+
+<span class="sd">    :param ctypes.c_long board: The MetaWear board pointer value.</span>
+<span class="sd">    :param int module_id: The module id of this accelerometer</span>
+<span class="sd">        component, obtained from ``libmetawear``.</span>
+<span class="sd">    :param bool debug: If ``True``, module prints out debug information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">,</span> <span class="n">module_id</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MagnetometerModule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module_id</span> <span class="o">=</span> <span class="n">module_id</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">power_presets</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">odr</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_id</span> <span class="o">==</span> <span class="n">Modules</span><span class="o">.</span><span class="n">MBL_MW_MODULE_NA</span><span class="p">:</span>
+            <span class="c1"># No magnetometer present!</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_o_class</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_p_class</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_o_class</span> <span class="o">=</span> <span class="n">MagBmm150Odr</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_p_class</span> <span class="o">=</span> <span class="n">MagBmm150Preset</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_p_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Parse possible presets for this magnetometer.</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_p_class</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;^([A-Z\_]*)&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="nb">int</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">power_presets</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">value</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_o_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Parse possible data rates for this magnetometer.</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_o_class</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;^_([0-9\_]*Hz)&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="nb">int</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">odr</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]:</span> <span class="n">value</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> </span><span class="si">{1}</span><span class="s2">: Power presets: </span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensor_name</span><span class="p">,</span>
+            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power_presets</span><span class="o">.</span><span class="n">keys</span><span class="p">())])</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">module_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Magnetometer&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sensor_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_p_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_p_class</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s1">&#39;Mag&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Preset&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@require_bmm150</span>
+    <span class="k">def</span> <span class="nf">data_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_mag_bmm150_get_b_field_data_signal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_power_preset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">power_presets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">power_presets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested power preset (</span><span class="si">{0}</span><span class="s2">) was not part of &quot;</span>
+                             <span class="s2">&quot;possible values: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">power_presets</span><span class="o">.</span><span class="n">keys</span><span class="p">()]))</span>
+
+    <span class="nd">@require_bmm150</span>
+    <span class="k">def</span> <span class="nf">get_current_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@require_bmm150</span>
+    <span class="k">def</span> <span class="nf">get_possible_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;power_preset&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power_presets</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()))],</span>
+            <span class="s1">&#39;odr&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odr</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()))]</span>
+        <span class="p">}</span>
+
+    <span class="nd">@require_bmm150</span>
+    <span class="k">def</span> <span class="nf">set_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">power_preset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set magnetometer settings.</span>
+
+<span class="sd">         .code-block:: python</span>
+
+<span class="sd">            mwclient.magnetometer.set_settings(power_preset=&quot;LOW_POWER&quot;)</span>
+
+<span class="sd">        Call :meth:`~get_possible_settings` to see which values</span>
+<span class="sd">        that can be set for this sensor.</span>
+
+<span class="sd">        :param str power_preset: The power preset, influencing the data rate,</span>
+<span class="sd">            accuracy and power consumption</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Add setting of ODR.</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_power_preset</span><span class="p">(</span><span class="n">power_preset</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setting Magnetometer power preset to </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pp</span><span class="p">))</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_mag_bmm150_set_preset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">pp</span><span class="p">)</span>
+
+    <span class="nd">@require_bmm150</span>
+    <span class="k">def</span> <span class="nf">notifications</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Subscribe or unsubscribe to magnetometer notifications.</span>
+
+<span class="sd">        Convenience method for handling magnetometer usage.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            def handle_notification(data):</span>
+<span class="sd">                # Handle dictionary with [epoch, value] keys.</span>
+<span class="sd">                epoch = data[&quot;epoch&quot;]</span>
+<span class="sd">                xyz = data[&quot;value&quot;]</span>
+<span class="sd">                print(str(data))</span>
+
+<span class="sd">            mwclient.magnetometer.notifications(handle_notification)</span>
+
+<span class="sd">        :param callable callback: Magnetometer notification callback function.</span>
+<span class="sd">            If `None`, unsubscription to magnetometer notifications is registered.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toggle_sampling</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">MagnetometerModule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">notifications</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">MagnetometerModule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">notifications</span><span class="p">(</span><span class="n">data_handler</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toggle_sampling</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="nd">@require_bmm150</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Switches the magnetometer to active mode.&quot;&quot;&quot;</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_mag_bmm150_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+
+    <span class="nd">@require_bmm150</span>
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Switches the magnetometer to standby mode.&quot;&quot;&quot;</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_mag_bmm150_stop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+
+    <span class="nd">@require_bmm150</span>
+    <span class="k">def</span> <span class="nf">toggle_sampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Enables or disables magnetometer sampling.</span>
+
+<span class="sd">        :param bool enabled: Desired state of the magnetometer.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">enabled</span><span class="p">:</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_mag_bmm150_enable_b_field_sampling</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_mag_bmm150_disable_b_field_sampling</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

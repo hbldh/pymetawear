@@ -1,0 +1,318 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Ambient light module &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Settings module" href="settings.html" />
+    <link rel="prev" title="LED module" href="led.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../discover.html">Discovering addresses to MetaWear boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../exceptions.html">Exceptions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">MetaWear modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="base.html">Module interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="accelerometer.html">Accelerometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gyroscope.html">Gyroscope module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="magnetometer.html">Magnetometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="barometer.html">Barometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="led.html">LED module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ambient light module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-streaming-example">Data streaming example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pymetawear.modules.ambientlight">API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Ambient Light module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haptic.html">Haptic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="switch.html">Switch module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temperature.html">Temperature module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensor_fusion.html">Sensor Fusion module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#streaming-data">Streaming data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#logging-data">Logging data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">MetaWear modules</a> &raquo;</li>
+        
+      <li>Ambient light module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/modules/ambientlight.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ambient-light-module">
+<span id="modules-ambientlight"></span><h1>Ambient light module<a class="headerlink" href="#ambient-light-module" title="Permalink to this headline">¶</a></h1>
+<p>The PyMetaWear implementation of the <code class="docutils literal notranslate"><span class="pre">libmetawear</span></code>
+ambient light module.</p>
+<p>It is initialized at the creation of the <code class="xref py py-class docutils literal notranslate"><span class="pre">MetaWearClient</span></code>
+client and can then be accessed in the <code class="docutils literal notranslate"><span class="pre">ambient_light</span></code>
+attribute of the client.</p>
+<div class="section" id="data-streaming-example">
+<h2>Data streaming example<a class="headerlink" href="#data-streaming-example" title="Permalink to this headline">¶</a></h2>
+<p>If you need a real time stream of sensor data, use the <code class="xref py py-func docutils literal notranslate"><span class="pre">notifications()</span></code> method on the <code class="xref py py-mod docutils literal notranslate"><span class="pre">ambient_light</span></code> module:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymetawear.client</span> <span class="kn">import</span> <span class="n">MetaWearClient</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">MetaWearClient</span><span class="p">(</span><span class="s1">&#39;DD:3A:7D:4D:56:F0&#39;</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Write ambient light settings...&quot;</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">ambient_light</span><span class="o">.</span><span class="n">set_settings</span><span class="p">(</span><span class="n">gain</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">integration_time</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">measurement_rate</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ambient_light_callback</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle a (epoch, data) ambient light data tuple.&quot;&quot;&quot;</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Epoch time: [{0}] Data: {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+<span class="c1"># Enable notifications and register a callback for them.</span>
+<span class="n">c</span><span class="o">.</span><span class="n">ambient_light</span><span class="o">.</span><span class="n">notifications</span><span class="p">(</span><span class="n">ambient_light_callback</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-pymetawear.modules.ambientlight">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-pymetawear.modules.ambientlight" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Ambient Light module<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Created by hbldh &lt;<a class="reference external" href="mailto:henrik&#46;blidh&#37;&#52;&#48;nedomkull&#46;com">henrik<span>&#46;</span>blidh<span>&#64;</span>nedomkull<span>&#46;</span>com</a>&gt; on 2016-04-28
+Modified by lkasso &lt;<a class="reference external" href="mailto:hello&#37;&#52;&#48;mbientlab&#46;com">hello<span>&#64;</span>mbientlab<span>&#46;</span>com</a>&gt;</p>
+<dl class="class">
+<dt id="pymetawear.modules.ambientlight.AmbientLightModule">
+<em class="property">class </em><code class="descclassname">pymetawear.modules.ambientlight.</code><code class="descname">AmbientLightModule</code><span class="sig-paren">(</span><em>board</em>, <em>module_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/ambientlight.html#AmbientLightModule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.ambientlight.AmbientLightModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>MetaWear Ambient Light module implementation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>board</strong> (<em>ctypes.c_long</em>) – The MetaWear board pointer value.</li>
+<li><strong>debug</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, module prints out debug information.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymetawear.modules.ambientlight.AmbientLightModule.module_name">
+<code class="descname">module_name</code><a class="headerlink" href="#pymetawear.modules.ambientlight.AmbientLightModule.module_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get module name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The name of this module.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="settings.html" class="btn btn-neutral float-right" title="Settings module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="led.html" class="btn btn-neutral" title="LED module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

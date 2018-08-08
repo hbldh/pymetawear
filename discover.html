@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Discovering addresses to MetaWear boards &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="MetaWear Client" href="client.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Discovering addresses to MetaWear boards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-pymetawear.discover">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/index.html">MetaWear modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Discovering addresses to MetaWear boards</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/discover.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="discovering-addresses-to-metawear-boards">
+<h1>Discovering addresses to MetaWear boards<a class="headerlink" href="#discovering-addresses-to-metawear-boards" title="Permalink to this headline">¶</a></h1>
+<p>If you do not know the address of your MetaWear board, it
+can be found by performing a scan.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pymetawear.client</span> <span class="kn">import</span> <span class="n">discover_devices</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">discover_devices</span><span class="p">()</span>
+<span class="go">[(u&#39;DD:3A:7D:4D:56:F0&#39;, u&#39;MetaWear&#39;), (u&#39;FF:50:35:82:3B:5A&#39;, u&#39;MetaWear&#39;)]</span>
+</pre></div>
+</div>
+<p>On Linux, the <code class="xref py py-func docutils literal notranslate"><span class="pre">discover_devices()</span></code> function uses the
+<code class="docutils literal notranslate"><span class="pre">hcitool</span></code> application, provided by the <a class="reference external" href="http://www.bluez.org/">BlueZ</a>
+bluetooth application. See docstring below for more details about privileges
+using <code class="docutils literal notranslate"><span class="pre">hcitool</span></code> from Python.</p>
+<p>One can run the <code class="xref py py-func docutils literal notranslate"><span class="pre">discover_devices_warble()</span></code> to use the <code class="docutils literal notranslate"><span class="pre">PyWarble</span></code> methods, but it
+requires sudo privileges on Linux.</p>
+<p>There is a convenience method named <code class="xref py py-func docutils literal notranslate"><span class="pre">select_device()</span></code> as well, which
+displays a list of devices to choose from.</p>
+<div class="section" id="module-pymetawear.discover">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-pymetawear.discover" title="Permalink to this headline">¶</a></h2>
+<p>Performing BLE scans</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">2016-11-29 by hbldh &lt;<a class="reference external" href="mailto:henrik&#46;blidh&#37;&#52;&#48;nedomkull&#46;com">henrik<span>&#46;</span>blidh<span>&#64;</span>nedomkull<span>&#46;</span>com</a>&gt;</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pymetawear.discover.discover_devices">
+<code class="descclassname">pymetawear.discover.</code><code class="descname">discover_devices</code><span class="sig-paren">(</span><em>timeout=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymetawear/discover.html#discover_devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.discover.discover_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a BLE scan to discover nearby devices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> (<em>int</em>) – Duration of scanning.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of tuples with <cite>(address, name)</cite>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymetawear.discover.discover_devices_hcitool">
+<code class="descclassname">pymetawear.discover.</code><code class="descname">discover_devices_hcitool</code><span class="sig-paren">(</span><em>timeout=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymetawear/discover.html#discover_devices_hcitool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.discover.discover_devices_hcitool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Discover Bluetooth Low Energy Devices nearby on Linux</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">hcitool</span></code> from Bluez in subprocess, which requires root privileges.
+However, <code class="docutils literal notranslate"><span class="pre">hcitool</span></code> can be allowed to do scan without elevated permission.</p>
+<p>Install linux capabilities manipulation tools:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install libcap2-bin
+</pre></div>
+</div>
+<p>Sets the missing capabilities on the executable quite like the setuid bit:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo setcap <span class="s1">&#39;cap_net_raw,cap_net_admin+eip&#39;</span> <span class="sb">`</span>which hcitool<span class="sb">`</span>
+</pre></div>
+</div>
+<p><strong>References:</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="https://unix.stackexchange.com/questions/96106/bluetooth-le-scan-as-non-root">StackExchange, hcitool without sudo</a></li>
+<li><a class="reference external" href="https://stackoverflow.com/questions/26874829/hcitool-lescan-will-not-print-in-real-time-to-a-file">StackOverflow, hcitool lescan with timeout</a></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> (<em>int</em>) – Duration of scanning.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of tuples with <cite>(address, name)</cite>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymetawear.discover.discover_devices_warble">
+<code class="descclassname">pymetawear.discover.</code><code class="descname">discover_devices_warble</code><span class="sig-paren">(</span><em>timeout=5.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymetawear/discover.html#discover_devices_warble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.discover.discover_devices_warble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use PyWarble’s discovery method.</p>
+<p>Requires elevated access in Linux?</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> (<em>int</em>) – Duration of scanning.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of tuples with <cite>(address, name)</cite>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymetawear.discover.select_device">
+<code class="descclassname">pymetawear.discover.</code><code class="descname">select_device</code><span class="sig-paren">(</span><em>timeout=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymetawear/discover.html#select_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.discover.select_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run <cite>discover_devices</cite> and display a list to select from.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> (<em>int</em>) – Duration of scanning.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The selected device’s address.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="client.html" class="btn btn-neutral float-right" title="MetaWear Client" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>PyMetaWear documentation &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="discover.html">Discovering addresses to MetaWear boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/index.html">MetaWear modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>PyMetaWear documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pymetawear-documentation">
+<h1>PyMetaWear documentation<a class="headerlink" href="#pymetawear-documentation" title="Permalink to this headline">¶</a></h1>
+<a class="reference external image-reference" href="https://travis-ci.org/hbldh/pymetawear"><img alt="https://travis-ci.org/hbldh/pymetawear.svg?branch=master" src="https://travis-ci.org/hbldh/pymetawear.svg?branch=master" /></a>
+<a class="reference external image-reference" href="https://coveralls.io/github/hbldh/pymetawear?branch=master"><img alt="https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master" src="https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master" /></a>
+<p><strong>PyMetaWear is a community developed Python SDK started by</strong>
+<a class="reference external" href="https://github.com/hbldh">Henrik Blidh</a> <strong>. MbientLab does not provide support for this SDK.</strong></p>
+<p>Python package for connecting to and using
+<a class="reference external" href="https://mbientlab.com/">MbientLab’s MetaWear</a> boards.</p>
+<p>PyMetaWear was previously a wrapper around the
+<a class="reference external" href="https://github.com/mbientlab/Metawear-CppAPI">MetaWear C++ API</a>,
+providing a more Pythonic interface. In version 0.9.0 it instead becomes
+a wrapper around <a class="reference external" href="https://github.com/mbientlab/MetaWear-SDK-Python">MetaWear’s official Python SDK</a>,
+doing the very same thing. The official SDK handles the actual board
+connections and communication while PyMetaWear aims to remove the low level
+feeling of interacting with the MetaWear board.</p>
+<p>PyMetaWear can, from version 0.11.0, be used from both Windows and Linux. This is thanks to that the
+<code class="docutils literal notranslate"><span class="pre">metawear</span></code> <a class="reference external" href="https://github.com/mbientlab/MetaWear-SDK-Python">package</a> package is now depending on a
+new BLE library called <a class="reference external" href="https://github.com/mbientlab/PyWarble">PyWarble</a> instead of <code class="docutils literal notranslate"><span class="pre">gattlib</span></code>.
+See installation instructions for more details about how to make it build on Windows.</p>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#linux">Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="discover.html">Discovering addresses to MetaWear boards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="discover.html#module-pymetawear.discover">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">MetaWear Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="client.html#module-pymetawear.client">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/index.html">MetaWear modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/base.html">Module interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/accelerometer.html">Accelerometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/gyroscope.html">Gyroscope module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/magnetometer.html">Magnetometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/barometer.html">Barometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/led.html">LED module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/ambientlight.html">Ambient light module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/settings.html">Settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/haptic.html">Haptic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/switch.html">Switch module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/temperature.html">Temperature module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/sensor_fusion.html">Sensor Fusion module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/index.html#streaming-data">Streaming data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/index.html#logging-data">Logging data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-11-0-2018-08-08">v0.11.0 (2018-08-08)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-10-1-2018-08-08">v0.10.1 (2018-08-08)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-10-0-2018-06-18">v0.10.0 (2018-06-18)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-9-1-2018-04-02">v0.9.1 (2018-04-02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-9-0-2018-04-02">v0.9.0 (2018-04-02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-8-0-2017-07-04">v0.8.0 (2017-07-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-7-1-2017-02-04">v0.7.1 (2017-02-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-7-0-2017-01-13">v0.7.0 (2017-01-13)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-6-0-2016-10-31">v0.6.0 (2016-10-31)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-5-2-2016-10-13">v0.5.2 (2016-10-13)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-5-1-2016-09-15">v0.5.1 (2016-09-15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-5-0-2016-09-15">v0.5.0 (2016-09-15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-4-4-2016-04-28">v0.4.4 (2016-04-28)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-4-3-2016-04-27">v0.4.3 (2016-04-27)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-4-2-2016-04-27">v0.4.2 (2016-04-27)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-4-1-2016-04-20">v0.4.1 (2016-04-20)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-4-0-2016-04-17">v0.4.0 (2016-04-17)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-3-1-2016-04-10">v0.3.1 (2016-04-10)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-3-0-2016-04-09">v0.3.0 (2016-04-09)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-3-2016-04-07">v0.2.3 (2016-04-07)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-2-2016-04-06">v0.2.2 (2016-04-06)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-1-2016-04-04">v0.2.1 (2016-04-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-0-2016-04-02">v0.2.0 (2016-04-02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-1-1-2016-03-30">v0.1.1 (2016-03-30)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-1-0-2016-03-30">v0.1.0 (2016-03-30)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#development-lead">Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#contributors-sorted-alphabetically">Contributors (sorted alphabetically)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

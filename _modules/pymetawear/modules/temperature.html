@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymetawear.modules.temperature &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discover.html">Discovering addresses to MetaWear boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">MetaWear modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pymetawear.modules.temperature</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pymetawear.modules.temperature</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Temperature module</span>
+<span class="sd">------------------</span>
+
+<span class="sd">Created by hbldh &lt;henrik.blidh@nedomkull.com&gt; on 2016-04-14</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">pymetawear</span> <span class="k">import</span> <span class="n">libmetawear</span>
+<span class="kn">from</span> <span class="nn">pymetawear.modules.base</span> <span class="k">import</span> <span class="n">PyMetaWearModule</span><span class="p">,</span> <span class="n">data_handler</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_CHANNEL_ID_TO_SOURCE_NAME</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Invalid&#39;</span><span class="p">,</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;On-Die&#39;</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;External&#39;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;BMP280&#39;</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;On-Board&#39;</span>
+<span class="p">}</span>
+<span class="n">_CHANNEL_ID_TO_SOURCE_NAME_4</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;On-Die&#39;</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;On-Board&#39;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;External&#39;</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;BMP280&#39;</span>
+<span class="p">}</span>
+<span class="n">_CHANNEL_ID_TO_SOURCE_NAME_2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;On-Die&#39;</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;External&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="TemperatureModule"><a class="viewcode-back" href="../../../modules/temperature.html#pymetawear.modules.temperature.TemperatureModule">[docs]</a><span class="k">class</span> <span class="nc">TemperatureModule</span><span class="p">(</span><span class="n">PyMetaWearModule</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;MetaWear Temperature module implementation.</span>
+
+<span class="sd">    :param ctypes.c_long board: The MetaWear board pointer value.</span>
+<span class="sd">    :param bool debug: If ``True``, module prints out debug information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TemperatureModule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active_channel</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_channels</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_multi_chnl_temp_get_num_channels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_channels</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_channel_source_mapping</span> <span class="o">=</span> <span class="n">_CHANNEL_ID_TO_SOURCE_NAME_4</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_channels</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_channel_source_mapping</span> <span class="o">=</span> <span class="n">_CHANNEL_ID_TO_SOURCE_NAME_2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_channel_source_mapping</span> <span class="o">=</span> <span class="n">_CHANNEL_ID_TO_SOURCE_NAME</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reverse_channel_source_mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel_source_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_channels</span><span class="p">):</span>
+            <span class="n">source_enum</span> <span class="o">=</span> <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_multi_chnl_temp_get_source</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_channel_source_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_enum</span><span class="p">)]</span> <span class="o">=</span> <span class="n">source_enum</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">module_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Temperature&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_multi_chnl_temp_get_temperature_data_signal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_channel</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TemperatureModule.configure_external_thermistor"><a class="viewcode-back" href="../../../modules/temperature.html#pymetawear.modules.temperature.TemperatureModule.configure_external_thermistor">[docs]</a>    <span class="k">def</span> <span class="nf">configure_external_thermistor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">data_pin</span><span class="p">,</span>
+                                      <span class="n">pulldown_pin</span><span class="p">,</span> <span class="n">active_high</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Configure the external thermistor.</span>
+
+<span class="sd">        :param channel_id: Channel ID of the external thermistor</span>
+<span class="sd">        :param int data_pin: GPIO pin reading the data</span>
+<span class="sd">        :param int pulldown_pin: GPIO pin the pulldown resistor is connected to</span>
+<span class="sd">        :param int active_high: Zero if the pulldown pin is not active high,</span>
+<span class="sd">            non-zero if active high</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_multi_chnl_temp_configure_ext_thermistor</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">data_pin</span><span class="p">,</span> <span class="n">pulldown_pin</span><span class="p">,</span> <span class="n">active_high</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TemperatureModule.get_possible_settings"><a class="viewcode-back" href="../../../modules/temperature.html#pymetawear.modules.temperature.TemperatureModule.get_possible_settings">[docs]</a>    <span class="k">def</span> <span class="nf">get_possible_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the possible settings for this module.</span>
+
+<span class="sd">        :return: Dict with the names of the possible channel choices.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;channel&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="n">x</span><span class="p">])],</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="TemperatureModule.get_current_settings"><a class="viewcode-back" href="../../../modules/temperature.html#pymetawear.modules.temperature.TemperatureModule.get_current_settings">[docs]</a>    <span class="k">def</span> <span class="nf">get_current_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the current settings for this module.</span>
+
+<span class="sd">        :return: Dict with the name of the currently active channel.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;channel&#39;</span><span class="p">:</span> <span class="n">_CHANNEL_ID_TO_SOURCE_NAME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_active_channel</span><span class="p">)</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="TemperatureModule.set_settings"><a class="viewcode-back" href="../../../modules/temperature.html#pymetawear.modules.temperature.TemperatureModule.set_settings">[docs]</a>    <span class="k">def</span> <span class="nf">set_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set temperature channel settings.</span>
+
+<span class="sd">         .. code-block:: python</span>
+
+<span class="sd">            mwclient.temperature.set_settings(channel=&#39;On-Die&#39;)</span>
+
+<span class="sd">        Call :meth:`~get_possible_settings` to see which values</span>
+<span class="sd">        that can be set for this sensor.</span>
+
+<span class="sd">        :param str channel: The name of the temperature channel to make active.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">channel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_active_channel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reverse_channel_source_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Desired channel </span><span class="si">{0}</span><span class="s2"> was not one of the possible ones: </span><span class="si">{1}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">channel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_possible_settings</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;channel&#39;</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="TemperatureModule.read_temperature"><a class="viewcode-back" href="../../../modules/temperature.html#pymetawear.modules.temperature.TemperatureModule.read_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">read_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Triggers a temperature notification.</span>
+
+<span class="sd">        N.B. that a :meth:`~notifications` call that registers a</span>
+<span class="sd">        callback for temperature should have been done prior to calling</span>
+<span class="sd">        this method.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No temperature callback is registered!&quot;</span><span class="p">,</span>
+                          <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_datasignal_read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_signal</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TemperatureModule.notifications"><a class="viewcode-back" href="../../../modules/temperature.html#pymetawear.modules.temperature.TemperatureModule.notifications">[docs]</a>    <span class="k">def</span> <span class="nf">notifications</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Subscribe or unsubscribe to temperature notifications.</span>
+
+<span class="sd">        Convenience method for handling temperature usage.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            def temperature_callback(data):</span>
+<span class="sd">                # Handle dictionary with [epoch, value] keys.</span>
+<span class="sd">                epoch = data[&quot;epoch&quot;]</span>
+<span class="sd">                xyz = data[&quot;value&quot;]</span>
+<span class="sd">                print(str(data))</span>
+
+<span class="sd">            mwclient.temperature_func.notifications(temperature_callback)</span>
+
+<span class="sd">        :param callable callback: Temperature notification callback function.</span>
+<span class="sd">            If `None`, unsubscription to temperature_func notifications</span>
+<span class="sd">            is registered.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TemperatureModule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">notifications</span><span class="p">(</span>
+            <span class="n">data_handler</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span> <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

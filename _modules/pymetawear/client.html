@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymetawear.client &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../discover.html">Discovering addresses to MetaWear boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/index.html">MetaWear modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pymetawear.client</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pymetawear.client</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Main module for PyMetaWear</span>
+
+<span class="sd">.. moduleauthor:: hbldh &lt;henrik.blidh@nedomkull.com&gt;</span>
+
+<span class="sd">Created on 2016-03-30</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">mbientlab.metawear</span> <span class="k">import</span> <span class="n">MetaWear</span><span class="p">,</span> <span class="n">libmetawear</span>
+
+<span class="kn">from</span> <span class="nn">pymetawear</span> <span class="k">import</span> <span class="n">add_stream_logger</span><span class="p">,</span> <span class="n">modules</span>
+
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_model_names</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Unknown&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaWear R&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaWear RG&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaWear RPro&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaWear C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaWear CPro&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaEnvironment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaDetector&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaHealth&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaTracker&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaMotion R&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MetaMotion C&quot;</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="MetaWearClient"><a class="viewcode-back" href="../../client.html#pymetawear.client.MetaWearClient">[docs]</a><span class="k">class</span> <span class="nc">MetaWearClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A MetaWear communication client.</span>
+
+<span class="sd">    This client bridges the gap between the</span>
+<span class="sd">    `MetaWear C++ API &lt;https://github.com/mbientlab/Metawear-CppAPI&gt;`_</span>
+<span class="sd">    and a GATT communication package in Python. It provides Pythonic</span>
+<span class="sd">    interface to using the MetaWear boards, allowing for rapid</span>
+<span class="sd">    development and testing.</span>
+
+<span class="sd">    :param str address: A Bluetooth MAC address to a MetaWear board.</span>
+<span class="sd">    :param str device: Specifying which Bluetooth device to use. Defaults</span>
+<span class="sd">        to ``hci0`` on Linux. Not available on Windows.</span>
+<span class="sd">    :param bool connect: If client should connect automatically, or wait for</span>
+<span class="sd">        explicit :py:meth:`~MetaWearClient.connect` call. Default is ``True``.</span>
+<span class="sd">    :param bool debug: If printout of all sent and received</span>
+<span class="sd">        data should be done.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;hci0&#39;</span><span class="p">,</span> <span class="n">connect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_address</span> <span class="o">=</span> <span class="n">address</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span> <span class="o">=</span> <span class="n">debug</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">:</span>
+            <span class="n">add_stream_logger</span><span class="p">()</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating MetaWearClient for </span><span class="si">{0}</span><span class="s2">...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">MetaWear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">,</span> <span class="n">hci_mac</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Client started for BLE device </span><span class="si">{0}</span><span class="s2">...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">#self.gpio = None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gyroscope</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magnetometer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barometer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ambient_light</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">haptic</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">led</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensorfusion</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">connect</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">board</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">board</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">firmware_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;firmware&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hardware_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;hardware&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">manufacturer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;manufacturer&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">serial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;serial&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;MetaWearClient, </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;MetaWearClient, </span><span class="si">{0}</span><span class="s2">&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MetaWearClient.connect"><a class="viewcode-back" href="../../client.html#pymetawear.client.MetaWearClient.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect this client to the MetaWear device.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_modules</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MetaWearClient.disconnect"><a class="viewcode-back" href="../../client.html#pymetawear.client.MetaWearClient.disconnect">[docs]</a>    <span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Disconnects this client from the MetaWear device.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_initialize_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#self.gpio = modules.GpioModule(</span>
+        <span class="c1">#    self.board,</span>
+        <span class="c1">#    libmetawear.mbl_mw_metawearboard_lookup_module(</span>
+        <span class="c1">#        self.board, modules.Modules.MBL_MW_MODULE_GPIO))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accelerometer</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">AccelerometerModule</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_metawearboard_lookup_module</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">modules</span><span class="o">.</span><span class="n">Modules</span><span class="o">.</span><span class="n">MBL_MW_MODULE_ACCELEROMETER</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gyroscope</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">GyroscopeModule</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_metawearboard_lookup_module</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">modules</span><span class="o">.</span><span class="n">Modules</span><span class="o">.</span><span class="n">MBL_MW_MODULE_GYRO</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magnetometer</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">MagnetometerModule</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_metawearboard_lookup_module</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">modules</span><span class="o">.</span><span class="n">Modules</span><span class="o">.</span><span class="n">MBL_MW_MODULE_MAGNETOMETER</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barometer</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">BarometerModule</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_metawearboard_lookup_module</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">modules</span><span class="o">.</span><span class="n">Modules</span><span class="o">.</span><span class="n">MBL_MW_MODULE_BAROMETER</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ambient_light</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">AmbientLightModule</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_metawearboard_lookup_module</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">modules</span><span class="o">.</span><span class="n">Modules</span><span class="o">.</span><span class="n">MBL_MW_MODULE_AMBIENT_LIGHT</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">SwitchModule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">SettingsModule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">TemperatureModule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">haptic</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">HapticModule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">led</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">LEDModule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensorfusion</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">SensorFusionModule</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_metawearboard_lookup_module</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">modules</span><span class="o">.</span><span class="n">Modules</span><span class="o">.</span><span class="n">MBL_MW_MODULE_SENSOR_FUSION</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

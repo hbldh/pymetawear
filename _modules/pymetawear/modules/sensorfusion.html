@@ -1,0 +1,552 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymetawear.modules.sensorfusion &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discover.html">Discovering addresses to MetaWear boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">MetaWear modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pymetawear.modules.sensorfusion</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pymetawear.modules.sensorfusion</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Sensor Fusion module</span>
+<span class="sd">--------------------</span>
+
+<span class="sd">Created by mgeorgi &lt;marcus.georgi@kinemic.de&gt; on 2017-02-01</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Event</span>
+
+<span class="kn">from</span> <span class="nn">pymetawear</span> <span class="k">import</span> <span class="n">libmetawear</span>
+<span class="kn">from</span> <span class="nn">pymetawear.exceptions</span> <span class="k">import</span> <span class="n">PyMetaWearException</span>
+<span class="kn">from</span> <span class="nn">mbientlab.metawear.cbindings</span> <span class="k">import</span> <span class="n">SensorFusionAccRange</span><span class="p">,</span> \
+    <span class="n">SensorFusionData</span><span class="p">,</span> <span class="n">SensorFusionGyroRange</span><span class="p">,</span> <span class="n">SensorFusionMode</span><span class="p">,</span> \
+    <span class="n">SensorOrientation</span><span class="p">,</span> <span class="n">FnVoid_VoidP_VoidP</span><span class="p">,</span> <span class="n">FnVoid_VoidP_DataP</span><span class="p">,</span> <span class="n">TimeMode</span>
+<span class="kn">from</span> <span class="nn">pymetawear.modules.base</span> <span class="k">import</span> <span class="n">PyMetaWearLoggingModule</span><span class="p">,</span> <span class="n">Modules</span><span class="p">,</span> <span class="n">data_handler</span><span class="p">,</span> <span class="n">context_callback</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">PROCESSOR_SET_WAIT_TIME</span> <span class="o">=</span> <span class="mi">5</span>
+
+
+<span class="k">def</span> <span class="nf">require_fusion_module</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;available&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PyMetaWearException</span><span class="p">(</span><span class="s2">&quot;There is no Sensor Fusion &quot;</span>
+                                      <span class="s2">&quot;module on your MetaWear board!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<div class="viewcode-block" id="SensorFusionModule"><a class="viewcode-back" href="../../../modules/sensor_fusion.html#pymetawear.modules.sensorfusion.SensorFusionModule">[docs]</a><span class="k">class</span> <span class="nc">SensorFusionModule</span><span class="p">(</span><span class="n">PyMetaWearLoggingModule</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;MetaWear accelerometer module implementation.</span>
+
+<span class="sd">    :param ctypes.c_long board: The MetaWear board pointer value.</span>
+<span class="sd">    :param int module_id: The module id of the sensorfusion</span>
+<span class="sd">        component, obtained from ``libmetawear``.</span>
+<span class="sd">    :param bool debug: If ``True``, module prints out debug information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">,</span> <span class="n">module_id</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SensorFusionModule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module_id</span> <span class="o">=</span> <span class="n">module_id</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_id</span> <span class="o">==</span> <span class="n">Modules</span><span class="o">.</span><span class="n">MBL_MW_MODULE_NA</span><span class="p">:</span>
+            <span class="c1"># No sensor fusion present!</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">available</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">available</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="n">board</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_active_signal</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_streams_to_enable</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">CORRECTED_ACC</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">CORRECTED_GYRO</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">CORRECTED_MAG</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">QUATERNION</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">EULER_ANGLE</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">GRAVITY_VECTOR</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">LINEAR_ACC</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">CORRECTED_ACC</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">CORRECTED_GYRO</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">CORRECTED_MAG</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">QUATERNION</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">EULER_ANGLE</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">GRAVITY_VECTOR</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">LINEAR_ACC</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@require_fusion_module</span>
+    <span class="k">def</span> <span class="nf">set_sample_delay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">differential</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the delay between samples using the onboard time processor</span>
+<span class="sd">        module to change the effective sampling rate of a specific data source.</span>
+
+<span class="sd">        :param data_source: A data source from sensor.SensorFusion</span>
+<span class="sd">        :param delay: The delay in ms between samples,</span>
+<span class="sd">            or None to reset to default</span>
+<span class="sd">        :param differential: Set Time Preprocessor mode to differential,</span>
+<span class="sd">            instead of the default, absolute</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Getting data signal for data source </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">data_source</span>
+            <span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_get_data_signal</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">data_source</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">TimeMode</span><span class="o">.</span><span class="n">DIFFERENTIAL</span> <span class="k">if</span> <span class="n">differential</span> <span class="k">else</span> \
+                <span class="n">TimeMode</span><span class="o">.</span><span class="n">ABSOLUTE</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating time dataprocessor for signal </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span>
+            <span class="p">))</span>
+            <span class="n">_done</span> <span class="o">=</span> <span class="n">Event</span><span class="p">()</span>
+
+            <span class="k">def</span> <span class="nf">_processor_set</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">processor</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Set global variables as the libmetawear callback can&#39;t handle the self</span>
+<span class="sd">                parameter of instance methods.</span>
+
+<span class="sd">                :param context: Pointer to additional data for the callback function</span>
+<span class="sd">                :param processor: The processor that was created</span>
+
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="o">=</span> <span class="n">processor</span>
+                <span class="n">_done</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+
+            <span class="n">processor_set_func</span> <span class="o">=</span> <span class="n">FnVoid_VoidP_VoidP</span><span class="p">(</span><span class="n">_processor_set</span><span class="p">)</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_dataprocessor_time_create</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">],</span>
+                <span class="n">mode</span><span class="p">,</span>
+                <span class="n">delay</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="n">processor_set_func</span><span class="p">)</span>
+            <span class="n">_done</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">PROCESSOR_SET_WAIT_TIME</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PyMetaWearException</span><span class="p">(</span><span class="s2">&quot;Can&#39;t set data processor!&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_signal</span> <span class="o">=</span> <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_get_data_signal</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">data_source</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="o">!=</span> <span class="n">data_signal</span><span class="p">:</span>
+                <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_dataprocessor_remove</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_signal</span>
+
+    <span class="k">def</span> <span class="nf">_delay_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_processor</span> <span class="o">=</span> <span class="n">processor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_for_processor</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@require_fusion_module</span>
+    <span class="k">def</span> <span class="nf">set_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_set_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span>
+                                                  <span class="n">mode</span><span class="p">)</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_write_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+
+    <span class="nd">@require_fusion_module</span>
+    <span class="k">def</span> <span class="nf">set_acc_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acc_range</span><span class="p">):</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_set_acc_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span>
+                                                       <span class="n">acc_range</span><span class="p">)</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_write_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+
+    <span class="nd">@require_fusion_module</span>
+    <span class="k">def</span> <span class="nf">set_gyro_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gyro_range</span><span class="p">):</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_set_gyro_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span>
+                                                        <span class="n">gyro_range</span><span class="p">)</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_write_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+
+    <span class="nd">@require_fusion_module</span>
+    <span class="k">def</span> <span class="nf">get_data_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_source</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_get_data_signal</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">data_source</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_source_signals</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_active_signal</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">module_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Sensor Fusion&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_current_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_possible_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">set_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@require_fusion_module</span>
+    <span class="k">def</span> <span class="nf">notifications</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">corrected_acc_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">corrected_gyro_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">corrected_mag_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">quaternion_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">euler_angle_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">gravity_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">linear_acc_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Subscribe or unsubscribe to sensor fusion notifications.</span>
+
+<span class="sd">        Convenience method for handling sensor fusion usage.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            def handle_notification(data):</span>
+<span class="sd">                # Handle dictionary with [epoch, value] keys.</span>
+<span class="sd">                epoch = data[&quot;epoch&quot;]</span>
+<span class="sd">                xyz = data[&quot;value&quot;]</span>
+<span class="sd">                print(str(data))</span>
+
+<span class="sd">            mwclient.sensorfusion.notifications(</span>
+<span class="sd">                corrected_acc_callback=handle_notification)</span>
+
+<span class="sd">        :param callable corrected_acc_callback: Acceleration notification</span>
+<span class="sd">            callback function.</span>
+<span class="sd">            If `None`, unsubscription to acceleration notifications is</span>
+<span class="sd">            registered.</span>
+<span class="sd">        :param callable corrected_gyro_callback: Gyroscope notification</span>
+<span class="sd">            callback function.</span>
+<span class="sd">            If `None`, unsubscription to gyroscope notifications is registered.</span>
+<span class="sd">        :param callable corrected_mag_callback: Magnetometer notification</span>
+<span class="sd">            callback function.</span>
+<span class="sd">            If `None`, unsubscription to magnetometer notifications is</span>
+<span class="sd">            registered.</span>
+<span class="sd">        :param callable quaternion_callback: Quaternion notification callback</span>
+<span class="sd">            function.</span>
+<span class="sd">            If `None`, unsubscription to quaternion notifications is registered.</span>
+<span class="sd">        :param callable euler_angle_callback: Euler angle notification callback</span>
+<span class="sd">            function.</span>
+<span class="sd">            If `None`, unsubscription to euler angle notifications is</span>
+<span class="sd">            registered.</span>
+<span class="sd">        :param callable gravity_callback: Gravity vector notification callback</span>
+<span class="sd">            function.</span>
+<span class="sd">            If `None`, unsubscription to gravity notifications is registered.</span>
+<span class="sd">        :param callable linear_acc_callback: Linear acceleration notification</span>
+<span class="sd">            callback function.</span>
+<span class="sd">            If `None`, unsubscription to linear acceleration notifications is</span>
+<span class="sd">            registered.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">callback_data_source_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">CORRECTED_ACC</span><span class="p">:</span> <span class="n">corrected_acc_callback</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">CORRECTED_GYRO</span><span class="p">:</span> <span class="n">corrected_gyro_callback</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">CORRECTED_MAG</span><span class="p">:</span> <span class="n">corrected_mag_callback</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">QUATERNION</span><span class="p">:</span> <span class="n">quaternion_callback</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">EULER_ANGLE</span><span class="p">:</span> <span class="n">euler_angle_callback</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">GRAVITY_VECTOR</span><span class="p">:</span> <span class="n">gravity_callback</span><span class="p">,</span>
+            <span class="n">SensorFusionData</span><span class="o">.</span><span class="n">LINEAR_ACC</span><span class="p">:</span> <span class="n">linear_acc_callback</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">data_source</span> <span class="ow">in</span> <span class="n">callback_data_source_map</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">callback_data_source_map</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_streams_to_enable</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_streams_to_enable</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">enable</span> <span class="o">=</span> <span class="kc">False</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">callback_data_source_map</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Enable: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">enable</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">enable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toggle_sampling</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">data_source</span> <span class="ow">in</span> <span class="n">callback_data_source_map</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_active_signal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_signal</span><span class="p">(</span><span class="n">data_source</span><span class="p">)</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="n">callback_data_source_map</span><span class="p">[</span><span class="n">data_source</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_and_change_callback</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_data_signal</span><span class="p">(</span><span class="n">data_source</span><span class="p">),</span>
+                    <span class="n">data_handler</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_and_change_callback</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_data_signal</span><span class="p">(</span><span class="n">data_source</span><span class="p">),</span>
+                    <span class="kc">None</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">enable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toggle_sampling</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">check_and_change_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_signal</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Subscribing to </span><span class="si">{0}</span><span class="s2"> changes. (Sig#: </span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span> <span class="n">data_signal</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">data_signal</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Replacing callback for datasignal </span><span class="si">{0}</span><span class="s1">...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">data_signal</span><span class="p">))</span>
+                <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_datasignal_unsubscribe</span><span class="p">(</span><span class="n">data_signal</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">data_signal</span><span class="p">)</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="n">context_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">[</span><span class="n">data_signal</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">FnVoid_VoidP_DataP</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_datasignal_subscribe</span><span class="p">(</span>
+                <span class="n">data_signal</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">[</span><span class="n">data_signal</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data_signal</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Unsubscribing to </span><span class="si">{0}</span><span class="s2"> changes. (Sig#: </span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span> <span class="n">data_signal</span><span class="p">))</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_datasignal_unsubscribe</span><span class="p">(</span><span class="n">data_signal</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">data_signal</span><span class="p">)</span>
+
+    <span class="nd">@require_fusion_module</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Switches the sensorfusion to active mode.&quot;&quot;&quot;</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+
+    <span class="nd">@require_fusion_module</span>
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Switches the sensorfusion to standby mode.&quot;&quot;&quot;</span>
+        <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_stop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+
+    <span class="nd">@require_fusion_module</span>
+    <span class="k">def</span> <span class="nf">toggle_sampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Enables or disables sensor fusion sampling.</span>
+
+<span class="sd">        :param bool enabled: Desired state of the sensor fusion module.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">enabled</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">data_source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_streams_to_enable</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_streams_to_enable</span><span class="p">[</span><span class="n">data_source</span><span class="p">]:</span>
+                    <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_enable_data</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">data_source</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">libmetawear</span><span class="o">.</span><span class="n">mbl_mw_sensor_fusion_clear_enabled_mask</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

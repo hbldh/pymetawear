@@ -1,0 +1,436 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Temperature module &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sensor Fusion module" href="sensor_fusion.html" />
+    <link rel="prev" title="Switch module" href="switch.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../discover.html">Discovering addresses to MetaWear boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../exceptions.html">Exceptions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">MetaWear modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="base.html">Module interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="accelerometer.html">Accelerometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gyroscope.html">Gyroscope module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="magnetometer.html">Magnetometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="barometer.html">Barometer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="led.html">LED module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ambientlight.html">Ambient light module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haptic.html">Haptic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="switch.html">Switch module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Temperature module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pymetawear.modules.temperature">API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Temperature module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sensor_fusion.html">Sensor Fusion module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#streaming-data">Streaming data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#logging-data">Logging data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">MetaWear modules</a> &raquo;</li>
+        
+      <li>Temperature module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/modules/temperature.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="temperature-module">
+<span id="modules-temperature"></span><h1>Temperature module<a class="headerlink" href="#temperature-module" title="Permalink to this headline">¶</a></h1>
+<p>The PyMetaWear implementation of the <code class="docutils literal notranslate"><span class="pre">libmetawear</span></code>
+temperature module.</p>
+<p>It is initialized at the creation of the <code class="xref py py-class docutils literal notranslate"><span class="pre">MetaWearClient</span></code>
+client and can then be accessed in the <code class="docutils literal notranslate"><span class="pre">temperature</span></code>
+attribute of the client.</p>
+<p>Example usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymetawear.client</span> <span class="kn">import</span> <span class="n">MetaWearClient</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">MetaWearClient</span><span class="p">(</span><span class="s1">&#39;DD:3A:7D:4D:56:F0&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">temperature_callback</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle a temperature notification data.&quot;&quot;&quot;</span>
+    <span class="n">epoch</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;[{0}] Temperature {1} C&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">temp</span><span class="p">))</span>
+
+<span class="c1"># Enable notifications and register a callback for them.</span>
+<span class="n">c</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">notifications</span><span class="p">(</span><span class="n">temperature_callback</span><span class="p">)</span>
+<span class="c1"># Trigger temperature notification.</span>
+<span class="n">c</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">read_temperature</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="section" id="module-pymetawear.modules.temperature">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-pymetawear.modules.temperature" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Temperature module<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Created by hbldh &lt;<a class="reference external" href="mailto:henrik&#46;blidh&#37;&#52;&#48;nedomkull&#46;com">henrik<span>&#46;</span>blidh<span>&#64;</span>nedomkull<span>&#46;</span>com</a>&gt; on 2016-04-14</p>
+<dl class="class">
+<dt id="pymetawear.modules.temperature.TemperatureModule">
+<em class="property">class </em><code class="descclassname">pymetawear.modules.temperature.</code><code class="descname">TemperatureModule</code><span class="sig-paren">(</span><em>board</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/temperature.html#TemperatureModule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.temperature.TemperatureModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>MetaWear Temperature module implementation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>board</strong> (<em>ctypes.c_long</em>) – The MetaWear board pointer value.</li>
+<li><strong>debug</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, module prints out debug information.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymetawear.modules.temperature.TemperatureModule.configure_external_thermistor">
+<code class="descname">configure_external_thermistor</code><span class="sig-paren">(</span><em>channel_id</em>, <em>data_pin</em>, <em>pulldown_pin</em>, <em>active_high</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/temperature.html#TemperatureModule.configure_external_thermistor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.temperature.TemperatureModule.configure_external_thermistor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the external thermistor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channel_id</strong> – Channel ID of the external thermistor</li>
+<li><strong>data_pin</strong> (<em>int</em>) – GPIO pin reading the data</li>
+<li><strong>pulldown_pin</strong> (<em>int</em>) – GPIO pin the pulldown resistor is connected to</li>
+<li><strong>active_high</strong> (<em>int</em>) – Zero if the pulldown pin is not active high,
+non-zero if active high</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymetawear.modules.temperature.TemperatureModule.data_signal">
+<code class="descname">data_signal</code><a class="headerlink" href="#pymetawear.modules.temperature.TemperatureModule.data_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the data signal pointer value for the switch module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The pointer value. (Long if on x64 architecture.)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">ctypes.c_long</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">ctypes.c_int</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymetawear.modules.temperature.TemperatureModule.get_current_settings">
+<code class="descname">get_current_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/temperature.html#TemperatureModule.get_current_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.temperature.TemperatureModule.get_current_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current settings for this module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dict with the name of the currently active channel.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymetawear.modules.temperature.TemperatureModule.get_possible_settings">
+<code class="descname">get_possible_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/temperature.html#TemperatureModule.get_possible_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.temperature.TemperatureModule.get_possible_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the possible settings for this module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dict with the names of the possible channel choices.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymetawear.modules.temperature.TemperatureModule.module_name">
+<code class="descname">module_name</code><a class="headerlink" href="#pymetawear.modules.temperature.TemperatureModule.module_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get module name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The name of this module.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymetawear.modules.temperature.TemperatureModule.notifications">
+<code class="descname">notifications</code><span class="sig-paren">(</span><em>callback=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/temperature.html#TemperatureModule.notifications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.temperature.TemperatureModule.notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe or unsubscribe to temperature notifications.</p>
+<p>Convenience method for handling temperature usage.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">temperature_callback</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c1"># Handle dictionary with [epoch, value] keys.</span>
+    <span class="n">epoch</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+<span class="n">mwclient</span><span class="o">.</span><span class="n">temperature_func</span><span class="o">.</span><span class="n">notifications</span><span class="p">(</span><span class="n">temperature_callback</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>callback</strong> (<em>callable</em>) – Temperature notification callback function.
+If <cite>None</cite>, unsubscription to temperature_func notifications
+is registered.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymetawear.modules.temperature.TemperatureModule.read_temperature">
+<code class="descname">read_temperature</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/temperature.html#TemperatureModule.read_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.temperature.TemperatureModule.read_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggers a temperature notification.</p>
+<p>N.B. that a <a class="reference internal" href="#pymetawear.modules.temperature.TemperatureModule.notifications" title="pymetawear.modules.temperature.TemperatureModule.notifications"><code class="xref py py-meth docutils literal notranslate"><span class="pre">notifications()</span></code></a> call that registers a
+callback for temperature should have been done prior to calling
+this method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymetawear.modules.temperature.TemperatureModule.set_settings">
+<code class="descname">set_settings</code><span class="sig-paren">(</span><em>channel=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetawear/modules/temperature.html#TemperatureModule.set_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymetawear.modules.temperature.TemperatureModule.set_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set temperature channel settings.</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mwclient</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">set_settings</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s1">&#39;On-Die&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Call <a class="reference internal" href="#pymetawear.modules.temperature.TemperatureModule.get_possible_settings" title="pymetawear.modules.temperature.TemperatureModule.get_possible_settings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_possible_settings()</span></code></a> to see which values
+that can be set for this sensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>channel</strong> (<em>str</em>) – The name of the temperature channel to make active.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sensor_fusion.html" class="btn btn-neutral float-right" title="Sensor Fusion module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="switch.html" class="btn btn-neutral" title="Switch module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

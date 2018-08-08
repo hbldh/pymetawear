@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>History &mdash; PyMetaWear 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Credits" href="authors.html" />
+    <link rel="prev" title="Sensor Fusion module" href="modules/sensor_fusion.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyMetaWear
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.11.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="discover.html">Discovering addresses to MetaWear boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">MetaWear Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/index.html">MetaWear modules</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">History</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v0-11-0-2018-08-08">v0.11.0 (2018-08-08)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-10-1-2018-08-08">v0.10.1 (2018-08-08)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-10-0-2018-06-18">v0.10.0 (2018-06-18)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-9-1-2018-04-02">v0.9.1 (2018-04-02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-9-0-2018-04-02">v0.9.0 (2018-04-02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-8-0-2017-07-04">v0.8.0 (2017-07-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-7-1-2017-02-04">v0.7.1 (2017-02-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-7-0-2017-01-13">v0.7.0 (2017-01-13)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-6-0-2016-10-31">v0.6.0 (2016-10-31)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-2-2016-10-13">v0.5.2 (2016-10-13)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-1-2016-09-15">v0.5.1 (2016-09-15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-0-2016-09-15">v0.5.0 (2016-09-15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-4-4-2016-04-28">v0.4.4 (2016-04-28)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-4-3-2016-04-27">v0.4.3 (2016-04-27)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-4-2-2016-04-27">v0.4.2 (2016-04-27)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-4-1-2016-04-20">v0.4.1 (2016-04-20)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-4-0-2016-04-17">v0.4.0 (2016-04-17)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-3-1-2016-04-10">v0.3.1 (2016-04-10)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-3-0-2016-04-09">v0.3.0 (2016-04-09)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-2-3-2016-04-07">v0.2.3 (2016-04-07)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-2-2-2016-04-06">v0.2.2 (2016-04-06)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-2-1-2016-04-04">v0.2.1 (2016-04-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-2-0-2016-04-02">v0.2.0 (2016-04-02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-1-2016-03-30">v0.1.1 (2016-03-30)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-0-2016-03-30">v0.1.0 (2016-03-30)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyMetaWear</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>History</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/history.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="history">
+<h1>History<a class="headerlink" href="#history" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v0-11-0-2018-08-08">
+<h2>v0.11.0 (2018-08-08)<a class="headerlink" href="#v0-11-0-2018-08-08" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Using <code class="docutils literal notranslate"><span class="pre">metawear</span></code> version <code class="docutils literal notranslate"><span class="pre">0.5.0</span></code></li>
+<li>Possible to use on Windows thanks to new dependency in <code class="docutils literal notranslate"><span class="pre">metawear</span></code> &gt;= <code class="docutils literal notranslate"><span class="pre">0.4.0</span></code></li>
+</ul>
+</div>
+<div class="section" id="v0-10-1-2018-08-08">
+<h2>v0.10.1 (2018-08-08)<a class="headerlink" href="#v0-10-1-2018-08-08" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fix for Haptic module, thanks to <code class="docutils literal notranslate"><span class="pre">bgromov</span></code> (#51)</li>
+</ul>
+</div>
+<div class="section" id="v0-10-0-2018-06-18">
+<h2>v0.10.0 (2018-06-18)<a class="headerlink" href="#v0-10-0-2018-06-18" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added support for data logging, thanks to <code class="docutils literal notranslate"><span class="pre">dmatthes1982</span></code> (#32, #46, #48, #49)</li>
+<li>Locked <code class="docutils literal notranslate"><span class="pre">metawear</span></code> version to <code class="docutils literal notranslate"><span class="pre">0.3.1</span></code></li>
+<li>Documentation for data logging</li>
+<li>Fixes for code examples and documentation examples.</li>
+</ul>
+</div>
+<div class="section" id="v0-9-1-2018-04-02">
+<h2>v0.9.1 (2018-04-02)<a class="headerlink" href="#v0-9-1-2018-04-02" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fix for documentation and README</li>
+</ul>
+</div>
+<div class="section" id="v0-9-0-2018-04-02">
+<h2>v0.9.0 (2018-04-02)<a class="headerlink" href="#v0-9-0-2018-04-02" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Ownership returned to original owner</li>
+<li>Using MetaWear-Python-SDK instead of Cpp directly</li>
+</ul>
+</div>
+<div class="section" id="v0-8-0-2017-07-04">
+<h2>v0.8.0 (2017-07-04)<a class="headerlink" href="#v0-8-0-2017-07-04" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Using MetaWear-CppAPI version 0.8.0</li>
+<li>New ownership</li>
+</ul>
+</div>
+<div class="section" id="v0-7-1-2017-02-04">
+<h2>v0.7.1 (2017-02-04)<a class="headerlink" href="#v0-7-1-2017-02-04" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Using MetaWear-CppAPI version 0.7.10</li>
+<li>Sensor fusion module contributed from user <code class="docutils literal notranslate"><span class="pre">m-georgi</span></code> (#26).</li>
+<li>Fix to magnetometer power preset setting due to
+change in MetaWear-CppAPI (#25).</li>
+</ul>
+</div>
+<div class="section" id="v0-7-0-2017-01-13">
+<h2>v0.7.0 (2017-01-13)<a class="headerlink" href="#v0-7-0-2017-01-13" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Using MetaWear-CppAPI version 0.7.4</li>
+<li>Removed bluepy backend due to it not being fully functional.</li>
+<li>Refactored connection behaviour. Optional autoconnect via keyword.</li>
+<li>Unit test work started with Mock backend.</li>
+<li>Flake8 adaptations.</li>
+<li>Fix for logging bug (#22)</li>
+<li>New examples: Two client setup and complimentary filter sensor fusion (#23).</li>
+</ul>
+</div>
+<div class="section" id="v0-6-0-2016-10-31">
+<h2>v0.6.0 (2016-10-31)<a class="headerlink" href="#v0-6-0-2016-10-31" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Using MetaWear-CppAPI version 0.6.0</li>
+<li>Replaced print-logging with proper logging module usage.</li>
+<li>Removed 64-bit special handling that was no longer needed.</li>
+</ul>
+</div>
+<div class="section" id="v0-5-2-2016-10-13">
+<h2>v0.5.2 (2016-10-13)<a class="headerlink" href="#v0-5-2-2016-10-13" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Temperature Module</li>
+<li>Using Pygatt 3.0.0 (including PR from PyMetaWear contributors)</li>
+<li>Builds on Windows</li>
+</ul>
+</div>
+<div class="section" id="v0-5-1-2016-09-15">
+<h2>v0.5.1 (2016-09-15)<a class="headerlink" href="#v0-5-1-2016-09-15" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Corrections to make it distributable via PyPI.</li>
+</ul>
+</div>
+<div class="section" id="v0-5-0-2016-09-15">
+<h2>v0.5.0 (2016-09-15)<a class="headerlink" href="#v0-5-0-2016-09-15" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Using MetaWear-CppAPI version 0.5.22</li>
+<li>Changed building procedure to handle ARM processors</li>
+<li>Updated requirements to make pygatt default, all others extras</li>
+<li>Bluepy backend implemented and partially working</li>
+<li>BL interface selection for all backends</li>
+<li>Magnetometer module</li>
+<li>Barometer module</li>
+<li>Ambient Light module</li>
+<li>Modifying notification wrappers to accommodate Epoch value in the data.</li>
+<li>High speed sampling for accelerometer and gyroscope</li>
+</ul>
+</div>
+<div class="section" id="v0-4-4-2016-04-28">
+<h2>v0.4.4 (2016-04-28)<a class="headerlink" href="#v0-4-4-2016-04-28" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Updated MetaWear-CppAPI submodule version.</li>
+<li>Removed temporary build workaround.</li>
+</ul>
+</div>
+<div class="section" id="v0-4-3-2016-04-27">
+<h2>v0.4.3 (2016-04-27)<a class="headerlink" href="#v0-4-3-2016-04-27" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Critical fix for switch notifications.</li>
+<li>Updated MetaWear-CppAPI submodule version.</li>
+<li>Now using the new <code class="docutils literal notranslate"><span class="pre">setup_metawear</span></code> method.</li>
+<li>Restructured the <code class="docutils literal notranslate"><span class="pre">IS_64_BIT</span></code> usage which is still needed.</li>
+</ul>
+</div>
+<div class="section" id="v0-4-2-2016-04-27">
+<h2>v0.4.2 (2016-04-27)<a class="headerlink" href="#v0-4-2-2016-04-27" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Critical fix for timeout in pybluez/gattlib backend.</li>
+<li>Added Gyroscope module.</li>
+<li>Added soft reset method to client.</li>
+<li>Updated examples.</li>
+<li>Updated documentation.</li>
+</ul>
+</div>
+<div class="section" id="v0-4-1-2016-04-20">
+<h2>v0.4.1 (2016-04-20)<a class="headerlink" href="#v0-4-1-2016-04-20" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Cleanup of new modules sensor data parsing.</li>
+<li>Bug fix related to accelerometer module.</li>
+<li>Timeout parameter for client and backends.</li>
+</ul>
+</div>
+<div class="section" id="v0-4-0-2016-04-17">
+<h2>v0.4.0 (2016-04-17)<a class="headerlink" href="#v0-4-0-2016-04-17" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Major refactorisation into new module layout.</li>
+<li>New examples using the new module handling.</li>
+<li>Accelerometer convenience methods shows strange lag still.</li>
+</ul>
+</div>
+<div class="section" id="v0-3-1-2016-04-10">
+<h2>v0.3.1 (2016-04-10)<a class="headerlink" href="#v0-3-1-2016-04-10" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Critical fix for data signal subscription method.</li>
+<li><code class="docutils literal notranslate"><span class="pre">Setup.py</span></code> handling of building made better,</li>
+<li>Documentation improved.</li>
+</ul>
+</div>
+<div class="section" id="v0-3-0-2016-04-09">
+<h2>v0.3.0 (2016-04-09)<a class="headerlink" href="#v0-3-0-2016-04-09" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Major refactoring: all BLE comm code practically moved to backends.</li>
+<li>Backend <code class="docutils literal notranslate"><span class="pre">pybluez</span></code> with <code class="docutils literal notranslate"><span class="pre">gattlib</span></code> now works well.</li>
+<li>Travis CI problems with Python 2.7 encoding led to
+that we are now building on 2.7.11</li>
+</ul>
+</div>
+<div class="section" id="v0-2-3-2016-04-07">
+<h2>v0.2.3 (2016-04-07)<a class="headerlink" href="#v0-2-3-2016-04-07" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Changed from using <code class="docutils literal notranslate"><span class="pre">gattlib</span></code> on its own to using
+<code class="docutils literal notranslate"><span class="pre">pybluez</span></code> with <code class="docutils literal notranslate"><span class="pre">gattlib</span></code></li>
+<li>Travis CI and Coveralls</li>
+<li>Travis CI deploys documentation to gh-pages.</li>
+<li>Some documentation written.</li>
+</ul>
+</div>
+<div class="section" id="v0-2-2-2016-04-06">
+<h2>v0.2.2 (2016-04-06)<a class="headerlink" href="#v0-2-2-2016-04-06" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Convenience method for switch.</li>
+<li>Sphinx documentation added.</li>
+<li>Docstring updates.</li>
+</ul>
+</div>
+<div class="section" id="v0-2-1-2016-04-04">
+<h2>v0.2.1 (2016-04-04)<a class="headerlink" href="#v0-2-1-2016-04-04" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Refactoring in moving functionality back to client from backends.</li>
+<li>Enable BlueZ 4.X use with <code class="docutils literal notranslate"><span class="pre">pygatt</span></code>.</li>
+<li>Disconnect methods added.</li>
+<li>Example with switch button notification.</li>
+</ul>
+</div>
+<div class="section" id="v0-2-0-2016-04-02">
+<h2>v0.2.0 (2016-04-02)<a class="headerlink" href="#v0-2-0-2016-04-02" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Two backends: <code class="docutils literal notranslate"><span class="pre">pygatt</span></code> and <code class="docutils literal notranslate"><span class="pre">gattlib</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">pygatt</span></code> backend can be fully initialize, i.e. handles notifications.</li>
+<li><code class="docutils literal notranslate"><span class="pre">gattlib</span></code> backend <strong>cannot</strong> fully initialize, i.e. does <strong>not</strong> handles notifications.</li>
+</ul>
+</div>
+<div class="section" id="v0-1-1-2016-03-30">
+<h2>v0.1.1 (2016-03-30)<a class="headerlink" href="#v0-1-1-2016-03-30" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fix to support Python 3</li>
+</ul>
+</div>
+<div class="section" id="v0-1-0-2016-03-30">
+<h2>v0.1.0 (2016-03-30)<a class="headerlink" href="#v0-1-0-2016-03-30" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Initial release</li>
+<li>Working communication, tested with very few API options.</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="authors.html" class="btn btn-neutral float-right" title="Credits" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="modules/sensor_fusion.html" class="btn btn-neutral" title="Sensor Fusion module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Henrik Blidh.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.11.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
