@@ -57,6 +57,7 @@ class HapticModule(PyMetaWearModule):
 
         """
         libmetawear.mbl_mw_haptic_start_motor(
+            self.board,
             c_float(float(duty_cycle_per)),
             c_uint16(int(pulse_width_ms)))
 
@@ -67,4 +68,5 @@ class HapticModule(PyMetaWearModule):
 
         """
         libmetawear.mbl_mw_haptic_start_buzzer(
+            self.board,
             c_uint16(int(pulse_width_ms)))
