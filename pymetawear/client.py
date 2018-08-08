@@ -16,9 +16,6 @@ from __future__ import print_function
 import logging
 
 from mbientlab.metawear import MetaWear, libmetawear
-# Temporary for monkey patch
-from mbientlab.metawear.cbindings import FnVoid_VoidP_Int, Const
-from mbientlab.metawear import Event
 
 from pymetawear import add_stream_logger, modules
 
@@ -41,71 +38,6 @@ _model_names = [
 ]
 
 
-def _connect(self, **kwargs):
-    """Monkey patch for connecting.
-
-    Will be removed after PR fixing issue is accepted.
-    """
-    try:
-        self.gatt.connect(True, channel_type='random')
-    except RuntimeError as e:
-        # gattlib.connect's `wait=True` requires elevated permission
-        # or modified capabilities.
-        # It still connects, but a RuntimeError is raised. Check if
-        # `self.gatt` is connected, and rethrow exception otherwise.
-        if not self.gatt.is_connected():
-            raise e
-
-    self.services = set()
-    for s in self.gatt.discover_primary():
-        self.services.add(s['uuid'])
-
-    self.characteristics = {}
-    for c in self.gatt.discover_characteristics():
-        self.characteristics[c['uuid']] = c['value_handle']
-
-    if 'hardware' not in self.info:
-        self.info['hardware'] = self.gatt.read_by_uuid(
-            "00002a27-0000-1000-8000-00805f9b34fb")[0]
-
-    if 'manufacturer' not in self.info:
-        self.info['manufacturer'] = self.gatt.read_by_uuid(
-            "00002a29-0000-1000-8000-00805f9b34fb")[0]
-
-    if 'serial' not in self.info:
-        self.info['serial'] = self.gatt.read_by_uuid(
-            "00002a25-0000-1000-8000-00805f9b34fb")[0]
-
-    if 'model' not in self.info:
-        self.info['model'] = self.gatt.read_by_uuid(
-            "00002a24-0000-1000-8000-00805f9b34fb")[0]
-
-    if not self.in_metaboot_mode:
-        init_event = Event()
-
-        def init_handler(device, status):
-            self.init_status = status
-            init_event.set()
-
-        init_handler_fn = FnVoid_VoidP_Int(init_handler)
-        libmetawear.mbl_mw_metawearboard_initialize(self.board, init_handler_fn)
-        init_event.wait()
-
-        if self.init_status != Const.STATUS_OK:
-            self.disconnect()
-            raise RuntimeError(
-                "Error initializing the API (%d)" % self.init_status)
-
-        if 'serialize' not in kwargs or kwargs['serialize']:
-            self.serialize()
-    else:
-        self.info['firmware'] = self.gatt.read_by_uuid(
-            "00002a26-0000-1000-8000-00805f9b34fb")[0]
-
-
-MetaWear.connect = _connect
-
-
 class MetaWearClient(object):
     """A MetaWear communication client.
 
@@ -117,7 +49,7 @@ class MetaWearClient(object):
 
     :param str address: A Bluetooth MAC address to a MetaWear board.
     :param str device: Specifying which Bluetooth device to use. Defaults
-        to ``hci0``.
+        to ``hci0`` on Linux. Not available on Windows.
     :param bool connect: If client should connect automatically, or wait for
         explicit :py:meth:`~MetaWearClient.connect` call. Default is ``True``.
     :param bool debug: If printout of all sent and received
@@ -134,10 +66,9 @@ class MetaWearClient(object):
             add_stream_logger()
             log.info("Creating MetaWearClient for {0}...".format(address))
 
-        self.mw = MetaWear(self._address, device=device)
+        self.mw = MetaWear(self._address, hci_mac=device)
 
-        log.info("Client started for BLE device {0} on {1}...".format(
-            self._address, device))
+        log.debug("Client started for BLE device {0}...".format(self._address))
 
         self.accelerometer = None
         #self.gpio = None
@@ -199,41 +130,33 @@ class MetaWearClient(object):
         #self.gpio = modules.GpioModule(
         #    self.board,
         #    libmetawear.mbl_mw_metawearboard_lookup_module(
-        #        self.board, modules.Modules.MBL_MW_MODULE_GPIO),
-        #    debug=self._debug)
+        #        self.board, modules.Modules.MBL_MW_MODULE_GPIO))
         self.accelerometer = modules.AccelerometerModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
-                self.board, modules.Modules.MBL_MW_MODULE_ACCELEROMETER),
-            debug=self._debug)
+                self.board, modules.Modules.MBL_MW_MODULE_ACCELEROMETER))
         self.gyroscope = modules.GyroscopeModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
-                self.board, modules.Modules.MBL_MW_MODULE_GYRO),
-            debug=self._debug)
+                self.board, modules.Modules.MBL_MW_MODULE_GYRO))
         self.magnetometer = modules.MagnetometerModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
-                self.board, modules.Modules.MBL_MW_MODULE_MAGNETOMETER),
-            debug=self._debug)
+                self.board, modules.Modules.MBL_MW_MODULE_MAGNETOMETER))
         self.barometer = modules.BarometerModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
-                self.board, modules.Modules.MBL_MW_MODULE_BAROMETER),
-            debug=self._debug)
+                self.board, modules.Modules.MBL_MW_MODULE_BAROMETER))
         self.ambient_light = modules.AmbientLightModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
-                self.board, modules.Modules.MBL_MW_MODULE_AMBIENT_LIGHT),
-            debug=self._debug)
-        self.switch = modules.SwitchModule(self.board, debug=self._debug)
-        self.settings = modules.SettingsModule(self.board, debug=self._debug)
-        self.temperature = modules.TemperatureModule(
-            self.board, debug=self._debug)
-        self.haptic = modules.HapticModule(self.board, debug=self._debug)
-        self.led = modules.LEDModule(self.board, debug=self._debug)
+                self.board, modules.Modules.MBL_MW_MODULE_AMBIENT_LIGHT))
+        self.switch = modules.SwitchModule(self.board)
+        self.settings = modules.SettingsModule(self.board)
+        self.temperature = modules.TemperatureModule(self.board)
+        self.haptic = modules.HapticModule(self.board)
+        self.led = modules.LEDModule(self.board)
         self.sensorfusion = modules.SensorFusionModule(
             self.board,
             libmetawear.mbl_mw_metawearboard_lookup_module(
-                self.board, modules.Modules.MBL_MW_MODULE_SENSOR_FUSION),
-            debug=self._debug)
+                self.board, modules.Modules.MBL_MW_MODULE_SENSOR_FUSION))

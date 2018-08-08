@@ -23,10 +23,11 @@ import tqdm
 
 from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearDownloadTimeout
-from mbientlab.metawear.cbindings import FnVoid_DataP, DataTypeId, \
-    CartesianFloat, BatteryState, Tcs34725ColorAdc, EulerAngles, \
-    Quaternion, CorrectedCartesianFloat, FnVoid_VoidP, \
-    LogDownloadHandler, FnVoid_UInt_UInt, FnVoid_UByte_Long_UByteP_UByte
+from mbientlab.metawear.cbindings import FnVoid_VoidP_DataP,  \
+    DataTypeId, CartesianFloat, BatteryState, Tcs34725ColorAdc, EulerAngles, \
+    Quaternion, CorrectedCartesianFloat, FnVoid_VoidP_VoidP, \
+    LogDownloadHandler, FnVoid_VoidP_UInt_UInt, \
+    FnVoid_VoidP_UByte_Long_UByteP_UByte
 
 log = logging.getLogger(__name__)
 
@@ -70,14 +71,10 @@ class PyMetaWearModule(object):
 
     """
 
-    def __init__(self, board, debug=False):
+    def __init__(self, board):
         self.board = board
-        self._debug = debug
         self.is_present = True
         self.callback = None
-
-        if debug:
-            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "PyMetaWearModule"
@@ -137,19 +134,19 @@ class PyMetaWearModule(object):
         """
         data_signal = self.data_signal
         if callback is not None:
-            if self._debug:
-                log.debug("Subscribing to {0} changes. (Sig#: {1})".format(
-                    self.module_name, data_signal))
+            log.debug("Subscribing to {0} changes. (Sig#: {1})".format(
+                self.module_name, data_signal))
             if self.callback is not None:
                 raise PyMetaWearException(
                     "Subscription to {0} signal already in place!")
-            self.callback = (callback, FnVoid_DataP(callback))
+            # Handle the context argument added in MetaWear C++ API 0.12.
+            callback = context_callback(callback)
+            self.callback = (callback, FnVoid_VoidP_DataP(callback))
             libmetawear.mbl_mw_datasignal_subscribe(
-                data_signal, self.callback[1])
+                data_signal, None, self.callback[1])
         else:
-            if self._debug:
-                log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
-                    self.module_name, data_signal))
+            log.debug("Unsubscribing to {0} changes. (Sig#: {1})".format(
+                self.module_name, data_signal))
             if self.callback is None:
                 return
             libmetawear.mbl_mw_datasignal_unsubscribe(data_signal)
@@ -159,11 +156,11 @@ class PyMetaWearModule(object):
 class PyMetaWearLoggingModule(PyMetaWearModule):
     """Special class with additions for modules with logging support."""
 
-    def __init__(self, board, debug=False):
-        super(PyMetaWearLoggingModule, self).__init__(board, debug)
+    def __init__(self, board):
+        super(PyMetaWearLoggingModule, self).__init__(board)
 
         self._logger_ready_event = None
-        self.data_received = Event()
+        self._data_received = None
         self._download_done = False
         self._logger_running = False
         self._logger_address = None
@@ -175,8 +172,7 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
     def _logger_ready(self, address):
         if address:
             self._logger_address = address
-            if self._debug:
-                log.debug("Logger address: {0}".format(self._logger_address))
+            log.debug("Logger address: {0}".format(self._logger_address))
         else:
             # Do nothing here. Let main thread handle lack of address.
             pass
@@ -187,7 +183,7 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
             self._progress_bar = tqdm.tqdm(total=total_entries)
         n_read_entries = total_entries - entries_left
         self._progress_bar.update(n_read_entries - self._progress_bar.n)
-        self.data_received.set()
+        self._data_received.set()
         if entries_left == 0:
             self._progress_bar.update(
                 total_entries - self._progress_bar.n)
@@ -206,16 +202,14 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         :param length (int):
 
         """
-        self.data_received.set()
-        if self._debug:
-            log.debug('Unknown Entry: ID: {0}, epoch: {1}, '
-                      'data: {2}, Length: {3}'.format(
-                id, epoch, bytearray(data)[:length], length))
+        self._data_received.set()
+        log.debug('Unknown Entry: ID: {0}, epoch: {1}, '
+                  'data: {2}, Length: {3}'.format(
+            id, epoch, bytearray(data)[:length], length))
 
     def _unhandled_entry(self, data):
-        self.data_received.set()
-        if self._debug:
-            log.debug('Unhandled Entry: ' + str(data))
+        self._data_received.set()
+        log.debug('Unhandled Entry: ' + str(data))
 
     def _default_download_callback(self, data):
         self._logged_data.append(data)
@@ -236,17 +230,16 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
             raise PyMetaWearException(
                 "Cannot log on high frequency stream signal.")
         self._logger_ready_event = Event()
-        logger_ready = FnVoid_VoidP(self._logger_ready)
-        libmetawear.mbl_mw_datasignal_log(self.data_signal, logger_ready)
+        logger_ready = FnVoid_VoidP_VoidP(context_callback(self._logger_ready))
+        libmetawear.mbl_mw_datasignal_log(self.data_signal, None, logger_ready)
         self._logger_ready_event.wait()
         if self._logger_address is None:
             raise PyMetaWearException(
                 'Failed to start logging for {0} module!'.format(
                     self.module_name))
 
-        if self._debug:
-            log.debug("Start Logger (Logger#: {0}, Signal#: {1})".format(
-                self._logger_address, data_signal))
+        log.debug("Start Logger (Logger#: {0}, Signal#: {1})".format(
+            self._logger_address, data_signal))
 
         self._logger_running = True
         self._download_done = False
@@ -258,8 +251,7 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         """Stop logging of data signals on the MetaWear board"""
         self.stop()
         self.toggle_sampling(False)
-        if self._debug:
-            log.debug("Stop Logger (Logger#: {0})".format(self._logger_address))
+        log.debug("Stop Logger (Logger#: {0})".format(self._logger_address))
 
         libmetawear.mbl_mw_logging_stop(self.board)
         self._logger_running = False
@@ -298,32 +290,30 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
         if unhandled_entry_function is None:
             unhandled_entry_function = self._unhandled_entry
 
-        data_point_handler = FnVoid_DataP(data_callback)
-        progress_update = FnVoid_UInt_UInt(progress_update_function)
-        unknown_entry = FnVoid_UByte_Long_UByteP_UByte(unknown_entry_function)
-        unhandled_entry = FnVoid_DataP(data_handler(unhandled_entry_function))
+        data_point_handler = FnVoid_VoidP_DataP(context_callback(data_callback))
+        progress_update = FnVoid_VoidP_UInt_UInt(context_callback(progress_update_function))
+        unknown_entry = FnVoid_VoidP_UByte_Long_UByteP_UByte(context_callback(unknown_entry_function))
+        unhandled_entry = FnVoid_VoidP_DataP(data_handler(context_callback(unhandled_entry_function)))
         log_download_handler = LogDownloadHandler(
             received_progress_update=progress_update,
             received_unknown_entry=unknown_entry,
             received_unhandled_entry=unhandled_entry
         )
 
-        if self._debug:
-            log.debug("Subscribe to Logger. (Logger#: {0})".format(
-                self._logger_address))
+        log.debug("Subscribe to Logger. (Logger#: {0})".format(
+            self._logger_address))
         libmetawear.mbl_mw_logger_subscribe(
-            self._logger_address, data_point_handler)
-
-        if self._debug:
-            log.debug("Waiting for completed download. (Logger#: {0})".format(
-                self._logger_address))
+            self._logger_address, None, data_point_handler)
+        self._data_received = Event()
+        log.debug("Waiting for completed download. (Logger#: {0})".format(
+            self._logger_address))
         libmetawear.mbl_mw_logging_download(
             self.board, 1000,
             byref(log_download_handler))
 
         while not self._download_done:
-            status = self.data_received.wait(timeout)
-            self.data_received = Event()
+            status = self._data_received.wait(timeout)
+            self._data_received.clear()
             if not self._download_done and not status:
                 if self._progress_bar is not None:
                     self._progress_bar.close()
@@ -331,17 +321,15 @@ class PyMetaWearLoggingModule(PyMetaWearModule):
                 raise PyMetaWearDownloadTimeout(
                     "Bluetooth connection lost! Please reconnect and retry download...")
 
-        if self._debug:
-            log.debug("Download done. (Logger#: {0})".format(
-                self._logger_address))
-
-        if self._debug:
-            log.debug("Remove logger. (Logger#: {0})".format(
-                self._logger_address))
+        log.debug("Download done. (Logger#: {0})".format(
+            self._logger_address))
+        log.debug("Remove logger. (Logger#: {0})".format(
+            self._logger_address))
         libmetawear.mbl_mw_logger_remove(self._logger_address)
 
         logged_data = self._logged_data
         self._logged_data = []
+        self._data_received = None
 
         return logged_data
 
@@ -377,6 +365,22 @@ DATA_HANDLERS = {
     DataTypeId.CORRECTED_CARTESIAN_FLOAT: lambda x: cast(
         x.contents.value, POINTER(CorrectedCartesianFloat)).contents
 }
+
+
+def context_callback(func):
+    """Decorator to handle the context argument added in MetaWear C++ API 0.12
+
+    This method is used internally so that the end-user should not have to
+    know about and handle the ``context`` argument.
+
+    :param func: The function to add context argument to.
+    :return: The wrapped function.
+
+    """
+    @wraps(func)
+    def wrapper(context, *args):
+        func(*args)
+    return wrapper
 
 
 def data_handler(func):

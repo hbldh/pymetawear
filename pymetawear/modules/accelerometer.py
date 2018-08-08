@@ -42,8 +42,8 @@ class AccelerometerModule(PyMetaWearLoggingModule):
 
     """
 
-    def __init__(self, board, module_id, debug=False):
-        super(AccelerometerModule, self).__init__(board, debug)
+    def __init__(self, board, module_id):
+        super(AccelerometerModule, self).__init__(board)
         self.module_id = module_id
 
         self.high_frequency_stream = False
@@ -70,8 +70,6 @@ class AccelerometerModule(PyMetaWearLoggingModule):
 
         self._acc_sensor_name = acc_odr_class.__name__.replace(
             'Acc', '').replace('Odr', '')
-        if debug:
-            log.setLevel(logging.DEBUG)
 
     def __str__(self):
         return "{0} {1}: Data rates (Hz): {2}, Data ranges (g): {3}".format(
@@ -158,15 +156,13 @@ class AccelerometerModule(PyMetaWearLoggingModule):
         if data_rate is not None:
             self.current_odr = data_rate
             odr = self._get_odr(data_rate)
-            if self._debug:
-                log.debug("Setting Accelerometer ODR to {0}".format(odr))
+            log.debug("Setting Accelerometer ODR to {0}".format(odr))
             libmetawear.mbl_mw_acc_set_odr(self.board, c_float(odr))
        
         if data_range is not None:
             self.current_fsr = data_range
             fsr = self._get_fsr(data_range)
-            if self._debug:
-                log.debug("Setting Accelerometer FSR to {0}".format(fsr))
+            log.debug("Setting Accelerometer FSR to {0}".format(fsr))
             libmetawear.mbl_mw_acc_set_range(self.board, c_float(fsr))
 
         if (data_rate is not None) or (data_range is not None):
@@ -210,8 +206,7 @@ class AccelerometerModule(PyMetaWearLoggingModule):
     def start(self):
         """Switches the accelerometer to active mode."""
         libmetawear.mbl_mw_acc_start(self.board)
-        if self._debug:
-            log.debug("Start Sampling (Accelerometer)")
+        log.debug("Start Sampling (Accelerometer)")
 
     def stop(self):
         """Switches the accelerometer to standby mode."""

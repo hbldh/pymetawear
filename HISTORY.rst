@@ -2,6 +2,11 @@
 History
 =======
 
+v0.11.0 (2018-08-08)
+--------------------
+- Using ``metawear`` version ``0.5.0``
+- Possible to use on Windows thanks to new dependency in ``metawear`` >= ``0.4.0``
+
 v0.10.1 (2018-08-08)
 --------------------
 - Fix for Haptic module, thanks to ``bgromov`` (#51)

@@ -37,7 +37,7 @@ c.sensorfusion.set_mode(SensorFusionMode.NDOF)
 
 print("Set Time Processor to limit data rate to 50Hz for each channel")
 #c.sensorfusion.set_sample_delay(SensorFusionData.EULER_ANGLE, 20)
-c.sensorfusion.set_sample_delay(SensorFusionData.QUATERION, 20)
+c.sensorfusion.set_sample_delay(SensorFusionData.QUATERNION, 20)
 c.sensorfusion.set_sample_delay(SensorFusionData.CORRECTED_ACC, 20)
 #c.sensorfusion.set_sample_delay(SensorFusionData.CORRECTED_GYRO, 20)
 

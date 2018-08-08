@@ -31,11 +31,8 @@ class LEDModule(PyMetaWearModule):
 
     """
 
-    def __init__(self, board, debug=False):
-        super(LEDModule, self).__init__(board, debug)
-
-        if debug:
-            log.setLevel(logging.DEBUG)
+    def __init__(self, board):
+        super(LEDModule, self).__init__(board)
 
     def __str__(self):
         return "{0}".format(self.module_name)
