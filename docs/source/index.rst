@@ -12,6 +12,9 @@ PyMetaWear documentation
 .. image:: https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master
     :target: https://coveralls.io/github/hbldh/pymetawear?branch=master
 
+**PyMetaWear is a community developed Python SDK started by**
+`Henrik Blidh <https://github.com/hbldh>`_ **. MbientLab does not provide support for this SDK.**
+
 Python package for connecting to and using
 `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
@@ -23,10 +26,10 @@ doing the very same thing. The official SDK handles the actual board
 connections and communication while PyMetaWear aims to remove the low level
 feeling of interacting with the MetaWear board.
 
-PyMetaWear can, from version 0.11.0, be used from both Windows and Linux. This is due to
-`metawear package <https://github.com/mbientlab/MetaWear-SDK-Python>`_ depending on a new BLE library called
-`PyWarble <https://github.com/mbientlab/PyWarble>`_. See installation instructions for more details about
-how to make it build on Windows.
+PyMetaWear can, from version 0.11.0, be used from both Windows and Linux. This is thanks to that the
+``metawear`` `package <https://github.com/mbientlab/MetaWear-SDK-Python>`_ package is now depending on a
+new BLE library called `PyWarble <https://github.com/mbientlab/PyWarble>`_ instead of ``gattlib``.
+See installation instructions for more details about how to make it build on Windows.
 
 
 Contents
@@ -35,42 +38,13 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   installation
    discover
    client
    exceptions
    modules/index
    history
    authors
-
-Installation
-------------
-
-.. code-block:: bash
-
-    $ pip install pymetawear
-
-Since version 0.11.0, the installation requirements for ``pymetawear`` has changed some:
-
-Linux
-+++++
-
-From ``PyWarble``'s README:
-
-> You will need to have BlueZ, Boost headers, and GNU Make installed along with a C++ compiler that support C++14.
-
-On Ubuntu this translates to installing the following:
-
-.. code-block:: bash
-
-    $ sudo apt-get install build-essential cmake bluez libbluetooth-dev
-
-Windows
-+++++++
-
-On Windows, you need to install Visual Studio 2017 to be able to build and install the ``pymetawear`` package.
-Furthermore, at least the Fall Creators Update SDK is needed.
-
-Make sure that your ``MSBuild.exe`` file is available in your PATH before running the install command.
 
 
 Indices and tables
