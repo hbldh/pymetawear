@@ -2,6 +2,10 @@
 History
 =======
 
+v0.10.1 (2018-08-08)
+--------------------
+- Fix for Haptic module, thanks to ``bgromov`` (#51)
+
 v0.10.0 (2018-06-18)
 --------------------
 - Added support for data logging, thanks to ``dmatthes1982`` (#32, #46, #48, #49)
