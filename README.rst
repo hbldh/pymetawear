@@ -14,9 +14,10 @@ PyMetaWear
 Python package for connecting to and using
 `MbientLab's MetaWear <https://mbientlab.com/>`_ boards.
 
-PyMetaWear can, from version 0.11.0, be used both in Windows and Linux. This is thanks to
-`metawear package <https://github.com/mbientlab/MetaWear-SDK-Python>`_ depending on a new BLE library called
-`PyWarble <https://github.com/mbientlab/PyWarble>`_.
+PyMetaWear can, from version 0.11.0, be used from both Windows and Linux. This is thanks to that the
+``metawear`` `package <https://github.com/mbientlab/MetaWear-SDK-Python>`_ package is now depending on a
+new BLE library called `PyWarble <https://github.com/mbientlab/PyWarble>`_ instead of ``gattlib``.
+See installation instructions for more details about how to make it build on Windows.
 
 Capabilities and Limitations
 ----------------------------
@@ -37,7 +38,7 @@ Installation
 
     $ pip install pymetawear
 
-Since version 0.11.0, the installation requirements for ``pymetawear`` has changed some. See
+Since version 0.11.0, the installation requirements for ``pymetawear`` has changed. See
 `documentation <https://hbldh.github.io/pymetawear/>`_ for details on requirements for Linux and Windows respectively.
 
 Documentation
