@@ -25,7 +25,7 @@ from pymetawear import libmetawear
 from pymetawear.exceptions import PyMetaWearException, PyMetaWearDownloadTimeout
 from mbientlab.metawear.cbindings import FnVoid_VoidP_DataP,  \
     DataTypeId, CartesianFloat, BatteryState, Tcs34725ColorAdc, EulerAngles, \
-    Quaternion, CorrectedCartesianFloat, FnVoid_VoidP_VoidP, \
+    CalibrationState, Quaternion, CorrectedCartesianFloat, FnVoid_VoidP_VoidP, \
     LogDownloadHandler, FnVoid_VoidP_UInt_UInt, \
     FnVoid_VoidP_UByte_Long_UByteP_UByte
 
@@ -363,7 +363,9 @@ DATA_HANDLERS = {
     DataTypeId.QUATERNION: lambda x: cast(
         x.contents.value, POINTER(Quaternion)).contents,
     DataTypeId.CORRECTED_CARTESIAN_FLOAT: lambda x: cast(
-        x.contents.value, POINTER(CorrectedCartesianFloat)).contents
+        x.contents.value, POINTER(CorrectedCartesianFloat)).contents,
+    DataTypeId.CALIBRATION_STATE: lambda x: cast(
+        x.contents.value, POINTER(CalibrationState)).contents,
 }
 
 

@@ -59,6 +59,7 @@ class SensorFusionModule(PyMetaWearLoggingModule):
         self.board = board
 
         self.current_active_signal = None
+        self._calibration_state_data_signal = None
 
         self._streams_to_enable = {
             SensorFusionData.CORRECTED_ACC: False,
@@ -180,9 +181,21 @@ class SensorFusionModule(PyMetaWearLoggingModule):
                 )
         return self._data_source_signals[data_source]
 
+    @require_fusion_module
+    def get_calibration_state_data_signal(self):
+        if self._calibration_state_data_signal is None:
+            self._calibration_state_data_signal = \
+                libmetawear.mbl_mw_sensor_fusion_calibration_state_data_signal(
+                    self.board)
+        return self._calibration_state_data_signal
+
     @property
     def data_signal(self):
         return self.current_active_signal
+
+    @property
+    def calibration_state_data_signal(self):
+        return self._calibration_state_data_signal
 
     @property
     def module_name(self):
@@ -197,6 +210,19 @@ class SensorFusionModule(PyMetaWearLoggingModule):
     def set_settings(self):
         raise NotImplementedError()
 
+    def read_calibration_state(self):
+        """Triggers the calibration state notification.
+
+        N.B. that a :meth:`~calibration_notifications` call that registers a
+        callback for calibration state should have been done prior to calling
+        this method.
+
+        """
+        if self.calibration_state_callback is None:
+            warnings.warn("No calibration state callback is registered!",
+                          RuntimeWarning)
+        libmetawear.mbl_mw_datasignal_read(self.calibration_state_data_signal)
+
     @require_fusion_module
     def notifications(self,
                       corrected_acc_callback=None,
@@ -205,7 +231,8 @@ class SensorFusionModule(PyMetaWearLoggingModule):
                       quaternion_callback=None,
                       euler_angle_callback=None,
                       gravity_callback=None,
-                      linear_acc_callback=None):
+                      linear_acc_callback=None,
+                      calibration_state_callback=None):
         """Subscribe or unsubscribe to sensor fusion notifications.
 
         Convenience method for handling sensor fusion usage.
@@ -248,6 +275,10 @@ class SensorFusionModule(PyMetaWearLoggingModule):
             callback function.
             If `None`, unsubscription to linear acceleration notifications is
             registered.
+        :param callable calibration_state_callback: Calibration state notification
+            callback function.
+            If `None`, unsubscription to calibration state notifications is
+            registered.
 
         """
         callback_data_source_map = {
@@ -269,6 +300,8 @@ class SensorFusionModule(PyMetaWearLoggingModule):
         enable = False in [x is None for x in callback_data_source_map.values()]
         log.debug("Enable: %s" % enable)
 
+        self.calibration_state_callback = calibration_state_callback
+
         if not enable:
             self.stop()
             self.toggle_sampling(False)
@@ -286,6 +319,15 @@ class SensorFusionModule(PyMetaWearLoggingModule):
                     self.get_data_signal(data_source),
                     None
                 )
+
+        if calibration_state_callback is not None:
+            self.check_and_change_callback(
+                self.get_calibration_state_data_signal(),
+                data_handler(calibration_state_callback))
+        else:
+            self.check_and_change_callback(
+                self.get_calibration_state_data_signal(),
+                None)
 
         if enable:
             self.toggle_sampling(True)
