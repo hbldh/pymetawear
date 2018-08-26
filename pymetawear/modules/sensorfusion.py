@@ -12,6 +12,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+import warnings
 import logging
 from threading import Event
 
@@ -82,6 +83,7 @@ class SensorFusionModule(PyMetaWearLoggingModule):
         }
 
         self._callbacks = {}
+        self._calibration_state_callback = None
 
     def __str__(self):
         return "{0}".format(self.module_name)
@@ -218,7 +220,7 @@ class SensorFusionModule(PyMetaWearLoggingModule):
         this method.
 
         """
-        if self.calibration_state_callback is None:
+        if self._calibration_state_callback is None:
             warnings.warn("No calibration state callback is registered!",
                           RuntimeWarning)
         libmetawear.mbl_mw_datasignal_read(self.calibration_state_data_signal)
@@ -300,7 +302,7 @@ class SensorFusionModule(PyMetaWearLoggingModule):
         enable = False in [x is None for x in callback_data_source_map.values()]
         log.debug("Enable: %s" % enable)
 
-        self.calibration_state_callback = calibration_state_callback
+        self._calibration_state_callback = calibration_state_callback
 
         if not enable:
             self.stop()
