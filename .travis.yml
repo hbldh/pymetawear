@@ -32,12 +32,12 @@ before_install:
 install:
   - "pip install pytest"
   - "pip install pytest-cov"
-  - "pip install python-coveralls"
+  # - "pip install python-coveralls"
   - "pip install Sphinx sphinx_rtd_theme"
   - "pip install -e ."
 script: py.test tests/ --cov pymetawear --cov-report term-missing
-after_success:
-  - coveralls
+#after_success:
+#  - coveralls
 env:
   global:
     - GH_REF: github.com/hbldh/pymetawear.git
