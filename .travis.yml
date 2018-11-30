@@ -1,16 +1,15 @@
 language: python
 sudo: required
-dist: trusty
+dist: xenial
 python:
   - 2.7
-  - 3.4
   - 3.5
   - 3.6
-  - "nightly"
+  - 3.7
+  - 3.8-dev
 matrix:
   allow_failures:
-    - python: 3.4
-    - python: "nightly"
+    - python: "3.8-dev"
 branches:
   only:
     - master
