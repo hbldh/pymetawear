@@ -6,7 +6,7 @@ can be found by performing a scan.
 
 .. code-block:: python
 
-    >>> from pymetawear.client import discover_devices
+    >>> from pymetawear.discover import discover_devices
     >>> discover_devices()
     [(u'DD:3A:7D:4D:56:F0', u'MetaWear'), (u'FF:50:35:82:3B:5A', u'MetaWear')]
 
