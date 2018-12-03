@@ -107,6 +107,9 @@ jobs:
   - script: sudo apt install cmake build-essential libglib2.0-dev bluez bluetooth python-dev python3-dev libbluetooth-dev libboost-python-dev libboost-thread-dev
     displayName: 'Install system dependencies'
 
+  - script: python -m pip install --upgrade pip && pip install -U setuptools wheel
+    displayName: 'Install Python dependencies'
+
   - script: python setup.py sdist bdist_wheel
     displayName: 'Build sdist and bdist_wheel'
 
