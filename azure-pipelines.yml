@@ -3,28 +3,49 @@
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
+trigger:
+- master
+- releases/*
+- develop
+
 jobs:
 
-- job: 'Test'
+- job: 'Test Linux'
   pool:
     vmImage: 'Ubuntu 16.04'
   strategy:
     matrix:
-      Python27:
+      Python27-x86:
         python.version: '2.7'
-      Python35:
+        python.architecture: 'x86'
+      Python27-x64:
+        python.version: '2.7'
+        python.architecture: 'x64'
+      Python35-x86:
         python.version: '3.5'
-      Python36:
+        python.architecture: 'x86'
+      Python35-x64:
         python.version: '3.6'
-      Python37:
+        python.architecture: 'x64'
+      Python36-x86:
+        python.version: '3.6'
+        python.architecture: 'x86'
+      Python36-x64:
+        python.version: '3.6'
+        python.architecture: 'x64'
+      Python37-x86:
         python.version: '3.7'
+        python.architecture: 'x86'
+      Python37-x64:
+        python.version: '3.7'
+        python.architecture: 'x64'
     maxParallel: 4
 
   steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '$(python.version)'
-      architecture: 'x64'
+      architecture: '$(python.architecture)'
 
   - script: sudo apt install cmake build-essential libglib2.0-dev bluez bluetooth python-dev python3-dev libbluetooth-dev libboost-python-dev libboost-thread-dev
     displayName: 'Install system dependencies'
@@ -48,11 +69,46 @@ jobs:
   pool:
     vmImage: 'Ubuntu 16.04'
 
+  strategy:
+    matrix:
+      Python27-x86:
+        python.version: '2.7'
+        python.architecture: 'x86'
+      Python27-x64:
+        python.version: '2.7'
+        python.architecture: 'x64'
+      Python35-x86:
+        python.version: '3.5'
+        python.architecture: 'x86'
+      Python35-x64:
+        python.version: '3.6'
+        python.architecture: 'x64'
+      Python36-x86:
+        python.version: '3.6'
+        python.architecture: 'x86'
+      Python36-x64:
+        python.version: '3.6'
+        python.architecture: 'x64'
+      Python37-x86:
+        python.version: '3.7'
+        python.architecture: 'x86'
+      Python37-x64:
+        python.version: '3.7'
+        python.architecture: 'x64'
+    maxParallel: 4
+
   steps:
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '3.x'
-      architecture: 'x64'
+      versionSpec: '$(python.version)'
+      architecture: '$(python.architecture)'
 
-  - script: python setup.py sdist
-    displayName: 'Build sdist'
+  - script: python setup.py sdist bdist_wheel
+    displayName: 'Build sdist and bdist_wheel'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: dist'
+    inputs:
+      PathtoPublish: dist
+      ArtifactName: dist
+
