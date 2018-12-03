@@ -10,7 +10,7 @@ trigger:
 
 jobs:
 
-- job: 'Test Linux'
+- job: 'TestLinux'
   pool:
     vmImage: 'Ubuntu 16.04'
   strategy:
