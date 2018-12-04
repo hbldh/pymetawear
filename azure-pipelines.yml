@@ -117,5 +117,5 @@ jobs:
     displayName: 'Publish Artifact: dist'
     inputs:
       PathtoPublish: dist
-      ArtifactName: dist
+      ArtifactName: 'dist-$(python.version)-$(python.architecture)'
 
