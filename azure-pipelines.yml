@@ -16,27 +16,15 @@ jobs:
     vmImage: 'Ubuntu 16.04'
   strategy:
     matrix:
-#      Python27-x86:
-#        python.version: '2.7'
-#        python.architecture: 'x86'
       Python27-x64:
         python.version: '2.7'
         python.architecture: 'x64'
-#      Python35-x86:
-#        python.version: '3.5'
-#        python.architecture: 'x86'
       Python35-x64:
-        python.version: '3.6'
+        python.version: '3.5'
         python.architecture: 'x64'
-#      Python36-x86:
-#        python.version: '3.6'
-#        python.architecture: 'x86'
       Python36-x64:
         python.version: '3.6'
         python.architecture: 'x64'
-#      Python37-x86:
-#        python.version: '3.7'
-#        python.architecture: 'x86'
       Python37-x64:
         python.version: '3.7'
         python.architecture: 'x64'
@@ -72,27 +60,15 @@ jobs:
 
   strategy:
     matrix:
-#      Python27-x86:
-#        python.version: '2.7'
-#        python.architecture: 'x86'
       Python27-x64:
         python.version: '2.7'
         python.architecture: 'x64'
-#      Python35-x86:
-#        python.version: '3.5'
-#        python.architecture: 'x86'
       Python35-x64:
-        python.version: '3.6'
+        python.version: '3.5'
         python.architecture: 'x64'
-#      Python36-x86:
-#        python.version: '3.6'
-#        python.architecture: 'x86'
       Python36-x64:
         python.version: '3.6'
         python.architecture: 'x64'
-#      Python37-x86:
-#        python.version: '3.7'
-#        python.architecture: 'x86'
       Python37-x64:
         python.version: '3.7'
         python.architecture: 'x64'
