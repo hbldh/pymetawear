@@ -21,7 +21,7 @@ AUTHOR = 'Henrik Blidh'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'metawear==0.5.0',
+    'metawear>=0.5.0',
     'tqdm',
 ]
 
