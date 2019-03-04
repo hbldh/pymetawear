@@ -2,9 +2,6 @@
 PyMetaWear
 ==========
 
-.. image:: https://travis-ci.org/hbldh/pymetawear.svg?branch=master
-    :target: https://travis-ci.org/hbldh/pymetawear
-
 .. image:: https://dev.azure.com/hbldh/github/_apis/build/status/hbldh.pymetawear?branchName=master
     :target: https://dev.azure.com/hbldh/github/_build/latest?definitionId=1?branchName=master
 

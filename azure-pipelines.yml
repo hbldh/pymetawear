@@ -43,8 +43,8 @@ jobs:
     displayName: 'Install Python dependencies'
 
   - script: |
-      pip install pytest
-      pytest tests --doctest-modules --junitxml=junit/test-results.xml
+      pip install pytest pytest-cov mock
+      pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov pymetawear --cov-report term-missing
     displayName: 'pytest'
 
   - task: PublishTestResults@2
