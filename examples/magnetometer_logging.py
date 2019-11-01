@@ -28,7 +28,7 @@ for k, v in settings.items():
     print(k, v)
 
 print("Write magnetometer settings...")
-client.magnetometer.set_settings(power_preset='REGULAR')
+client.magnetometer.set_settings(power_preset='REGULAR', odr='30')
 
 # Not implemented yet...
 # settings = client.magnetometer.get_current_settings()
@@ -40,7 +40,7 @@ client.magnetometer.high_frequency_stream = False
 client.magnetometer.start_logging()
 print("Logging magnetometer data...")
 
-time.sleep(3.0)
+time.sleep(5.0)
 
 client.magnetometer.stop_logging()
 print("Logging stopped.")
