@@ -6,6 +6,12 @@
 PyMetaWear documentation
 ========================
 
+.. image:: https://img.shields.io/pypi/v/pymetawear
+    :target: https://pypi.org/project/pymetawear/
+
+.. image:: https://img.shields.io/pypi/l/pymetawear
+    :alt: PyPI - License
+
 .. image:: https://dev.azure.com/hbldh/github/_apis/build/status/hbldh.pymetawear?branchName=master
     :target: https://dev.azure.com/hbldh/github/_build/latest?definitionId=1?branchName=master
 
