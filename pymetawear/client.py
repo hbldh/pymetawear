@@ -61,6 +61,7 @@ class MetaWearClient(object):
         """Constructor."""
         self._address = address
         self._debug = debug
+        self._connect = connect
 
         if self._debug:
             add_stream_logger()
@@ -85,6 +86,17 @@ class MetaWearClient(object):
 
         if connect:
             self.connect()
+
+    def __enter__(self):
+        if not self._connect:
+            self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        try:
+            self.disconnect()
+        except Exception as e:
+            print("Could not disconnect: {0}".format(e))
 
     @property
     def board(self):

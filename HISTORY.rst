@@ -2,6 +2,19 @@
 History
 =======
 
+v0.12.0 (2019-11-01)
+-----------------------
+
+- Using ``metawear`` version ``0.7.0``
+
+
+v0.11.1 (2019-10-08)
+-----------------------
+
+- Fixes #57
+- Merges #54.
+- Added first draft of Azure Pipelines CI building.
+
 v0.11.0 (2018-08-08)
 --------------------
 - Using ``metawear`` version ``0.5.0``

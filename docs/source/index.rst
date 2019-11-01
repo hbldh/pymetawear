@@ -6,8 +6,8 @@
 PyMetaWear documentation
 ========================
 
-.. image:: https://travis-ci.org/hbldh/pymetawear.svg?branch=master
-    :target: https://travis-ci.org/hbldh/pymetawear
+.. image:: https://dev.azure.com/hbldh/github/_apis/build/status/hbldh.pymetawear?branchName=master
+    :target: https://dev.azure.com/hbldh/github/_build/latest?definitionId=1?branchName=master
 
 .. image:: https://coveralls.io/repos/github/hbldh/pymetawear/badge.svg?branch=master
     :target: https://coveralls.io/github/hbldh/pymetawear?branch=master

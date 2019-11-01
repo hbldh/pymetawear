@@ -31,7 +31,7 @@ print("New client created: {0}".format(c))
 #time.sleep(2.0)
 
 print("Set new device name...")
-c.settings.set_device_name(name="Antiware")
+c.settings.set_device_name(name="hbldh")
 
 time.sleep(2.0)
 
@@ -40,7 +40,7 @@ c.settings.set_tx_power(power=-20)
 
 time.sleep(2.0)
 
-scan_response= "\x03\x03\xD8\xfe\x10\x16\xd8\xfe\x00\x12\x00\x6d\x62\x69\x65\x6e\x74\x6c\x61\x62\x00"
+scan_response = "\x03\x03\xD8\xfe\x10\x16\xd8\xfe\x00\x12\x00\x6d\x62\x69\x65\x6e\x74\x6c\x61\x62\x00"
 print("Set custom scan response...")
 c.settings.set_scan_response(response=scan_response)
 
