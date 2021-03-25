@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-metawear = "==0.7.0"
+metawear = "==1.0.1"
 tqdm = "*"
 
 [dev-packages]
